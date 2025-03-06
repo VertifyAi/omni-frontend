@@ -1,5 +1,6 @@
 import { Faq1 } from "@/components/Faq1";
 import { Feature108 } from "@/components/Feature108";
+import { Feature43 } from "@/components/Feature43";
 import { Footer2 } from "@/components/Footer2";
 import { Hero3 } from "@/components/Hero";
 // import { Hero45 } from "@/components/Hero02";
@@ -15,6 +16,7 @@ export default function Home() {
       {/* <Hero45 /> */}
       <Stats8 />
       <Feature108 />
+      <Feature43 />
       <Pricing2 />
       <Faq1 />
       <Footer2 />

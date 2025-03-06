@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Layout, Pointer, Zap } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+// import { Badge } from "@/components/ui/badge";
+// import { Button } from "@/components/ui/button";
 
 interface TabContent {
   badge: string;
@@ -35,12 +35,12 @@ const Feature108 = ({
     {
       value: "tab-1",
       icon: <Zap className="h-auto w-4 shrink-0" />,
-      label: "Omnichannel",
+      label: "Vendas",
       content: {
         badge: "Modern Tactics",
-        title: "Make your site a true standout.",
+        title: "Prospecção de Clientes: Leads Qualificados no Automático",
         description:
-          "Discover new web trends that help you craft sleek, highly functional sites that drive traffic and convert leads into customers.",
+          "Transforme sua abordagem comercial com um agente de IA que encontra, qualifica e interage com potenciais clientes em tempo real. Aumente sua taxa de conversão enquanto sua equipe foca no que realmente importa: fechar negócios.",
         buttonText: "See Plans",
         imageSrc:
           "https://shadcnblocks.com/images/block/placeholder-dark-1.svg",
@@ -50,12 +50,12 @@ const Feature108 = ({
     {
       value: "tab-2",
       icon: <Pointer className="h-auto w-4 shrink-0" />,
-      label: "Inteligência Artificial",
+      label: "Suporte",
       content: {
         badge: "Expert Features",
-        title: "Boost your site with top-tier design.",
+        title: "Suporte: Atendimento Ágil e Personalizado",
         description:
-          "Use stellar design to easily engage users and strengthen their loyalty. Create a seamless experience that keeps them coming back for more.",
+          "Reduza o tempo de espera e melhore a experiência do cliente com um agente de IA que responde dúvidas, identifica problemas e encaminha solicitações para a equipe correta. Atendimento eficiente, humanizado e disponível 24/7.",
         buttonText: "See Tools",
         imageSrc:
           "https://shadcnblocks.com/images/block/placeholder-dark-2.svg",
@@ -65,12 +65,12 @@ const Feature108 = ({
     {
       value: "tab-3",
       icon: <Layout className="h-auto w-4 shrink-0" />,
-      label: "Fácil Implementação",
+      label: "Equipes",
       content: {
         badge: "Elite Solutions",
-        title: "Build an advanced web experience.",
+        title: "Comunicação Interna: Organização e Clareza Para Sua Equipe",
         description:
-          "Lift your brand with modern tech that grabs attention and drives action. Create a digital experience that stands out from the crowd.",
+          "Mantenha sua equipe alinhada com um agente de IA que organiza mensagens, responde dúvidas e direciona informações para os setores corretos. Reduza ruídos na comunicação e aumente a produtividade sem sobrecarga de mensagens desnecessárias.",
         buttonText: "See Options",
         imageSrc:
           "https://shadcnblocks.com/images/block/placeholder-dark-3.svg",
@@ -109,18 +109,18 @@ const Feature108 = ({
                 className="grid place-items-center gap-20 lg:grid-cols-2 lg:gap-10"
               >
                 <div className="flex flex-col gap-5">
-                  <Badge variant="outline" className="w-fit bg-background">
+                  {/* <Badge variant="outline" className="w-fit bg-background">
                     {tab.content.badge}
-                  </Badge>
+                  </Badge> */}
                   <h3 className="text-3xl font-semibold lg:text-5xl">
                     {tab.content.title}
                   </h3>
                   <p className="text-muted-foreground lg:text-lg">
                     {tab.content.description}
                   </p>
-                  <Button className="mt-2.5 w-fit gap-2" size="lg">
+                  {/* <Button className="mt-2.5 w-fit gap-2" size="lg">
                     {tab.content.buttonText}
-                  </Button>
+                  </Button> */}
                 </div>
                 <img
                   src={tab.content.imageSrc}

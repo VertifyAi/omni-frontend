@@ -42,15 +42,32 @@ const Pricing2 = ({
   description = "Escolha o plano que melhor se encaixa nas suas necessidades",
   plans = [
     {
-      id: "plus",
-      name: "Plus",
-      description: "For personal use",
-      monthlyPrice: "$19",
-      yearlyPrice: "$15",
+      id: "free",
+      name: "Gratuito",
+      description: "Plano gratuito para começar",
+      monthlyPrice: "R$00",
+      yearlyPrice: "R$00",
       features: [
-        { text: "Up to 5 team members" },
-        { text: "Basic components library" },
-        { text: "Community support" },
+        { text: "Dashboard para Análises" },
+        { text: "Integrações Ilimitadas" },
+        { text: "Suporte 24/7" },
+        { text: "" },
+      ],
+      button: {
+        text: "Purchase",
+        url: "https://www.shadcnblocks.com",
+      },
+    },
+    {
+      id: "plus",
+      name: "Profissional",
+      description: "Para autônomos e equipes pequenas",
+      monthlyPrice: "R$69",
+      yearlyPrice: "R$44",
+      features: [
+        { text: "Agentes de IA para triagem e automação" },
+        { text: "Equipes ilimitadas" },
+        { text: "" },
         { text: "1GB storage space" },
       ],
       button: {
@@ -59,11 +76,11 @@ const Pricing2 = ({
       },
     },
     {
-      id: "pro",
-      name: "Pro",
-      description: "For professionals",
-      monthlyPrice: "$49",
-      yearlyPrice: "$35",
+      id: "emp",
+      name: "Empresarial",
+      description: "Para equipes grandes e empresas",
+      monthlyPrice: "R$89",
+      yearlyPrice: "R$64",
       features: [
         { text: "Unlimited team members" },
         { text: "Advanced components" },
@@ -107,24 +124,28 @@ const Pricing2 = ({
                   <p className="text-sm text-muted-foreground">
                     {plan.description}
                   </p>
-                  <span className="text-4xl font-bold">
+                  <span className="text-4xl font-bold flex items-end gap-1">
                     {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
+                    {plan.id !== 'free' && <p className="text-sm font-normal text-muted-foreground">p/ usuário</p>}
                   </span>
                   <p className="text-muted-foreground">
-                    Billed{" "}
+                    Pagamento anual:{" "}
                     {isYearly
-                      ? `$${Number(plan.yearlyPrice.slice(1)) * 12}`
-                      : `$${Number(plan.monthlyPrice.slice(1)) * 12}`}{" "}
-                    annually
+                      ? `R$${Number(plan.yearlyPrice.slice(2)) * 12}`
+                      : `R$${Number(plan.monthlyPrice.slice(2)) * 12}`}
                   </p>
                 </CardHeader>
                 <CardContent>
                   <Separator className="mb-6" />
-                  {plan.id === "pro" && (
+                  {plan.id === "plus" ? (
                     <p className="mb-3 font-semibold">
-                      Everything in Plus, and:
+                      Tudo no plano Gratuito +
                     </p>
-                  )}
+                  ) : plan.id === "emp" ? (
+                    <p className="mb-3 font-semibold">
+                      Tudo no plano Profissional +
+                    </p>
+                  ) : null}
                   <ul className="space-y-4">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2">
