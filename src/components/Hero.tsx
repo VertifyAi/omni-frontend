@@ -31,7 +31,7 @@ const Hero3 = ({
   buttons = {
     primary: {
       text: "Acesso Antecipado",
-      url: "https://vertify.com.br/sign-in",
+      url: "https://vertify.com.br/sign-up",
     },
   },
   reviews = {
