@@ -28,7 +28,7 @@ interface Feature108Props {
 }
 
 const Feature108 = ({
-  badge = "shadcnblocks.com",
+  // badge = "shadcnblocks.com",
   heading = "Agentes de IA e todos os canais de atendimento em um só lugar",
   description = "Conecte-se com seus clientes onde eles estiverem, automatize interações com IA e implemente em minutos.",
   tabs = [
@@ -80,11 +80,11 @@ const Feature108 = ({
   ],
 }: Feature108Props) => {
   return (
-    <section className="py-32">
+    <section className="pt-32">
       <div className="container mx-auto">
         <div className="flex flex-col items-center gap-4 text-center">
-          <Badge variant="outline">{badge}</Badge>
-          <h1 className="max-w-2xl text-3xl font-semibold md:text-4xl">
+          {/* <Badge variant="outline">{badge}</Badge> */}
+          <h1 className="max-w-2xl text-3xl font-bold md:text-4xl">
             {heading}
           </h1>
           <p className="text-muted-foreground">{description}</p>

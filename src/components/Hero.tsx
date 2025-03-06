@@ -31,31 +31,31 @@ const Hero3 = ({
   buttons = {
     primary: {
       text: "Acesso Antecipado",
-      url: "https://www.shadcnblocks.com",
-    }
+      url: "https://vertify.com.br/sign-in",
+    },
   },
   reviews = {
     count: 10,
     avatars: [
       {
-        src: "https://www.shadcnblocks.com/images/block/avatar-1.webp",
-        alt: "Avatar 1",
+        src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
+        alt: "Facebook",
       },
       {
-        src: "https://www.shadcnblocks.com/images/block/avatar-2.webp",
-        alt: "Avatar 2",
+        src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
+        alt: "Instagram",
       },
       {
-        src: "https://www.shadcnblocks.com/images/block/avatar-3.webp",
-        alt: "Avatar 3",
+        src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+27.svg",
+        alt: "WhatsApp",
       },
       {
-        src: "https://www.shadcnblocks.com/images/block/avatar-4.webp",
-        alt: "Avatar 4",
+        src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+19.svg",
+        alt: "TikTok",
       },
       {
-        src: "https://www.shadcnblocks.com/images/block/avatar-5.webp",
-        alt: "Avatar 5",
+        src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
+        alt: "Telegram",
       },
     ],
   },
@@ -64,7 +64,7 @@ const Hero3 = ({
     <section className="flex justify-center items-center">
       <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
         <div className="mx-auto flex flex-col items-center text-center md:ml-auto lg:max-w-3xl lg:items-start lg:text-left">
-          <h1 className="my-6 text-pretty text-4xl font-bold lg:text-6xl xl:text-7xl">
+          <h1 className="my-6 text-pretty text-4xl font-bold lg:text-6xl xl:text-6xl">
             {heading}
           </h1>
           <p className="text-muted-foreground mb-8 max-w-xl lg:text-xl">
@@ -110,7 +110,7 @@ const Hero3 = ({
         </div>
         <div className="flex">
           <img
-            src="https://www.shadcnblocks.com/images/block/placeholder-1.svg"
+            src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/Ativo+1.svg"
             alt="placeholder hero"
             className="max-h-[600px] w-full rounded-md object-cover lg:max-h-[800px]"
           />

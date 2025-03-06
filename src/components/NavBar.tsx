@@ -59,8 +59,8 @@ interface Navbar1Props {
 
 const Navbar1 = ({
   logo = {
-    url: "https://www.shadcnblocks.com",
-    src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/1svg.svg",
+    url: "",
+    src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/logos/1svg.svg",
     alt: "logo",
     title: "Vertify",
   },
@@ -137,19 +137,17 @@ const Navbar1 = ({
     },
   ],
   auth = {
-    login: { text: "Entrar", url: "#" },
-    signup: { text: "Acesso Antecipado", url: "#" },
+    login: { text: "Entrar", url: "/sign-in" },
+    signup: { text: "Acesso Antecipado", url: "/sign-up" },
   },
 }: Navbar1Props) => {
-  const [isClient, setIsClient] = useState(false);
+  const [location, setLocation] = useState("");
 
   useEffect(() => {
-    setIsClient(true);
+    if (typeof window !== "undefined") {
+      setLocation(window.location.href);
+    }
   }, []);
-
-  if (!isClient) {
-    return null;
-  }
 
   return (
     <section className="py-4 flex justify-center items-center">
@@ -157,7 +155,7 @@ const Navbar1 = ({
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
-            <a href={logo.url} className="flex items-center gap-2">
+            <a href={logo.url || location} className="flex items-center gap-2">
               <img src={logo.src} className="w-18" alt={logo.alt} />
               {/* <span className="text-lg font-semibold">{logo.title}</span> */}
             </a>
@@ -181,9 +179,8 @@ const Navbar1 = ({
         {/* Mobile Menu */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-            <a href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="w-8" alt={logo.alt} />
-              <span className="text-lg font-semibold">{logo.title}</span>
+            <a href={logo.url || location} className="flex items-center gap-2">
+              <img src={logo.src} className="w-18" alt={logo.alt} />
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -194,7 +191,7 @@ const Navbar1 = ({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
+                    <a href={logo.url || location} className="flex items-center gap-2">
                       <img src={logo.src} className="w-8" alt={logo.alt} />
                       <span className="text-lg font-semibold">
                         {logo.title}

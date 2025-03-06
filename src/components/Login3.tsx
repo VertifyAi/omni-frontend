@@ -2,9 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ interface Login3Props {
 }
 
 const Login3 = ({
-  heading = "Bem-vindo de volta!",
+  heading = "Bem-vindo(a) de volta",
   subheading = "Faça login para continuar.",
   logo = {
     url: "https://www.shadcnblocks.com",
@@ -36,7 +36,7 @@ const Login3 = ({
     alt: "logo",
   },
   loginText = "Entrar",
-  googleText = "Entrar com Google",
+  // googleText = "Entrar com Google",
   signupText = "Não tem uma conta?",
   signupUrl = "#",
 }: Login3Props) => {
@@ -115,7 +115,7 @@ const Login3 = ({
                     {errors.password && <span>{errors.password.message}</span>}
                   </div>
                   <div className="flex justify-between">
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <Checkbox
                         id="remember"
                         className="border-muted-foreground"
@@ -126,7 +126,7 @@ const Login3 = ({
                       >
                         Manter conectado
                       </label>
-                    </div>
+                    </div> */}
                     <a
                       href="#"
                       className="text-sm text-primary hover:underline"
@@ -137,10 +137,10 @@ const Login3 = ({
                   <Button type="submit" className="mt-2 w-full">
                     {loginText}
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  {/* <Button variant="outline" className="w-full">
                     <FcGoogle className="mr-2 size-5" />
                     {googleText}
-                  </Button>
+                  </Button> */}
                 </div>
                 <div className="mx-auto mt-8 flex justify-center gap-1 text-sm text-muted-foreground">
                   <p>{signupText}</p>

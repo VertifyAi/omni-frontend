@@ -4,7 +4,7 @@ export default function LoginPage() {
   return (
     <main>
       <Login3
-        logo={{ url: "#", alt: "Teste", src: "https://placehold.co/200" }}
+        logo={{ url: "https://vertify.com.br", alt: "Vertify", src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/logos/1svg.svg" }}
       />
     </main>
   );

@@ -15,7 +15,7 @@ interface Stats8Props {
 }
 
 const Stats8 = ({
-  heading = "Impacto da Automação Inteligente",
+  heading = "Impacto da automação inteligente",
   description = "Garantimos estabilidade e escalabilidade para todos os usuários",
   link = {
     text: "Leia o relatório completo de impacto",
@@ -45,7 +45,7 @@ const Stats8 = ({
   ],
 }: Stats8Props) => {
   return (
-    <section className="py-32 flex justify-center items-center">
+    <section className="pt-32 flex justify-center items-center">
       <div className="container">
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold md:text-4xl">{heading}</h2>
