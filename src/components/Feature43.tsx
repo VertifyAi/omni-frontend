@@ -19,42 +19,42 @@ import {
   }
   
   const Feature43 = ({
-    heading = "Por que confiar em nós?",
+    heading = "Tecnologia, eficiência e resultados: o que nos torna únicos?",
     reasons = [
       {
         title: "Atendimento Omnichannel",
         description:
-          "Conecte-se com seus clientes em múltiplos canais (WhatsApp, e-mail, chat e mais) de forma integrada, garantindo uma experiência fluida e personalizada.",
+          "Esteja presente onde seus clientes estão. Conecte-se via WhatsApp, e-mail, chat, Instagram, Messenger e muito mais, oferecendo um atendimento fluido e integrado.",
         icon: <GitPullRequest className="size-6" />,
       },
       {
-        title: "Agentes de Inteligência Artificial",
+        title: "Agente de Inteligência Artificial",
         description:
-          "Automação inteligente para triagem, suporte e vendas, reduzindo custos e aumentando a eficiência do seu atendimento.",
+          "Automação inteligente em triagem, suporte e vendas. A Vera entende, responde e direciona atendimentos em tempo real, reduzindo chamados em espera e aumentando a eficiência da sua equipe.",
         icon: <SquareKanban className="size-6" />,
       },
       {
         title: "Implantação Rápida e Simples",
         description:
-          "Assine, configure e comece a usar em minutos! Sem burocracia, sem complicação – apenas resultados imediatos.",
+          "Comece a usar em minutos com integração intuitiva. Sem burocracia e sem complicações.",
         icon: <RadioTower className="size-6" />,
       },
       {
         title: "Suporte Especializado à Disposição",
         description:
-          "Nossa equipe está pronta para ajudar você a extrair o máximo da plataforma, garantindo uma operação sem interrupções.",
+          "Acompanhamento próximo e suporte humanizado. Nossa equipe está disponível para ajudar você a extrair o máximo da plataforma e manter sua operação sem interrupções.",
         icon: <WandSparkles className="size-6" />,
       },
       {
         title: "Escalabilidade para Crescer com Você",
         description:
-          "Desde pequenas empresas a grandes operações, nossa solução se adapta ao seu volume de atendimentos sem perder eficiência.",
+          "Atenda qualquer volume de clientes sem perder qualidade. A Vera se adapta ao seu negócio, seja você um empreendedor individual ou uma grande operação.",
         icon: <Layers className="size-6" />,
       },
       {
-        title: "Segurança em Cada Atendimento",
+        title: "Segurança e Privacidade em Cada Atendimento",
         description:
-          "Seus dados e interações protegidos com tecnologia de ponta, garantindo privacidade e conformidade com as melhores práticas do mercado.",
+          "Proteção total dos seus dados. Seus atendimentos e informações são armazenados com criptografia avançada, garantindo conformidade com as melhores práticas do mercado.",
         icon: <BatteryCharging className="size-6" />,
       },
     ],

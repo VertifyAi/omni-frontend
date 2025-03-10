@@ -29,8 +29,8 @@ interface Feature108Props {
 
 const Feature108 = ({
   // badge = "shadcnblocks.com",
-  heading = "Agentes de IA e todos os canais de atendimento em um só lugar",
-  description = "Conecte-se com seus clientes onde eles estiverem, automatize interações com IA e implemente em minutos.",
+  heading = "Gerencie Todos os Seus Canais de Atendimento com IA em Minutos",
+  description = "Automatize conversas com IA, conecte-se com clientes nos principais canais e implemente tudo em poucos minutos.",
   tabs = [
     {
       value: "tab-1",
@@ -38,12 +38,12 @@ const Feature108 = ({
       label: "Vendas",
       content: {
         badge: "Modern Tactics",
-        title: "Prospecção de Clientes: Leads Qualificados no Automático",
+        title: "Automatize Sua Prospecção e Qualifique Leads no Automático",
         description:
-          "Transforme sua abordagem comercial com um agente de IA que encontra, qualifica e interage com potenciais clientes em tempo real. Aumente sua taxa de conversão enquanto sua equipe foca no que realmente importa: fechar negócios.",
+          "Nossa IA inteligente identifica, qualifica e interage com leads 24h por dia, garantindo um funil de vendas mais aquecido e eficiente. Aumente suas conversões enquanto sua equipe foca no que realmente importa: fechar negócios.",
         buttonText: "See Plans",
         imageSrc:
-          "https://shadcnblocks.com/images/block/placeholder-dark-1.svg",
+          "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/VENDAS%404x.png",
         imageAlt: "placeholder",
       },
     },
@@ -53,12 +53,12 @@ const Feature108 = ({
       label: "Suporte",
       content: {
         badge: "Expert Features",
-        title: "Suporte: Atendimento Ágil e Personalizado",
+        title: "Automatize Seu Suporte e Reduza o Tempo de Espera",
         description:
-          "Reduza o tempo de espera e melhore a experiência do cliente com um agente de IA que responde dúvidas, identifica problemas e encaminha solicitações para a equipe correta. Atendimento eficiente, humanizado e disponível 24/7.",
+          "Ofereça suporte instantâneo e humanizado com a Vera. Ela responde dúvidas, resolve solicitações e direciona atendimentos complexos para a equipe certa – tudo isso 24h por dia, sem filas e sem custos extras.",
         buttonText: "See Tools",
         imageSrc:
-          "https://shadcnblocks.com/images/block/placeholder-dark-2.svg",
+          "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/SUPORTE%404x.png",
         imageAlt: "placeholder",
       },
     },
@@ -68,12 +68,12 @@ const Feature108 = ({
       label: "Equipes",
       content: {
         badge: "Elite Solutions",
-        title: "Comunicação Interna: Organização e Clareza Para Sua Equipe",
+        title: "Facilite a Comunicação e Aumente a Produtividade",
         description:
-          "Mantenha sua equipe alinhada com um agente de IA que organiza mensagens, responde dúvidas e direciona informações para os setores corretos. Reduza ruídos na comunicação e aumente a produtividade sem sobrecarga de mensagens desnecessárias.",
+          "A Vera organiza e direciona chamados automaticamente para a equipe mais qualificada, otimizando o fluxo de trabalho. Crie equipes, restrinja acessos e reduza ruídos na comunicação, garantindo mais eficiência e segurança na troca de informações.",
         buttonText: "See Options",
         imageSrc:
-          "https://shadcnblocks.com/images/block/placeholder-dark-3.svg",
+          "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/EQUIPE%404x.png",
         imageAlt: "placeholder",
       },
     },
@@ -90,7 +90,7 @@ const Feature108 = ({
           <p className="text-muted-foreground">{description}</p>
         </div>
         <Tabs defaultValue={tabs[0].value} className="mt-8">
-          <TabsList className="container flex flex-col items-center justify-center gap-4 sm:flex-row md:gap-10">
+          <TabsList className="container flex items-center justify-center gap-4 md:gap-10">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.value}
@@ -106,7 +106,7 @@ const Feature108 = ({
               <TabsContent
                 key={tab.value}
                 value={tab.value}
-                className="grid place-items-center gap-20 lg:grid-cols-2 lg:gap-10"
+                className="grid place-items-center gap-20 h-[500px] lg:grid-cols-2 lg:gap-10"
               >
                 <div className="flex flex-col gap-5">
                   {/* <Badge variant="outline" className="w-fit bg-background">

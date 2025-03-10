@@ -2,7 +2,9 @@
 import 'server-only';
 import { jwtVerify } from 'jose';
 
-const secretKey = process.env.SESSION_SECRET;
+// const secretKey = process.env.SESSION_SECRET || 'secret';
+const secretKey = 'secret';
+console.log('secretKey', secretKey);
 if (!secretKey) {
   throw new Error('SESSION_SECRET is not defined');
 }

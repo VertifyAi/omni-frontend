@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { SignInFormSchema } from "@/lib/definitions";
-import { signin } from "@/app/actions/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Login3Props {
   heading?: string;
@@ -43,6 +43,7 @@ const Login3 = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const { login } = useAuth();
   const form = useForm<z.infer<typeof SignInFormSchema>>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
@@ -61,17 +62,10 @@ const Login3 = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const result = await signin({ email, password });
-
-      if (result.message === "E-mail ou senha inválidos") {
-        alert("E-mail ou senha inválidos");
-      } else if (result.message === "Login efetuado com sucesso") {
-        alert("Login efetuado com sucesso");
-      } else {
-        alert("Erro ao efetuar login");
-      }
+      await login(email, password);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao fazer login:', error);
+      alert("E-mail ou senha inválidos");
     }
   };
 
@@ -83,7 +77,7 @@ const Login3 = ({
     <section className="py-32 flex justify-center items-center">
       <div className="container">
         <div className="flex flex-col gap-4">
-          <form action={logo.url} method="post" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div className="mx-auto w-full max-w-sm rounded-md p-6 shadow">
               <div className="mb-6 flex flex-col items-center">
                 <a href={logo.url}>
@@ -114,19 +108,7 @@ const Login3 = ({
                     />
                     {errors.password && <span>{errors.password.message}</span>}
                   </div>
-                  <div className="flex justify-between">
-                    {/* <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="remember"
-                        className="border-muted-foreground"
-                      />
-                      <label
-                        htmlFor="remember"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Manter conectado
-                      </label>
-                    </div> */}
+                  <div className="flex justify-end">
                     <a
                       href="#"
                       className="text-sm text-primary hover:underline"

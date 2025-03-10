@@ -15,7 +15,7 @@ interface Stats8Props {
 }
 
 const Stats8 = ({
-  heading = "Impacto da automação inteligente",
+  heading = "O Impacto Real da Automação com Inteligência Artificial",
   description = "Garantimos estabilidade e escalabilidade para todos os usuários",
   link = {
     text: "Leia o relatório completo de impacto",
@@ -25,22 +25,22 @@ const Stats8 = ({
     {
       id: "stat-1",
       value: "74%+",
-      label: "Utilizam IA regularmente em suas operações diárias.",
+      label: "das empresas usam IA regularmente.",
     },
     {
       id: "stat-2",
-      value: "250%+",
-      label: "Crescimento médio na interação do usuário.",
+      value: "​91,63%",
+      label: "dos empresários relatam melhora significativa na experiência do cliente.",
     },
     {
       id: "stat-4",
       value: "69%+",
-      label: "Utilizam IA para melhorar a experiência do atendimento ao cliente.",
+      label: "dos usuários afirmam que a IA agiliza o atendimento e reduz filas de espera.",
     },
     {
       id: "stat-3",
       value: "44%+",
-      label: "Registraram redução de custos operacionais.",
+      label: "de redução nos custos operacionais sem comprometer a qualidade do atendimento.",
     }
   ],
 }: Stats8Props) => {

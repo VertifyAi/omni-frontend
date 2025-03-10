@@ -26,11 +26,11 @@ interface Hero3Props {
 }
 
 const Hero3 = ({
-  heading = "Venda Mais e Reduza Custos com IA",
-  description = "Automatize seu atendimento com inteligência artificial e escale suas vendas sem aumentar os custos operacionais com nossos agentes de IA, que trabalham 24/7 para melhorar a experiência do seu cliente.",
+  heading = "Venda Mais e Reduza Custos com IA Omnichannel",
+  description = "Automatize e escale o seu atendimento de maneira inteligente com a Vera, a assistente virtual que gerencia conversas por 24h em múltiplos canais. Integre WhatsApp, Instagram, Messenger e muito mais, tudo em um só lugar.",
   buttons = {
     primary: {
-      text: "Acesso Antecipado",
+      text: "Garanta Acesso antecipado",
       url: "https://vertify.com.br/sign-up",
     },
   },
@@ -108,7 +108,7 @@ const Hero3 = ({
             )}
           </div>
         </div>
-        <div className="flex">
+        <div className="hidden sm:flex">
           <img
             src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/Ativo+1.svg"
             alt="placeholder hero"
