@@ -1,79 +1,121 @@
-interface MenuItem {
-    title: string;
-    links: {
-      text: string;
-      url: string;
-    }[];
-  }
+// interface MenuItem {
+//     title: string;
+//     links: {
+//       text: string;
+//       url: string;
+//     }[];
+//   }
   
   interface Footer2Props {
     logo?: {
       url: string;
       src: string;
       alt: string;
-      title: string;
     };
     tagline?: string;
-    menuItems?: MenuItem[];
+    menuItems?: {
+      title: string;
+      items: {
+        title: string;
+        description?: string;
+        url: string;
+      }[];
+    }[];
     copyright?: string;
     bottomLinks?: {
       text: string;
       url: string;
     }[];
+    socialLinks?: {
+      platform: string;
+      url: string;
+      icon: React.ReactNode;
+    }[];
+    newsletter?: {
+      title: string;
+      description: string;
+      buttonText: string;
+    };
   }
   
   const Footer2 = ({
     logo = {
-      src: "https://www.shadcnblocks.com/images/block/block-1.svg",
-      alt: "blocks for shadcn/ui",
-      title: "Shadcnblocks.com",
-      url: "https://www.shadcnblocks.com",
+      url: "#",
+      src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/logos/1svg.svg",
+      alt: "Logo",
     },
-    tagline = "Components made easy.",
+    tagline = "Aumente a produtividade e a eficiência da sua empresa com a IA.",
     menuItems = [
       {
-        title: "Product",
-        links: [
-          { text: "Overview", url: "#" },
-          { text: "Pricing", url: "#" },
-          { text: "Marketplace", url: "#" },
-          { text: "Features", url: "#" },
-          { text: "Integrations", url: "#" },
-          { text: "Pricing", url: "#" },
+        title: "Produtos",
+        items: [
+          {
+            title: "Omni",
+            description: "Sistema completo de gestão empresarial integrado",
+            url: "https://vertify.com.br/sign-in",
+          },
         ],
       },
       {
-        title: "Company",
-        links: [
-          { text: "About", url: "#" },
-          { text: "Team", url: "#" },
-          { text: "Blog", url: "#" },
-          { text: "Careers", url: "#" },
-          { text: "Contact", url: "#" },
-          { text: "Privacy", url: "#" },
+        title: "Casos de Uso",
+        items: [
+          {
+            title: "Vendas",
+            description: "Gestão completa do seu funil de vendas",
+            url: "#tab",
+          },
+          {
+            title: "Suporte",
+            description: "Atendimento e suporte ao cliente integrado",
+            url: "#tab",
+          },
+          {
+            title: "Comunicação Interna",
+            description: "Ferramentas para melhorar a comunicação da sua equipe",
+            url: "#tab",
+          },
         ],
       },
       {
-        title: "Resources",
-        links: [
-          { text: "Help", url: "#" },
-          { text: "Sales", url: "#" },
-          { text: "Advertise", url: "#" },
+        title: "Redes Sociais",
+        items: [
+          {
+            title: "Facebook",
+            description: "Conheça nossa história e missão",
+            url: "#",
+          },
+          {
+            title: "Instagram",
+            description: "Entre em contato conosco",
+            url: "#",
+          },
+          {
+            title: "Linkedin",
+            description: "Últimas notícias e atualizações",
+            url: "#",
+          },
         ],
       },
       {
-        title: "Social",
-        links: [
-          { text: "Twitter", url: "#" },
-          { text: "Instagram", url: "#" },
-          { text: "LinkedIn", url: "#" },
+        title: "Legal",
+        items: [
+          {
+            title: "Termos de Uso",
+            description: "Termos e condições de uso",
+            url: "#",
+          },
+          {
+            title: "Privacidade",
+            description: "Política de privacidade",
+            url: "#",
+          },
         ],
       },
     ],
-    copyright = "© 2024 Copyright. All rights reserved.",
+    copyright = "© 2025 Copyright. Todos os direitos reservados.",
     bottomLinks = [
-      { text: "Terms and Conditions", url: "#" },
-      { text: "Privacy Policy", url: "#" },
+      { text: "Termos de uso", url: "#" },
+      { text: "Política de privacidade", url: "#" },
     ],
   }: Footer2Props) => {
     return (
@@ -87,11 +129,10 @@ interface MenuItem {
                     <img
                       src={logo.src}
                       alt={logo.alt}
-                      title={logo.title}
                       className="h-10"
                     />
                   </a>
-                  <p className="text-xl font-semibold">{logo.title}</p>
+                  {/* <p className="text-xl font-semibold">{logo}</p> */}
                 </div>
                 <p className="mt-4 font-bold">{tagline}</p>
               </div>
@@ -99,12 +140,12 @@ interface MenuItem {
                 <div key={sectionIdx}>
                   <h3 className="mb-4 font-bold">{section.title}</h3>
                   <ul className="space-y-4 text-muted-foreground">
-                    {section.links.map((link, linkIdx) => (
+                    {section.items.map((item, itemIdx) => (
                       <li
-                        key={linkIdx}
+                        key={itemIdx}
                         className="font-medium hover:text-primary"
                       >
-                        <a href={link.url}>{link.text}</a>
+                        <a href={item.url}>{item.title}</a>
                       </li>
                     ))}
                   </ul>

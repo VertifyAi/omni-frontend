@@ -28,9 +28,16 @@ const signUpSchema = z.object({
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   phone: z.string().min(11, "Telefone deve ter no mínimo 11 dígitos"),
   address: addressSchema,
+  companyId: z.number(),
   areaId: z.number(),
   role: z.enum(["attendant", "admin"]),
   companyChoice: z.enum(["create", "join"]).optional(),
+  company: z.object({
+    name: z.string().min(1, "Nome da empresa é obrigatório"),
+    cnpj: z.string().min(14, "CNPJ inválido"),
+    phone: z.string().min(11, "Telefone deve ter no mínimo 11 dígitos"),
+    address: addressSchema,
+  }).optional(),
 });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
@@ -39,7 +46,6 @@ const steps = [
   { title: "Dados Pessoais", description: "Informações básicas" },
   { title: "Empresa", description: "Criar ou entrar em uma empresa" },
   { title: "Endereço", description: "Seu endereço completo" },
-  { title: "Função", description: "Sua função na empresa" },
 ];
 
 export function SignUpForm() {
@@ -55,6 +61,7 @@ export function SignUpForm() {
       password: "",
       phone: "",
       role: "attendant",
+      companyId: 0,
       areaId: 1,
       companyChoice: undefined,
       address: {
@@ -65,6 +72,19 @@ export function SignUpForm() {
         country: "",
         complement: "",
       },
+      company: {
+        name: "",
+        cnpj: "",
+        phone: "",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          zip_code: "",
+          country: "",
+          complement: "",
+        },
+      },
     },
   });
 
@@ -73,14 +93,27 @@ export function SignUpForm() {
   const handleNextStep = async () => {
     console.log("Tentando avançar...");
     
-    type FieldName = keyof SignUpFormData | 'address.street' | 'address.city' | 'address.state' | 'address.zip_code' | 'address.country' | 'address.complement';
+    type FieldName = keyof SignUpFormData | 'address.street' | 'address.city' | 'address.state' | 'address.zip_code' | 'address.country' | 'address.complement' | 'company.name' | 'company.cnpj' | 'company.phone' | 'company.address.street' | 'company.address.city' | 'company.address.state' | 'company.address.zip_code' | 'company.address.country';
     
     const fields: Record<number, FieldName[]> = {
       0: ['firstName', 'lastName', 'email', 'password', 'phone'],
-      1: ['companyChoice'],
+      1: ['companyChoice', 'role'],
       2: ['address.street', 'address.city', 'address.state', 'address.zip_code', 'address.country'],
-      3: ['areaId', 'role']
     };
+
+    // Se estiver no step da empresa e escolheu criar, valida os campos da empresa
+    if (currentStep === 1 && form.getValues('companyChoice') === 'create') {
+      fields[1].push(
+        'company.name',
+        'company.cnpj',
+        'company.phone',
+        'company.address.street',
+        'company.address.city',
+        'company.address.state',
+        'company.address.zip_code',
+        'company.address.country'
+      );
+    }
 
     const currentFields = fields[currentStep];
     if (!currentFields) return;
@@ -105,23 +138,61 @@ export function SignUpForm() {
     }
 
     try {
+      // Se escolheu criar empresa, cria primeiro
+      if (data.companyChoice === 'create' && data.company) {
+        const companyResponse = await fetch('/api/companies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: data.company.name,
+            cnpj: data.company.cnpj,
+            phone: data.company.phone,
+            address: data.company.address,
+          }),
+        });
+
+        if (!companyResponse.ok) {
+          throw new Error('Erro ao criar empresa');
+        }
+
+        const companyData = await companyResponse.json();
+        
+        // Atualiza os IDs no form
+        form.setValue('companyId', companyData.id);
+        form.setValue('areaId', companyData.defaultAreaId);
+      }
+
+      const formData = form.getValues();
+
+      // Prepara o payload conforme o CreateUserDto
+      const userPayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        address: formData.address,
+        companyId: formData.companyId,
+        areaId: formData.areaId,
+        role: formData.role,
+      };
+
+      // Cadastra o usuário
       const response = await fetch('/api/auth/sign-up', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(userPayload),
       });
 
       if (!response.ok) {
         throw new Error('Erro ao criar conta');
       }
 
-      if (data.companyChoice === 'create') {
-        router.push('/company/create');
-      } else {
-        router.push('/company/join');
-      }
+      router.push('/sign-in');
     } catch (error) {
       console.error('Erro no registro:', error);
     }
@@ -240,6 +311,173 @@ export function SignUpForm() {
                 </FormItem>
               )}
             />
+
+            {form.watch('companyChoice') === 'create' ? (
+              <div className="space-y-4 mt-4">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sua função na empresa</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione sua função" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="attendant">Atendente</SelectItem>
+                          <SelectItem value="admin">Administrador</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company.name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome da Empresa</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company.cnpj"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CNPJ</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company.phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone da Empresa</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company.address.street"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço da Empresa</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="company.address.city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="company.address.state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estado</FormLabel>
+                        <FormControl>
+                          <Input maxLength={2} placeholder="SP" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="company.address.zip_code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CEP</FormLabel>
+                        <FormControl>
+                          <Input placeholder="01234-567" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="company.address.country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>País</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Brasil" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            ) : form.watch('companyChoice') === 'join' ? (
+              <div className="space-y-4 mt-4">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sua função na empresa</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione sua função" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="attendant">Atendente</SelectItem>
+                          <SelectItem value="admin">Administrador</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Aqui você pode adicionar campos para entrar em uma empresa existente */}
+              </div>
+            ) : null}
           </div>
         );
 
@@ -329,56 +567,6 @@ export function SignUpForm() {
                   <FormControl>
                     <Input placeholder="Apto 123" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="areaId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Área</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma área" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">Área 1</SelectItem>
-                      <SelectItem value="2">Área 2</SelectItem>
-                      <SelectItem value="3">Área 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Função</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma função" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="attendant">Atendente</SelectItem>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

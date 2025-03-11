@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+// import { ArrowRight } from "lucide-react";
 
 interface Stats8Props {
   heading?: string;
@@ -17,10 +17,10 @@ interface Stats8Props {
 const Stats8 = ({
   heading = "O Impacto Real da Automação com Inteligência Artificial",
   description = "Garantimos estabilidade e escalabilidade para todos os usuários",
-  link = {
-    text: "Leia o relatório completo de impacto",
-    url: "https://www.shadcnblocks.com",
-  },
+  // link = {
+  //   text: "Leia o relatório completo de impacto",
+  //   url: "https://www.shadcnblocks.com",
+  // },
   stats = [
     {
       id: "stat-1",
@@ -50,13 +50,13 @@ const Stats8 = ({
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold md:text-4xl">{heading}</h2>
           <p>{description}</p>
-          <a
+          {/* <a
             href={link.url}
             className="flex items-center gap-1 font-bold hover:underline"
           >
             {link.text}
             <ArrowRight className="h-auto w-4" />
-          </a>
+          </a> */}
         </div>
         <div className="mt-14 grid gap-x-5 gap-y-8 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (

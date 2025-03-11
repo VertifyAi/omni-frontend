@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import { Menu, Sunset, Trees, Zap } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -71,29 +71,10 @@ const Navbar1 = ({
       url: "#",
       items: [
         {
-          title: "Blog",
-          description: "The latest industry news, updates, and info",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Company",
-          description: "Our mission is to innovate and empower the world",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Careers",
-          description: "Browse job listing and discover our workspace",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Support",
-          description:
-            "Get in touch with our support team or visit our community forums",
+          title: "Omni",
+          description: "Sistema completo de gestão empresarial integrado",
           icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
+          url: "https://vertify.com.br/sign-in",
         },
       ],
     },
@@ -102,39 +83,33 @@ const Navbar1 = ({
       url: "#",
       items: [
         {
-          title: "Help Center",
-          description: "Get all the answers you need right here",
+          title: "Vendas",
+          description: "Gestão completa do seu funil de vendas",
           icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
+          url: "#tab",
         },
         {
-          title: "Contact Us",
-          description: "We are here to help you with any questions you have",
+          title: "Suporte",
+          description: "Atendimento e suporte ao cliente integrado",
           icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
+          url: "#tab",
         },
         {
-          title: "Status",
-          description: "Check the current status of our services and APIs",
+          title: "Comunicação Interna",
+          description: "Ferramentas para melhorar a comunicação da sua equipe",
           icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Terms of Service",
-          description: "Our terms and conditions for using our services",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
+          url: "#tab",
         },
       ],
     },
-    {
-      title: "Preço",
-      url: "#",
-    },
-    {
-      title: "Blog",
-      url: "#",
-    },
+    // {
+    //   title: "Preço",
+    //   url: "#",
+    // },
+    // {
+    //   title: "Blog",
+    //   url: "#",
+    // },
   ],
   auth = {
     login: { text: "Entrar", url: "/sign-in" },
@@ -230,13 +205,15 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title} className="text-muted-foreground">
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50">{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent>
-          {item.items.map((subItem) => (
-            <NavigationMenuLink asChild key={subItem.title} className="w-80">
-              <SubMenuLink item={subItem} />
-            </NavigationMenuLink>
-          ))}
+          <div className="grid w-[400px] gap-1 p-4">
+            {item.items.map((subItem) => (
+              <NavigationMenuLink asChild key={subItem.title}>
+                <SubMenuLink item={subItem} />
+              </NavigationMenuLink>
+            ))}
+          </div>
         </NavigationMenuContent>
       </NavigationMenuItem>
     );
@@ -245,7 +222,7 @@ const renderMenuItem = (item: MenuItem) => {
   return (
     <a
       key={item.title}
-      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
+      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground"
       href={item.url}
     >
       {item.title}
@@ -279,14 +256,14 @@ const renderMobileMenuItem = (item: MenuItem) => {
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
   return (
     <a
-      className="flex flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground"
+      className="flex flex-row gap-4 rounded-md p-4 leading-none no-underline transition-colors outline-none select-none hover:bg-accent/50 hover:text-accent-foreground"
       href={item.url}
     >
-      <div>{item.icon}</div>
+      <div className="rounded-md bg-accent/10 p-2">{item.icon}</div>
       <div>
-        <div className="text-sm font-semibold">{item.title}</div>
+        <div className="text-sm font-semibold leading-none">{item.title}</div>
         {item.description && (
-          <p className="text-sm leading-snug text-muted-foreground">
+          <p className="mt-1 text-sm leading-snug text-muted-foreground">
             {item.description}
           </p>
         )}

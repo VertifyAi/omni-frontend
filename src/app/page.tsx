@@ -19,7 +19,7 @@ export default function Home() {
       <Feature43 />
       <Cta11 
         heading="Comece agora mesmo" 
-        description="Junte-se a milhares de empresas que já estão usando nossa plataforma"
+        description="Garanta acesso antecipado e junte-se a milhares de empresas que já estão usando Agentes de Atendimento com IA"
       />
       <Faq1 />
       <Footer2 />

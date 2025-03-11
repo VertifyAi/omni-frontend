@@ -1,17 +1,38 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// Rotas que não precisam de autenticação
+const publicPaths = [
+  '/',
+  '/sign-in',
+  '/sign-up',
+  '/api/auth/login',
+  '/api/auth/sign-up'
+]
+
+// Rotas que precisam de autenticação
+const privatePaths = [
+  '/dashboard',
+  '/api/chat',
+  '/api/auth/me'
+]
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value
-  const isAuthPage = request.nextUrl.pathname === '/sign-in' || request.nextUrl.pathname === '/sign-up'
+  const path = request.nextUrl.pathname
 
-  // Redireciona usuários autenticados tentando acessar a página de login para o dashboard
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  // Verifica se a rota atual é pública
+  // const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
+  // Verifica se a rota atual é privada
+  const isPrivatePath = privatePaths.some(privatePath => path.startsWith(privatePath))
+
+  // Redireciona usuários autenticados tentando acessar páginas públicas para o dashboard
+  // if (token && isPublicPath && path !== '/') {
+  //   return NextResponse.redirect(new URL('/dashboard', request.url))
+  // }
 
   // Redireciona usuários não autenticados tentando acessar páginas privadas para o login
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!token && isPrivatePath) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
@@ -19,6 +40,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Aplica o middleware apenas nas rotas que precisamos verificar
-  matcher: ['/sign-in', '/sign-up', '/dashboard/:path*']
+  matcher: [...publicPaths, ...privatePaths]
 } 

@@ -30,7 +30,7 @@ const Hero3 = ({
   description = "Automatize e escale o seu atendimento de maneira inteligente com a Vera, a assistente virtual que gerencia conversas por 24h em múltiplos canais. Integre WhatsApp, Instagram, Messenger e muito mais, tudo em um só lugar.",
   buttons = {
     primary: {
-      text: "Garanta Acesso antecipado",
+      text: "Acesso Antecipado",
       url: "https://vertify.com.br/sign-up",
     },
   },
@@ -79,7 +79,7 @@ const Hero3 = ({
               ))}
             </span>
             <div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-center lg:justify-start">
                 {[...Array(5)].map((_, index) => (
                   <Star
                     key={index}
