@@ -72,7 +72,7 @@ const Navbar1 = ({
       items: [
         {
           title: "Omni",
-          description: "Sistema completo de gestão empresarial integrado",
+          description: "Sistema completo de atendimento ao cliente com IA",
           icon: <Zap className="size-5 shrink-0" />,
           url: "https://vertify.com.br/sign-in",
         },
