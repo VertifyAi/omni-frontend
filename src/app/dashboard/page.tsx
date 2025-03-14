@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+// Removendo o import do router que não é utilizado
+// import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 // import {
 //   Breadcrumb,
@@ -21,8 +22,10 @@ import Chat from "@/components/Chat";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Page() {
-  const { loading, isAuthenticated } = useAuth();
-  const router = useRouter();
+  // Desestruturando apenas o que é usado
+  const { loading } = useAuth();
+  // Removendo a variável router não utilizada
+  // const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

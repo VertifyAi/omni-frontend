@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
@@ -14,18 +14,13 @@ export function useAuth() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setMounted(true);
-    const token = Cookies.get('auth_token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  const logout = useCallback(() => {
+    Cookies.remove('auth_token');
+    setUser(null);
+    router.push('/sign-in');
+  }, [router]);
 
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const token = Cookies.get('auth_token');
       if (!token) {
@@ -51,7 +46,18 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    setMounted(true);
+    const token = Cookies.get('auth_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -82,12 +88,6 @@ export function useAuth() {
       console.error('Erro no login:', error);
       throw error;
     }
-  };
-
-  const logout = () => {
-    Cookies.remove('auth_token');
-    setUser(null);
-    router.push('/sign-in');
   };
 
   if (!mounted) {
