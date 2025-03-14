@@ -2,12 +2,37 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { SignUpFormData } from "../schema";
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const MaskedInput = dynamic(() => import("@/components/ui/masked-input").then(mod => mod.MaskedInput), {
+  ssr: false
+});
 
 interface PersonalInfoProps {
   form: UseFormReturn<SignUpFormData>;
 }
 
 export function PersonalInfo({ form }: PersonalInfoProps) {
+  // Observar mudanças nos campos de senha em tempo real
+  const password = form.watch("password");
+  const passwordConfirmation = form.watch("passwordConfirmation");
+
+  // Validar senhas quando qualquer uma delas mudar
+  useEffect(() => {
+    if (passwordConfirmation) {
+      if (password !== passwordConfirmation) {
+        form.setError('passwordConfirmation', {
+          type: 'manual',
+          message: 'As senhas não coincidem'
+        });
+      } else {
+        form.clearErrors('passwordConfirmation');
+      }
+    }
+  }, [password, passwordConfirmation, form]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -15,11 +40,13 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
           control={form.control}
           name="firstName"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome</FormLabel>
-              <FormControl>
-                <Input placeholder="João" {...field} />
-              </FormControl>
+            <FormItem className="min-h-[78px] flex flex-col gap-2">
+              <div>
+                <FormLabel>Nome</FormLabel>
+                <FormControl>
+                  <Input placeholder="João" {...field} />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -28,11 +55,13 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
           control={form.control}
           name="lastName"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sobrenome</FormLabel>
-              <FormControl>
-                <Input placeholder="Silva" {...field} />
-              </FormControl>
+            <FormItem className="min-h-[78px] flex flex-col gap-2">
+              <div>
+                <FormLabel>Sobrenome</FormLabel>
+                <FormControl>
+                  <Input placeholder="Silva" {...field} />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -43,11 +72,13 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
         control={form.control}
         name="email"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Email</FormLabel>
-            <FormControl>
-              <Input type="email" placeholder="joao@exemplo.com" {...field} />
-            </FormControl>
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="joao@exemplo.com" {...field} />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}
@@ -56,12 +87,44 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
       <FormField
         control={form.control}
         name="password"
+        render={({ field, fieldState }) => (
+          <FormItem className="min-h-[98px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Senha</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
+            </div>
+            <div className="space-y-1">
+              {fieldState.error ? (
+                <FormMessage />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  A senha deve conter no mínimo 6 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.
+                </p>
+              )}
+            </div>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="passwordConfirmation"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Senha</FormLabel>
-            <FormControl>
-              <Input type="password" {...field} />
-            </FormControl>
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Confirmar Senha</FormLabel>
+              <FormControl>
+                <Input 
+                  type="password" 
+                  className={cn(
+                    passwordConfirmation && password !== passwordConfirmation && "border-red-500 focus-visible:ring-red-500"
+                  )}
+                  {...field} 
+                />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}
@@ -70,12 +133,23 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
       <FormField
         control={form.control}
         name="phone"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Telefone</FormLabel>
-            <FormControl>
-              <Input placeholder="11999999999" {...field} />
-            </FormControl>
+        render={({ field: { value, onChange, onBlur, ...field } }) => (
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Telefone</FormLabel>
+              <FormControl>
+                <MaskedInput
+                  mask="(99) 99999-9999"
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  maskChar={null}
+                  type="tel"
+                  placeholder="(11) 99999-9999"
+                  {...field}
+                />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}

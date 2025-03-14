@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -9,11 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form } from "@/components/ui/form";
 import { Progress } from "@/components/ui/progress";
 import { signUpSchema, steps, type SignUpFormData } from "./schema";
-import { PersonalInfo, CompanyChoice, AddressInfo, RoleInfo, CompanyForm } from "./steps";
+import { PersonalInfo, AddressInfo, CompanyForm } from "./steps";
+import { CompanyAddress } from "./steps/company-address";
+import { WelcomeScreen } from "./welcome-screen";
+import { Loader2 } from "lucide-react";
 
 export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(0);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const form = useForm<SignUpFormData>({
     mode: "onChange",
     resolver: zodResolver(signUpSchema),
@@ -22,10 +25,8 @@ export function SignUpForm() {
       lastName: "",
       email: "",
       password: "",
+      passwordConfirmation: "",
       phone: "",
-      role: "attendant",
-      areaId: 1,
-      companyChoice: undefined,
       address: {
         street: "",
         city: "",
@@ -51,6 +52,7 @@ export function SignUpForm() {
   });
 
   const progress = ((currentStep + 1) / steps.length) * 100;
+  const isLastStep = currentStep === steps.length - 1;
 
   const handleNextStep = async () => {
     console.log("Tentando avançar...");
@@ -58,13 +60,10 @@ export function SignUpForm() {
     type FieldName = keyof SignUpFormData | 'address.street' | 'address.city' | 'address.state' | 'address.zip_code' | 'address.country' | 'address.complement' | 'company.name' | 'company.cnpj' | 'company.phone' | 'company.address.street' | 'company.address.city' | 'company.address.state' | 'company.address.zip_code' | 'company.address.country' | 'company.address.complement';
     
     const fields: Record<number, FieldName[]> = {
-      0: ['firstName', 'lastName', 'email', 'password', 'phone'],
+      0: ['firstName', 'lastName', 'email', 'password', 'passwordConfirmation', 'phone'],
       1: ['address.street', 'address.city', 'address.state', 'address.zip_code', 'address.country'],
-      2: ['companyChoice'],
-      3: form.getValues('companyChoice') === 'create' 
-        ? ['company.name', 'company.cnpj', 'company.phone', 'company.address.street', 'company.address.city', 'company.address.state', 'company.address.zip_code', 'company.address.country']
-        : [],
-      4: ['areaId', 'role']
+      2: ['company.name', 'company.cnpj', 'company.phone'],
+      3: ['company.address.street', 'company.address.city', 'company.address.state', 'company.address.zip_code', 'company.address.country'],
     };
 
     const currentFields = fields[currentStep];
@@ -73,28 +72,54 @@ export function SignUpForm() {
     const values = form.getValues();
     console.log("Valores atuais:", values);
 
+    // Validar todos os campos do passo atual
     const isValid = await form.trigger(currentFields);
-    console.log("É válido?", isValid);
+    console.log("Campos válidos?", isValid);
 
-    if (isValid) {
-      // Se o usuário escolheu entrar em uma empresa existente, pular o passo de criar empresa
-      if (currentStep === 2 && values.companyChoice === 'join') {
-        setCurrentStep(4);
-      } else {
-        setCurrentStep(prev => prev + 1);
+    // Validação específica para o primeiro passo (onde está a senha)
+    if (currentStep === 0) {
+      const password = form.getValues('password');
+      const passwordConfirmation = form.getValues('passwordConfirmation');
+
+      // Verificar se as senhas coincidem
+      if (password !== passwordConfirmation) {
+        form.setError('passwordConfirmation', {
+          type: 'manual',
+          message: 'As senhas não coincidem'
+        });
+        return;
       }
+
+      // Verificar a força da senha
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+      const isLongEnough = password.length >= 6;
+
+      if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar || !isLongEnough) {
+        form.setError('password', {
+          type: 'manual',
+          message: 'A senha não atende aos requisitos mínimos'
+        });
+        return;
+      }
+    }
+
+    // Só avança se todos os campos estiverem válidos
+    if (isValid) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      // Se houver erros, mostrar todos eles
+      form.trigger(currentFields);
     }
   };
 
   const onSubmit = async (data: SignUpFormData) => {
     console.log("Submit chamado", { currentStep, data });
 
-    if (currentStep < steps.length - 1) {
-      await handleNextStep();
-      return;
-    }
-
     try {
+      setIsLoading(true);
       const response = await fetch('/api/auth/sign-up', {
         method: 'POST',
         headers: {
@@ -107,24 +132,16 @@ export function SignUpForm() {
         throw new Error('Erro ao criar conta');
       }
 
-      if (data.companyChoice === 'create') {
-        router.push('/company/create');
-      } else {
-        router.push('/company/join');
-      }
+      setIsSuccess(true);
     } catch (error) {
       console.error('Erro no registro:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleBack = () => {
-    const values = form.getValues();
-    // Se estiver na última etapa e escolheu entrar em uma empresa, voltar para a escolha
-    if (currentStep === 4 && values.companyChoice === 'join') {
-      setCurrentStep(2);
-    } else {
-      setCurrentStep(Math.max(0, currentStep - 1));
-    }
+    setCurrentStep(Math.max(0, currentStep - 1));
   };
 
   const renderStep = () => {
@@ -134,15 +151,17 @@ export function SignUpForm() {
       case 1:
         return <AddressInfo form={form} />;
       case 2:
-        return <CompanyChoice form={form} />;
-      case 3:
         return <CompanyForm form={form} />;
-      case 4:
-        return <RoleInfo form={form} />;
+      case 3:
+        return <CompanyAddress form={form} />;
       default:
         return null;
     }
   };
+
+  if (isSuccess) {
+    return <WelcomeScreen />;
+  }
 
   return (
     <Card className="w-full">
@@ -160,16 +179,29 @@ export function SignUpForm() {
             
             <div className="flex gap-4">
               {currentStep > 0 && (
-                <Button type="button" variant="outline" onClick={handleBack}>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleBack}
+                  disabled={isLoading}
+                >
                   Voltar
                 </Button>
               )}
               <Button 
-                type="button"
+                type={isLastStep ? "submit" : "button"}
                 className="flex-1"
-                onClick={currentStep === steps.length - 1 ? form.handleSubmit(onSubmit) : handleNextStep}
+                onClick={!isLastStep ? handleNextStep : undefined}
+                disabled={isLoading}
               >
-                {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Aguarde...
+                  </>
+                ) : (
+                  isLastStep ? "Finalizar" : "Próximo"
+                )}
               </Button>
             </div>
           </form>

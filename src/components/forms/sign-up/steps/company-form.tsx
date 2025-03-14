@@ -2,6 +2,11 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { SignUpFormData } from "../schema";
+import dynamic from "next/dynamic";
+
+const MaskedInput = dynamic(() => import("@/components/ui/masked-input").then(mod => mod.MaskedInput), {
+  ssr: false
+});
 
 interface CompanyFormProps {
   form: UseFormReturn<SignUpFormData>;
@@ -9,134 +14,67 @@ interface CompanyFormProps {
 
 export function CompanyForm({ form }: CompanyFormProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <FormField
         control={form.control}
         name="company.name"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Nome da Empresa</FormLabel>
-            <FormControl>
-              <Input placeholder="Nome da Empresa" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="company.cnpj"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CNPJ</FormLabel>
-              <FormControl>
-                <Input placeholder="12345678901234" maxLength={14} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="company.phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefone</FormLabel>
-              <FormControl>
-                <Input placeholder="11999999999" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="company.address.street"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Rua</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="company.address.city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cidade</FormLabel>
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Nome da Empresa</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="company.address.state"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estado</FormLabel>
-              <FormControl>
-                <Input maxLength={2} placeholder="SP" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="company.address.zip_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CEP</FormLabel>
-              <FormControl>
-                <Input placeholder="01234-567" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="company.address.country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>País</FormLabel>
-              <FormControl>
-                <Input placeholder="Brasil" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}
-        name="company.address.complement"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Complemento</FormLabel>
-            <FormControl>
-              <Input placeholder="Sala 123" {...field} />
-            </FormControl>
+        name="company.cnpj"
+        render={({ field: { value, onChange, onBlur, ...field } }) => (
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>CNPJ</FormLabel>
+              <FormControl>
+                <MaskedInput
+                  mask="99.999.999/9999-99"
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  maskChar={null}
+                  placeholder="00.000.000/0000-00"
+                  {...field}
+                />
+              </FormControl>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="company.phone"
+        render={({ field: { value, onChange, onBlur, ...field } }) => (
+          <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <div>
+              <FormLabel>Telefone da Empresa</FormLabel>
+              <FormControl>
+                <MaskedInput
+                  mask="(99) 99999-9999"
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  maskChar={null}
+                  type="tel"
+                  placeholder="(11) 99999-9999"
+                  {...field}
+                />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}

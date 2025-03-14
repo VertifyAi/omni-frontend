@@ -29,11 +29,11 @@ export default function Page() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (mounted && !loading && !isAuthenticated) {
-      router.push("/sign-in");
-    }
-  }, [loading, isAuthenticated, router, mounted]);
+  // useEffect(() => {
+  //   if (mounted && !loading && !isAuthenticated) {
+  //     router.push("/sign-in");
+  //   }
+  // }, [loading, isAuthenticated, router, mounted]);
 
   if (!mounted || loading) {
     return (

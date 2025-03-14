@@ -7,12 +7,12 @@ const publicPaths = [
   '/sign-in',
   '/sign-up',
   '/api/auth/login',
-  '/api/auth/sign-up'
+  '/api/auth/sign-up',
+  '/dashboard'
 ]
 
 // Rotas que precisam de autenticação
 const privatePaths = [
-  '/dashboard',
   '/api/chat',
   '/api/auth/me'
 ]
