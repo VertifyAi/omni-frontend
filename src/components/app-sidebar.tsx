@@ -1,169 +1,74 @@
 "use client"
 
-import * as React from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import {
-  AudioWaveform,
-  // BookOpen,
-  // Bot,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  LayoutDashboard,
+  MessageSquare,
+  Users,
+  Plug2,
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar"
-
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+const navigation = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
   },
-  teams: [
-    {
-      name: "Vendas",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Suporte",
-      logo: AudioWaveform,
-      plan: "Startup",
-    }
-  ],
-  navMain: [
-    {
-      title: "Atendimento",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Chats",
-          url: "#",
-        },
-        // {
-        //   title: "Starred",
-        //   url: "#",
-        // },
-        // {
-        //   title: "Settings",
-        //   url: "#",
-        // },
-      ],
-    },
-    // {
-    //   title: "Agentes",
-    //   url: "#",
-    //   icon: Bot,
-    //   items: [
-    //     {
-    //       title: "Genesis",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Explorer",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Quantum",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Documentation",
-    //   url: "#",
-    //   icon: BookOpen,
-    //   items: [
-    //     {
-    //       title: "Introduction",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Get Started",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Tutorials",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Changelog",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+  {
+    name: "Atendimento",
+    href: "/tickets",
+    icon: MessageSquare,
+  },
+  {
+    name: "Clientes",
+    href: "/customers",
+    icon: Users,
+  },
+  {
+    name: "Integrações",
+    href: "/integrations",
+    icon: Plug2,
+  },
+]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
+  const pathname = usePathname()
+
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <div className="fixed left-0 top-0 z-40 h-screen w-16 border-r bg-background">
+      <div className="flex h-full flex-col items-center py-4">
+        <div className="mb-8">
+          <img src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/logos/Design+sem+nome.png" alt="Logo" className="h-8 w-8" />
+        </div>
+        <nav className="flex-1 space-y-2">
+          <TooltipProvider>
+            {navigation.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Tooltip key={item.name}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-accent",
+                        isActive && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-6 w-6" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="flex items-center gap-4">
+                    <span>{item.name}</span>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            })}
+          </TooltipProvider>
+        </nav>
+      </div>
+    </div>
   )
 }

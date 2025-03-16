@@ -1,231 +1,156 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { MessageSquarePlus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { SendHorizontal } from "lucide-react";
-import { websocketService } from '../services/websocket';
+import React, { useEffect, useState, useRef } from 'react';
+import { Message, Ticket } from '@/types/chat';
 import { chatService } from '@/services/chat';
-import { PaperclipIcon } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2, Send } from 'lucide-react';
 
-interface Message {
-  ticketId: string;
-  message: string;
-  sender: 'customer' | 'agent';  // usando enum SenderEnum
-  createdAt: Date;
+interface ChatProps {
+  ticket: Ticket;
 }
 
-export default function Chat() {
+export function Chat({ ticket }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const loadedMessages = await chatService.getMessages(ticket.id);
+        setMessages(loadedMessages);
+      } catch (error) {
+        console.error('Chat: Erro ao carregar mensagens:', error);
+        setError('Não foi possível carregar as mensagens. Tente novamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Conectar ao chat e carregar mensagens
+    chatService.connect();
     loadMessages();
-    const cleanup = initializeWebSocket();
 
-    // Reconecta se a página ficar offline/online
-    window.addEventListener('online', websocketService.connect);
-    
+    // Configurar listener para novas mensagens
+    const unsubscribe = chatService.onNewMessage((message) => {
+      if (message.ticketId === ticket.id) {
+        setMessages(prev => [...prev, message]);
+      }
+    });
+
     return () => {
-      cleanup();
-      window.removeEventListener('online', websocketService.connect);
+      unsubscribe();
+      chatService.disconnect();
     };
-  }, []);
+  }, [ticket.id]);
 
-  const loadMessages = async () => {
-    try {
-      const messages = await chatService.getMessages();
-      setMessages(messages);
-    } catch (error) {
-      console.error('Erro ao carregar mensagens:', error);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  };
+  }, [messages]);
 
-  const initializeWebSocket = () => {
-    websocketService.connect();
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newMessage.trim()) return;
 
-    const handleNewMessage = (event: CustomEvent) => {
-      const newMessage = event.detail;
-      setMessages(prev => [...prev, newMessage]);
-    };
-
-    window.addEventListener('newMessage', handleNewMessage as EventListener);
-
-    return () => {
-      window.removeEventListener('newMessage', handleNewMessage as EventListener);
-      websocketService.disconnect();
-    };
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
-
-    const newMessage: Message = {
-      ticketId: 'temp-id',
-      message: inputMessage,
-      sender: 'agent',
-      createdAt: new Date()
-    };
-
-    setIsLoading(true);
     try {
-      await chatService.sendMessage(newMessage);
-      setInputMessage('');
+      setIsLoading(true);
+      setError(null);
+      await chatService.sendMessage(ticket.id, newMessage.trim());
+      setNewMessage('');
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      console.error('Chat: Erro ao enviar mensagem:', error);
+      setError('Não foi possível enviar a mensagem. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
-    <section className="flex h-[calc(100vh)] w-full shadow-md rounded-lg bg-gray-50">
-      {/* Sidebar esquerda - Lista de conversas */}
-      <div className="flex flex-col h-full w-[320px] min-w-[320px] bg-white p-4 border-r">
-        {/* Header da sidebar */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Conversas</h2>
-          <Button variant="ghost" size="icon">
-            <MessageSquarePlus className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Lista de conversas */}
-        <div className="flex-1 overflow-y-auto space-y-2">
-          {/* Conversa ativa */}
-          <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 overflow-hidden">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">João Silva</p>
-                <span className="text-xs text-gray-500">12:30</span>
-              </div>
-              <p className="text-sm text-gray-500 truncate">Última mensagem da conversa...</p>
-            </div>
-          </div>
-
-          {/* Exemplo de outras conversas */}
-          <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>MS</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 overflow-hidden">
-              <div className="flex items-center justify-between">
-                <p className="font-medium">Maria Santos</p>
-                <span className="text-xs text-gray-500">11:45</span>
-              </div>
-              <p className="text-sm text-gray-500 truncate">Ok, obrigada!</p>
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold">Ticket #{ticket.id}</h2>
+        <p className="text-sm text-muted-foreground">{ticket.summary}</p>
       </div>
 
-      {/* Área central - Chat */}
-      <div className="flex flex-col h-full flex-1 bg-gray-50">
-        {/* Header do chat */}
-        <div className="flex items-center p-4 bg-white border-b">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
-          <div className="ml-3">
-            <p className="font-medium">João Silva</p>
-            <p className="text-xs text-gray-500">Online agora</p>
-          </div>
-        </div>
-
-        {/* Área de mensagens */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.ticketId}
-              className={`flex ${msg.sender === "agent" ? "justify-end" : "justify-start"}`}
+      <ScrollArea ref={scrollRef} className="flex-1 p-4">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+            <Button
+              variant="link"
+              className="ml-2 text-red-700"
+              onClick={() => setError(null)}
             >
-              <div className={`
-                max-w-[70%] p-3 rounded-2xl
-                ${msg.sender === "agent" 
-                  ? "bg-blue-500 text-white rounded-br-none" 
-                  : "bg-white text-gray-800 rounded-bl-none shadow-sm"}
-              `}>
-                <p className="text-sm">{msg.message}</p>
-                <div className={`
-                  text-[10px] mt-1
-                  ${msg.sender === "agent" ? "text-blue-100" : "text-gray-400"}
-                `}>
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+              Fechar
+            </Button>
+          </div>
+        )}
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  message.sender === "AGENT" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[70%] rounded-lg p-3 ${
+                    message.sender === "AGENT"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100"
+                  }`}
+                >
+                  <p className="text-sm">{message.message}</p>
+                  <p className="text-xs mt-1 opacity-70">
+                    {formatDate(message.createdAt)}
+                  </p>
                 </div>
               </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Área de input */}
-        <div className="p-4 bg-white border-t">
-          <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg">
-            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
-              <PaperclipIcon className="h-5 w-5" />
-            </Button>
-            <Input 
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Digite sua mensagem..."
-              className="border-0 focus-visible:ring-0 bg-transparent"
-              disabled={isLoading}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            />
-            <Button 
-              size="icon"
-              onClick={handleSendMessage}
-              disabled={isLoading}
-              className={`rounded-full ${!inputMessage.trim() ? 'text-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
-            >
-              <SendHorizontal className="h-5 w-5" />
-            </Button>
+            ))}
           </div>
+        )}
+      </ScrollArea>
+
+      <div className="p-4 border-t">
+        <div className="flex gap-2">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Digite sua mensagem..."
+            onKeyPress={(e) => e.key === "Enter" && handleSendMessage(e)}
+            disabled={isLoading || !newMessage.trim()}
+          />
+          <Button onClick={handleSendMessage} disabled={isLoading || !newMessage.trim()}>
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-
-      {/* Sidebar direita - Detalhes */}
-      <div className="flex flex-col h-full w-[280px] min-w-[280px] bg-white p-4 border-l">
-        <div className="text-center pb-4 border-b">
-          <Avatar className="h-20 w-20 mx-auto mb-3">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
-          <h3 className="font-semibold">João Silva</h3>
-          <p className="text-sm text-gray-500">Cliente desde Jan 2024</p>
-        </div>
-        
-        {/* Informações adicionais */}
-        <div className="mt-4 space-y-4">
-          <div>
-            <h4 className="text-sm font-medium mb-2">Informações do Cliente</h4>
-            <div className="space-y-2 text-sm text-gray-500">
-              <p>Email: joao@email.com</p>
-              <p>Tel: (11) 99999-9999</p>
-              <p>ID: #123456</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }

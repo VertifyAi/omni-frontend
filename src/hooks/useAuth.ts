@@ -1,67 +1,51 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+"use client";
+
+import { useEffect, useState } from 'react';
+
+interface Company {
+  id: number;
+  name: string;
+}
 
 interface User {
   id: number;
-  email: string;
   name: string;
+  email: string;
+  company_id: number;
+  company: Company;
 }
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
-  const logout = useCallback(() => {
-    Cookies.remove('auth_token');
-    setUser(null);
-    router.push('/sign-in');
-  }, [router]);
-
-  const checkAuth = useCallback(async () => {
+  const fetchUserData = async () => {
     try {
-      const token = Cookies.get('auth_token');
-      if (!token) {
-        throw new Error('Token não encontrado');
-      }
-
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+          'Authorization': `Bearer ${getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Token inválido');
+        throw new Error('Falha ao carregar dados do usuário');
       }
 
-      setUser(data);
-    } catch (error) {
-      console.error('Erro de autenticação:', error);
-      logout();
+      const userData = await response.json();
+      setUser(userData);
+    } catch (err) {
+      console.error('useAuth: Erro ao carregar dados do usuário:', err);
+      setError('Não foi possível carregar seus dados. Por favor, faça login novamente.');
     } finally {
       setLoading(false);
     }
-  }, [logout]);
-
-  useEffect(() => {
-    setMounted(true);
-    const token = Cookies.get('auth_token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    checkAuth();
-  }, [checkAuth]);
+  };
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,42 +53,40 @@ export function useAuth() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Falha no login');
+        throw new Error('Credenciais inválidas');
       }
 
-      const { access_token, user: userData } = data;
-      
-      if (!access_token) {
-        throw new Error('Token não recebido do servidor');
-      }
-
-      Cookies.set('auth_token', access_token, { expires: 7 });
-      setUser(userData);
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Erro no login:', error);
-      throw error;
+      const data = await response.json();
+      console.log('data', data);
+      document.cookie = `auth_token=${data.access_token}; path=/`;
+      await fetchUserData();
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error('useAuth: Erro ao fazer login:', err);
+      throw new Error('Falha ao fazer login');
     }
   };
 
-  if (!mounted) {
-    return {
-      user: null,
-      loading: true,
-      login,
-      logout,
-      isAuthenticated: false,
-    };
-  }
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const getAuthToken = (): string | null => {
+    const cookies = document.cookie.split(';');
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
+    console.log('authCookie', authCookie);
+    if (!authCookie) return null;
+    const token = authCookie.split('=')[1].trim();
+    return decodeURIComponent(token);
+  };
 
   return {
     user,
+    company: user?.company,
     loading,
-    login,
-    logout,
+    error,
     isAuthenticated: !!user,
+    login
   };
 } 
