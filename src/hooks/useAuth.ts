@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface Company {
   id: number;
@@ -20,20 +20,29 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
+      const token = getAuthToken();
+      if (!token) {
+        console.log('Token não encontrado');
+        return;
+      }
+
+      console.log('Buscando dados do usuário com token:', token);
+      const response = await fetch('/api/auth/me', {
         headers: {
-          'Authorization': `Bearer ${getAuthToken()}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
+      console.log('Status da resposta /me:', response.status);
       if (!response.ok) {
         throw new Error('Falha ao carregar dados do usuário');
       }
 
       const userData = await response.json();
+      console.log('Dados do usuário recebidos:', userData);
       setUser(userData);
     } catch (err) {
       console.error('useAuth: Erro ao carregar dados do usuário:', err);
@@ -41,10 +50,11 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Iniciando login com email:', email);
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -53,29 +63,34 @@ export function useAuth() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Status da resposta login:', response.status);
+      const data = await response.json();
+      console.log('Dados da resposta login:', data);
+
       if (!response.ok) {
-        throw new Error('Credenciais inválidas');
+        throw new Error(data.message || 'Credenciais inválidas');
       }
 
-      const data = await response.json();
-      console.log('data', data);
-      document.cookie = `auth_token=${data.access_token}; path=/`;
+      if (!data.access_token) {
+        throw new Error('Token não recebido do servidor');
+      }
+
+      // O cookie será definido automaticamente pelo servidor
       await fetchUserData();
       window.location.href = '/dashboard';
     } catch (err) {
       console.error('useAuth: Erro ao fazer login:', err);
-      throw new Error('Falha ao fazer login');
+      throw new Error(err instanceof Error ? err.message : 'Falha ao fazer login');
     }
   };
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
 
   const getAuthToken = (): string | null => {
     const cookies = document.cookie.split(';');
     const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
-    console.log('authCookie', authCookie);
     if (!authCookie) return null;
     const token = authCookie.split('=')[1].trim();
     return decodeURIComponent(token);

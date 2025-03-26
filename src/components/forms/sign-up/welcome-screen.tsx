@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+// import Link from 'next/link';
+import { Card, CardHeader } from '@/components/ui/card';
 
 export function WelcomeScreen() {
   return (
@@ -22,7 +22,7 @@ export function WelcomeScreen() {
             Estamos felizes em ter você conosco. Vamos começar?
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        {/* <CardContent className="space-y-4">
           <p className="text-center">
             Para continuar, clique no botão abaixo:
           </p>
@@ -34,7 +34,7 @@ export function WelcomeScreen() {
               Começar
             </Link>
           </div>
-        </CardContent>
+        </CardContent> */}
       </Card>
     </div>
   );

@@ -128,13 +128,20 @@ export function SignUpForm() {
         body: JSON.stringify(data),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error('Erro ao criar conta');
+        throw new Error(responseData.message || 'Erro ao criar conta');
       }
 
       setIsSuccess(true);
     } catch (error) {
       console.error('Erro no registro:', error);
+      // Você pode adicionar aqui uma notificação de erro usando um toast
+      if (error instanceof Error) {
+        // Aqui você pode adicionar um toast ou outro feedback visual
+        console.error(error.message);
+      }
     } finally {
       setIsLoading(false);
     }

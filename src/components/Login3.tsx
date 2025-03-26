@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from 'next/image';
 // import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 // import { Checkbox } from "@/components/ui/checkbox";
@@ -11,6 +12,7 @@ import { z } from "zod";
 
 import { SignInFormSchema } from "@/lib/definitions";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Login3Props {
   heading?: string;
@@ -37,12 +39,13 @@ const Login3 = ({
   loginText = "Entrar",
   // googleText = "Entrar com Google",
   signupText = "Não tem uma conta?",
-  signupUrl = "#",
+  signupUrl = "https://vertify.com.br/sign-up",
 }: Login3Props) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { toast } = useToast();
+  
   const form = useForm<z.infer<typeof SignInFormSchema>>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
@@ -50,21 +53,29 @@ const Login3 = ({
       password: "",
     },
   });
+
   const {
     formState: { errors },
+    handleSubmit,
   } = form;
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: z.infer<typeof SignInFormSchema>) => {
     try {
-      await login(email, password);
+      setIsLoading(true);
+      await login(data.email, data.password);
     } catch (error) {
       console.error('Erro ao fazer login:', error);
-      alert("E-mail ou senha inválidos");
+      toast({
+        title: "Erro",
+        description: error instanceof Error ? error.message : "E-mail ou senha inválidos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,59 +87,59 @@ const Login3 = ({
     <section className="py-32 flex justify-center items-center">
       <div className="container">
         <div className="flex flex-col gap-4">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mx-auto w-full max-w-sm rounded-md p-6 shadow">
               <div className="mb-6 flex flex-col items-center">
                 <a href={logo.url}>
-                  <img
+                  <Image
                     src={logo.src}
                     alt={logo.alt}
+                    width={40}
+                    height={40}
                     className="mb-7 h-10 w-auto"
                   />
                 </a>
                 <p className="mb-2 text-2xl font-bold">{heading}</p>
                 <p className="text-muted-foreground">{subheading}</p>
               </div>
-              <div>
-                <div className="grid gap-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
                   <Input
                     type="email"
-                    placeholder="Escreva seu e-mail"
-                    required
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="E-mail"
+                    {...form.register("email")}
+                    disabled={isLoading}
                   />
-                  {errors.email && <span>{errors.email.message}</span>}
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Escreva sua senha"
-                      required
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    {errors.password && <span>{errors.password.message}</span>}
-                  </div>
-                  <div className="flex justify-end">
-                    <a
-                      href="#"
-                      className="text-sm text-primary hover:underline"
-                    >
-                      Esqueceu a senha?
-                    </a>
-                  </div>
-                  <Button type="submit" className="mt-2 w-full">
-                    {loginText}
-                  </Button>
-                  {/* <Button variant="outline" className="w-full">
-                    <FcGoogle className="mr-2 size-5" />
-                    {googleText}
-                  </Button> */}
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
-                <div className="mx-auto mt-8 flex justify-center gap-1 text-sm text-muted-foreground">
-                  <p>{signupText}</p>
-                  <a href={signupUrl} className="font-medium text-primary">
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    placeholder="Senha"
+                    {...form.register("password")}
+                    disabled={isLoading}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password.message}</p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Entrando..." : loginText}
+                </Button>
+                {/* <Button variant="outline" className="w-full">
+                  <FcGoogle className="mr-2 size-5" />
+                  {googleText}
+                </Button> */}
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {signupText}{" "}
+                  <a href={signupUrl} className="text-primary hover:underline">
                     Criar conta
                   </a>
-                </div>
+                </p>
               </div>
             </div>
           </form>

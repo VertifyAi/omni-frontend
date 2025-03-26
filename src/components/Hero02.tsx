@@ -1,5 +1,6 @@
 import React from "react";
 import { HandHelping, Users, Zap } from "lucide-react";
+import Image from 'next/image';
 
 import { Separator } from "@/components/ui/separator";
 
@@ -46,9 +47,11 @@ const Hero45 = ({
     <section className="my-32 flex justify-center">
       <div className="container overflow-hidden">
         <div className="relative mx-auto max-w-screen-lg">
-          <img
+          <Image
             src={imageSrc}
             alt={imageAlt}
+            width={1200}
+            height={675}
             className="aspect-video max-h-[500px] w-full rounded-xl object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>

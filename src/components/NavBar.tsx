@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Menu, Sunset, Trees, Zap } from "lucide-react";
+import Image from 'next/image';
 import {
   Accordion,
   AccordionContent,
@@ -113,7 +114,7 @@ const Navbar1 = ({
   ],
   auth = {
     login: { text: "Entrar", url: "/sign-in" },
-    signup: { text: "Acesso Antecipado", url: "/sign-up" },
+    signup: { text: "Acesso Exclusivo", url: "/sign-up" },
   },
 }: Navbar1Props) => {
   const [location, setLocation] = useState("");
@@ -131,7 +132,13 @@ const Navbar1 = ({
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
             <a href={logo.url || location} className="flex items-center gap-2">
-              <img src={logo.src} className="w-18" alt={logo.alt} />
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={72}
+                height={32}
+                className="w-18"
+              />
               {/* <span className="text-lg font-semibold">{logo.title}</span> */}
             </a>
             <div className="flex items-center">
@@ -155,7 +162,13 @@ const Navbar1 = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             <a href={logo.url || location} className="flex items-center gap-2">
-              <img src={logo.src} className="w-18" alt={logo.alt} />
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={72}
+                height={32}
+                className="w-18"
+              />
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -167,7 +180,13 @@ const Navbar1 = ({
                 <SheetHeader>
                   <SheetTitle>
                     <a href={logo.url || location} className="flex items-center gap-2">
-                      <img src={logo.src} className="w-8" alt={logo.alt} />
+                      <Image
+                        src={logo.src}
+                        alt={logo.alt}
+                        width={72}
+                        height={32}
+                        className="w-8"
+                      />
                       <span className="text-lg font-semibold">
                         {logo.title}
                       </span>

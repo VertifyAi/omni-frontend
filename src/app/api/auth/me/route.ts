@@ -19,25 +19,30 @@ export async function GET() {
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`;
     console.log('Fazendo requisição para:', apiUrl);
 
-    const response = await fetch(apiUrl, {
+    const apiResponse = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
 
-    console.log('Status da resposta:', response.status);
-    const data = await response.json();
+    console.log('Status da resposta:', apiResponse.status);
+    const data = await apiResponse.json();
     console.log('Dados recebidos:', data);
 
-    if (!response.ok) {
+    if (!apiResponse.ok) {
       return NextResponse.json(
         { message: data.message || 'Não autorizado' },
-        { status: response.status }
+        { status: apiResponse.status }
       );
     }
 
-    return NextResponse.json(data);
+    // Criar a resposta com os dados do usuário e o cookie company_id
+    return NextResponse.json(data, {
+      headers: {
+        'Set-Cookie': `company_id=${data.company_id.toString()}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${60 * 60 * 24 * 7}`
+      }
+    });
   } catch (error) {
     console.error('Erro ao verificar usuário:', error);
     return NextResponse.json(

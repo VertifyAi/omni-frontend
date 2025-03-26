@@ -20,7 +20,7 @@ const Cta11 = ({
   description = "Join thousands of satisfied customers using our platform to build amazing websites.",
   buttons = {
     secondary: {
-      text: "Acesso Antecipado",
+      text: "Acesso Exclusivo",
       url: "https://vertify.com.br/sign-up",
     },
   },

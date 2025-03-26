@@ -1,12 +1,100 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Ticket, TicketPriority } from '@/types/chat';
+import { useEffect, useState, useCallback } from 'react';
+import { Ticket, TicketPriority, SocialNetwork } from '@/types/chat';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw } from 'lucide-react';
-import { chatService } from '@/services/chat';
+import { Loader2, RefreshCw, Filter } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const socialIcons: Record<SocialNetwork, string> = {
+  facebook: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
+  instagram: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
+  whatsapp: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+27.svg",
+  tiktok: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+19.svg",
+  telegram: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
+};
+
+// Dados mockados
+const mockTickets: Ticket[] = [
+  {
+    id: 1,
+    status: 'in_progress',
+    priority: TicketPriority.HIGH,
+    summary: 'Cliente com problemas na integração do WhatsApp',
+    created_at: new Date(2024, 2, 22, 14, 30).toISOString(),
+    area_id: 1,
+    source: 'whatsapp',
+    customer: {
+      id: 1,
+      name: 'João Silva',
+      email: 'joao@email.com',
+      avatar: 'https://avatar.vercel.sh/joao.png',
+    },
+  },
+  {
+    id: 2,
+    status: 'open',
+    priority: TicketPriority.MEDIUM,
+    summary: 'Dúvida sobre plano Enterprise',
+    created_at: new Date(2024, 2, 22, 10, 15).toISOString(),
+    area_id: 2,
+    source: 'instagram',
+    customer: {
+      id: 2,
+      name: 'Maria Santos',
+      email: 'maria@email.com',
+      avatar: 'https://avatar.vercel.sh/maria.png',
+    },
+  },
+  {
+    id: 3,
+    status: 'closed',
+    priority: TicketPriority.LOW,
+    summary: 'Solicitação de material de marketing',
+    created_at: new Date(2024, 2, 21, 16, 45).toISOString(),
+    area_id: 3,
+    source: 'facebook',
+    customer: {
+      id: 3,
+      name: 'Pedro Oliveira',
+      email: 'pedro@email.com',
+      avatar: 'https://avatar.vercel.sh/pedro.png',
+    },
+  },
+  {
+    id: 4,
+    status: 'in_progress',
+    priority: TicketPriority.HIGH,
+    summary: 'Erro crítico no sistema de pagamentos',
+    created_at: new Date(2024, 2, 22, 9, 0).toISOString(),
+    area_id: 1,
+    source: 'telegram',
+    customer: {
+      id: 4,
+      name: 'Ana Costa',
+      email: 'ana@email.com',
+      avatar: 'https://avatar.vercel.sh/ana.png',
+    },
+  },
+  {
+    id: 5,
+    status: 'open',
+    priority: TicketPriority.MEDIUM,
+    summary: 'Configuração de webhook',
+    created_at: new Date(2024, 2, 22, 11, 20).toISOString(),
+    area_id: 2,
+    source: 'tiktok',
+    customer: {
+      id: 5,
+      name: 'Lucas Mendes',
+      email: 'lucas@email.com',
+      avatar: 'https://avatar.vercel.sh/lucas.png',
+    },
+  },
+];
 
 interface TicketListProps {
   onTicketSelect: (ticket: Ticket) => void;
@@ -18,22 +106,24 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     status: [] as string[],
     priority: [] as TicketPriority[],
     area: [] as number[]
   });
 
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const loadedTickets = await chatService.getTickets();
-      setTickets(loadedTickets);
+      // Simulando delay de carregamento
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setTickets(mockTickets);
 
       // Se não houver ticket selecionado, selecionar o primeiro da lista
-      if (loadedTickets.length > 0 && !selectedTicket) {
-        onTicketSelect(loadedTickets[0]);
+      if (mockTickets.length > 0 && !selectedTicket) {
+        onTicketSelect(mockTickets[0]);
       }
     } catch (error) {
       console.error('TicketList: Erro ao carregar tickets:', error);
@@ -41,49 +131,23 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [onTicketSelect, selectedTicket]);
 
   useEffect(() => {
-    const initializeChat = async () => {
-      try {
-        await chatService.initialize();
-        await loadTickets();
-
-        // Configurar listener para novos tickets
-        const unsubscribe = chatService.onNewTicket((newTicket) => {
-          setTickets(prev => [...prev, newTicket]);
-        });
-
-        return () => {
-          unsubscribe();
-          chatService.disconnect();
-        };
-      } catch (error) {
-        console.error('TicketList: Erro ao inicializar chat:', error);
-        setError('Não foi possível conectar ao serviço de chat. Tente novamente.');
-      }
-    };
-
-    if (!authLoading && !authError) {
-      initializeChat();
-    }
-  }, [authLoading, authError]);
-
-  const toggleFilter = (type: 'status' | 'priority' | 'area', value: string | TicketPriority | number) => {
-    setFilters(prev => {
-      const currentValues = prev[type] as Array<typeof value>;
-      const newValues = currentValues.includes(value)
-        ? currentValues.filter(v => v !== value)
-        : [...currentValues, value];
-      return { ...prev, [type]: newValues };
-    });
-  };
+    loadTickets();
+  }, [loadTickets]);
 
   const filteredTickets = tickets.filter(ticket => {
+    const searchMatch = searchTerm === '' || 
+      ticket.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+
     const statusMatch = filters.status.length === 0 || filters.status.includes(ticket.status);
     const priorityMatch = filters.priority.length === 0 || filters.priority.includes(ticket.priority);
     const areaMatch = filters.area.length === 0 || filters.area.includes(ticket.area_id);
-    return statusMatch && priorityMatch && areaMatch;
+    
+    return searchMatch && statusMatch && priorityMatch && areaMatch;
   });
 
   if (authLoading) {
@@ -127,56 +191,20 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
           </Button>
         </div>
         
-        <div className="flex flex-wrap gap-2">
-          <div>
-            <span className="text-sm font-medium text-gray-700 mr-2">Status:</span>
-            <Badge
-              variant={filters.status.includes('open') ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => toggleFilter('status', 'open')}
-            >
-              Aberto
-            </Badge>
-            <Badge
-              variant={filters.status.includes('in_progress') ? 'default' : 'outline'}
-              className="cursor-pointer ml-1"
-              onClick={() => toggleFilter('status', 'in_progress')}
-            >
-              Em Andamento
-            </Badge>
-            <Badge
-              variant={filters.status.includes('closed') ? 'default' : 'outline'}
-              className="cursor-pointer ml-1"
-              onClick={() => toggleFilter('status', 'closed')}
-            >
-              Fechado
-            </Badge>
-          </div>
-
-          <div className="ml-4">
-            <span className="text-sm font-medium text-gray-700 mr-2">Prioridade:</span>
-            <Badge
-              variant={filters.priority.includes(TicketPriority.HIGH) ? 'destructive' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => toggleFilter('priority', TicketPriority.HIGH)}
-            >
-              Alta
-            </Badge>
-            <Badge
-              variant={filters.priority.includes(TicketPriority.MEDIUM) ? 'secondary' : 'outline'}
-              className="cursor-pointer ml-1"
-              onClick={() => toggleFilter('priority', TicketPriority.MEDIUM)}
-            >
-              Média
-            </Badge>
-            <Badge
-              variant={filters.priority.includes(TicketPriority.LOW) ? 'default' : 'outline'}
-              className="cursor-pointer ml-1"
-              onClick={() => toggleFilter('priority', TicketPriority.LOW)}
-            >
-              Baixa
-            </Badge>
-          </div>
+        <div className="flex justify-between items-center gap-4">
+          <Input
+            placeholder="Buscar mensagem ou contato"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {}}
+            disabled={isLoading}
+          >
+            <Filter className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -206,7 +234,10 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
             <Button
               variant="link"
               className="mt-2"
-              onClick={() => setFilters({ status: [], priority: [], area: [] })}
+              onClick={() => {
+                setFilters({ status: [], priority: [], area: [] });
+                setSearchTerm('');
+              }}
             >
               Limpar filtros
             </Button>
@@ -224,26 +255,52 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
                 onClick={() => onTicketSelect(ticket)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">#{ticket.id}</Badge>
-                    <Badge
-                      variant={ticket.status === 'closed' ? 'secondary' : 'default'}
-                      className="capitalize"
-                    >
-                      {ticket.status === 'in_progress' ? 'Em Andamento' : 
-                       ticket.status === 'closed' ? 'Fechado' : 'Aberto'}
-                    </Badge>
-                    <Badge
-                      variant={
-                        ticket.priority === TicketPriority.HIGH ? 'destructive' :
-                        ticket.priority === TicketPriority.MEDIUM ? 'secondary' :
-                        'default'
-                      }
-                    >
-                      {ticket.priority === TicketPriority.HIGH ? 'Alta' :
-                       ticket.priority === TicketPriority.MEDIUM ? 'Média' :
-                       'Baixa'}
-                    </Badge>
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={ticket.customer.avatar} alt={ticket.customer.name} />
+                        <AvatarFallback>
+                          {ticket.customer.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5">
+                        <img
+                          src={socialIcons[ticket.source]}
+                          alt={ticket.source}
+                          className="h-4 w-4"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">#{ticket.id}</Badge>
+                        <Badge
+                          variant={ticket.status === 'closed' ? 'secondary' : 'default'}
+                          className="capitalize"
+                        >
+                          {ticket.status === 'in_progress' ? 'Em Andamento' : 
+                           ticket.status === 'closed' ? 'Fechado' : 'Aberto'}
+                        </Badge>
+                        <Badge
+                          variant={
+                            ticket.priority === TicketPriority.HIGH ? 'destructive' :
+                            ticket.priority === TicketPriority.MEDIUM ? 'secondary' :
+                            'default'
+                          }
+                        >
+                          {ticket.priority === TicketPriority.HIGH ? 'Alta' :
+                           ticket.priority === TicketPriority.MEDIUM ? 'Média' :
+                           'Baixa'}
+                        </Badge>
+                      </div>
+                      <div className="mt-1">
+                        <p className="text-sm font-medium">{ticket.customer.name}</p>
+                        <p className="text-sm text-gray-500">{ticket.customer.email}</p>
+                      </div>
+                    </div>
                   </div>
                   <div className="text-sm text-gray-500">
                     {new Date(ticket.created_at).toLocaleString('pt-BR', {
@@ -255,7 +312,9 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
                     })}
                   </div>
                 </div>
-                <p className="mt-2 text-gray-700">{ticket.summary}</p>
+                <div className="mt-2 pl-14">
+                  <p className="text-gray-700">{ticket.summary}</p>
+                </div>
               </div>
             ))}
           </div>

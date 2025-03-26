@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Layout, Pointer, Zap } from "lucide-react";
+import Image from 'next/image';
 
 // import { Badge } from "@/components/ui/badge";
 // import { Button } from "@/components/ui/button";
@@ -123,10 +124,12 @@ const Feature108 = ({
                     {tab.content.buttonText}
                   </Button> */}
                 </div>
-                <img
+                <Image
                   src={tab.content.imageSrc}
                   alt={tab.content.imageAlt}
-                  className="rounded-xl"
+                  width={500}
+                  height={300}
+                  className="rounded-lg"
                 />
               </TabsContent>
             ))}

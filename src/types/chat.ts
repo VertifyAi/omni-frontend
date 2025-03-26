@@ -4,19 +4,24 @@ export enum TicketPriority {
   HIGH = 'high'
 }
 
+export type SocialNetwork = 'facebook' | 'instagram' | 'whatsapp' | 'tiktok' | 'telegram';
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 export interface Ticket {
   id: number;
   status: 'open' | 'in_progress' | 'closed';
   priority: TicketPriority;
   summary: string;
-  triaged: boolean;
-  customer_phone_id: number;
-  company_id: number;
+  created_at: string;
   area_id: number;
-  user_id?: number;
-  created_at: Date;
-  updated_at: Date;
-  closed_at?: Date;
+  customer: Customer;
+  source: SocialNetwork;
 }
 
 export interface Message {

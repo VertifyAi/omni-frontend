@@ -29,7 +29,7 @@ class ChatService {
       return;
     }
 
-    this.socket = io('https://vertify.com.br', {
+    this.socket = io(process.env.NEXT_PUBLIC_API_URL, {
       auth: { token }
     });
 
@@ -72,7 +72,7 @@ class ChatService {
     const token = this.getAuthToken();
     if (!token) throw new Error('Token não encontrado');
 
-    const response = await fetch(`https://vertify.com.br/tickets/${ticketId}/messages`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tickets/${ticketId}/messages`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -101,7 +101,7 @@ class ChatService {
     const token = this.getAuthToken();
     if (!token) throw new Error('Token não encontrado');
 
-    const response = await fetch('https://vertify.com.br/tickets', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tickets`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
