@@ -1,8 +1,33 @@
 import { useEffect } from 'react';
 
+interface FacebookResponse {
+  accessToken: string;
+  userID: string;
+  signedRequest: string;
+}
+
+interface FacebookLoginResponse {
+  status: 'connected' | 'not_authorized' | 'unknown';
+  authResponse: FacebookResponse | null;
+}
+
+interface FacebookInitParams {
+  appId: string;
+  cookie: boolean;
+  xfbml: boolean;
+  version: string;
+}
+
+interface FacebookSDK {
+  init: (params: FacebookInitParams) => void;
+  login: (callback: (response: FacebookLoginResponse) => void, options?: { scope: string }) => void;
+  logout: (callback: (response: { status: string }) => void) => void;
+  getLoginStatus: (callback: (response: FacebookLoginResponse) => void) => void;
+}
+
 declare global {
   interface Window {
-    FB: any;
+    FB: FacebookSDK;
     fbAsyncInit: () => void;
   }
 }
@@ -36,34 +61,44 @@ export const useFacebookSDK = (appId: string) => {
     loadFacebookSDK();
   }, [appId]);
 
-  const checkLoginState = (): Promise<any> => {
+  const checkLoginState = (): Promise<FacebookLoginResponse> => {
     return new Promise((resolve, reject) => {
       if (!window.FB) {
         reject(new Error('SDK do Facebook não carregado'));
         return;
       }
 
-      window.FB.getLoginStatus((response: any) => {
+      window.FB.getLoginStatus((response: FacebookLoginResponse) => {
         resolve(response);
       });
     });
   };
 
-  const login = (): Promise<any> => {
+  const login = (): Promise<FacebookLoginResponse> => {
     return new Promise((resolve, reject) => {
       if (!window.FB) {
         reject(new Error('SDK do Facebook não carregado'));
         return;
       }
 
-      window.FB.login((response: any) => {
+      window.FB.login((response: FacebookLoginResponse) => {
         resolve(response);
       }, { scope: 'whatsapp_business_management' });
     });
   };
 
+  const logout = (callback: (response: { status: string }) => void): void => {
+    window.FB.logout(callback);
+  };
+
+  const getLoginStatus = (callback: (response: FacebookLoginResponse) => void): void => {
+    window.FB.getLoginStatus(callback);
+  };
+
   return {
     checkLoginState,
-    login
+    login,
+    logout,
+    getLoginStatus
   };
 }; 

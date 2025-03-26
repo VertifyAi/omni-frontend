@@ -1,4 +1,5 @@
 import { ArrowDownRight, Star } from "lucide-react";
+import Image from 'next/image';
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -109,10 +110,12 @@ const Hero3 = ({
           </div>
         </div>
         <div className="hidden sm:flex">
-          <img
-            src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/Ativo+1.svg"
-            alt="placeholder hero"
-            className="max-h-[600px] w-full rounded-md object-cover lg:max-h-[800px]"
+          <Image
+            src="/hero-image.png"
+            alt="Hero"
+            width={500}
+            height={300}
+            className="rounded-lg shadow-lg"
           />
         </div>
       </div>

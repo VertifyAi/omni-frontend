@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, RefreshCw, Filter } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from 'next/image';
 
 const socialIcons: Record<SocialNetwork, string> = {
   facebook: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
@@ -257,20 +257,19 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="relative">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={ticket.customer.avatar} alt={ticket.customer.name} />
-                        <AvatarFallback>
-                          {ticket.customer.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
+                      <Image
+                        src={ticket.customer.avatar}
+                        alt={ticket.customer.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
                       <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5">
-                        <img
+                        <Image
                           src={socialIcons[ticket.source]}
                           alt={ticket.source}
-                          className="h-4 w-4"
+                          width={16}
+                          height={16}
                         />
                       </div>
                     </div>

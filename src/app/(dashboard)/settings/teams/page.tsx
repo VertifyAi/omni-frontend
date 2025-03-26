@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pencil, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CreateUserForm } from "@/components/users/CreateUserForm";
 import { UserRole } from "@/types/user-role.enum";
 import Cookies from 'js-cookie';
@@ -36,7 +36,7 @@ export default function TeamsPage() {
     setCompanyId(companyIdFromCookie);
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!companyId) return;
 
     try {
@@ -59,13 +59,11 @@ export default function TeamsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId, toast]);
 
   useEffect(() => {
-    if (companyId) {
-      fetchUsers();
-    }
-  }, [companyId]);
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleUserCreated = () => {
     fetchUsers();
