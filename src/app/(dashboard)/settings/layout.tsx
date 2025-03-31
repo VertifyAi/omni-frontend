@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Settings,
-  Bell,
+  // Bell,
   Users,
-  Palette,
+  // Palette,
   Plug,
   CreditCard,
   Building2,
@@ -20,24 +20,24 @@ const settingsNavigation = [
     icon: Settings,
     description: "Configurações gerais da conta",
   },
-  {
-    name: "Notificações",
-    href: "/settings/notifications",
-    icon: Bell,
-    description: "Preferências de notificações",
-  },
+  // {
+  //   name: "Notificações",
+  //   href: "/settings/notifications",
+  //   icon: Bell,
+  //   description: "Preferências de notificações",
+  // },
   {
     name: "Equipe",
     href: "/settings/teams",
     icon: Users,
     description: "Gerenciar membros da equipe",
   },
-  {
-    name: "Aparência",
-    href: "/settings/appearance",
-    icon: Palette,
-    description: "Personalizar a interface",
-  },
+  // {
+  //   name: "Aparência",
+  //   href: "/settings/appearance",
+  //   icon: Palette,
+  //   description: "Personalizar a interface",
+  // },
   // {
   //   name: "Segurança",
   //   href: "/settings/security",

@@ -74,7 +74,7 @@ export function TicketDetails({ ticket }: TicketDetailsProps) {
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',

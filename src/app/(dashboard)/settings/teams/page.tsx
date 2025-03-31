@@ -14,8 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { CreateUserForm } from "@/components/users/CreateUserForm";
 import { UserRole } from "@/types/user-role.enum";
 import Cookies from 'js-cookie';
-import { useToast } from "@/components/ui/use-toast";
-
+import { toast } from "sonner";
 // Tipo para usuário
 interface User {
   id: string;
@@ -29,7 +28,6 @@ export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const companyIdFromCookie = Cookies.get('company_id') || null;
@@ -51,15 +49,11 @@ export default function TeamsPage() {
       setUsers(data);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: error instanceof Error ? error.message : 'Erro ao carregar usuários',
-      });
+      toast.error('Erro ao carregar usuários');
     } finally {
       setIsLoading(false);
     }
-  }, [companyId, toast]);
+  }, [companyId]);
 
   useEffect(() => {
     fetchUsers();

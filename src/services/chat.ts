@@ -43,12 +43,10 @@ class ChatService {
         status: 'open',
         priority: data.priority,
         summary: data.summary,
-        triaged: false,
-        customer_phone_id: 0,
-        company_id: 0,
         area_id: data.areaId,
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        customer: { id: 0, name: 'Cliente', email: 'cliente@email.com', avatar: undefined },
+        source: 'whatsapp'
       }));
     });
 

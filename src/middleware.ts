@@ -10,6 +10,8 @@ const privatePaths = [
   '/dashboard/:path*',
   '/settings',
   '/settings/:path*',
+  '/teams',
+  '/teams/:path*',
 ]
 
 export function middleware(request: NextRequest) {
@@ -34,6 +36,9 @@ export const config = {
     '/sign-up',
     '/api/auth/login',
     '/api/auth/sign-up',
+    '/dashboard',
+    '/teams',
+    '/teams/:path*',
     '/dashboard/:path*',
     '/settings/:path*',
     '/api/chat/:path*',

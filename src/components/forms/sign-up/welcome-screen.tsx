@@ -1,6 +1,6 @@
 import Image from 'next/image';
-// import Link from 'next/link';
-import { Card, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 export function WelcomeScreen() {
   return (
@@ -22,19 +22,19 @@ export function WelcomeScreen() {
             Estamos felizes em ter você conosco. Vamos começar?
           </p>
         </CardHeader>
-        {/* <CardContent className="space-y-4">
+        <CardContent className="space-y-4">
           <p className="text-center">
             Para continuar, clique no botão abaixo:
           </p>
           <div className="flex justify-center">
             <Link
-              href="/sign-up/step1"
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              href="/settings/integrations"
+              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
             >
               Começar
             </Link>
           </div>
-        </CardContent> */}
+        </CardContent>
       </Card>
     </div>
   );

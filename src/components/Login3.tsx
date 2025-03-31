@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from 'next/image';
-// import { FcGoogle } from "react-icons/fc";
+import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-// import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -12,7 +10,7 @@ import { z } from "zod";
 
 import { SignInFormSchema } from "@/lib/definitions";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface Login3Props {
   heading?: string;
@@ -37,15 +35,12 @@ const Login3 = ({
     alt: "logo",
   },
   loginText = "Entrar",
-  // googleText = "Entrar com Google",
   signupText = "Não tem uma conta?",
-  signupUrl = "https://vertify.com.br/sign-up",
+  signupUrl = "/sign-up",
 }: Login3Props) => {
-  const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const { toast } = useToast();
-  
+
   const form = useForm<z.infer<typeof SignInFormSchema>>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
@@ -59,29 +54,17 @@ const Login3 = ({
     handleSubmit,
   } = form;
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const onSubmit = async (data: z.infer<typeof SignInFormSchema>) => {
     try {
       setIsLoading(true);
       await login(data.email, data.password);
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "E-mail ou senha inválidos",
-        variant: "destructive",
-      });
+      console.log(error);
+      toast.error("E-mail ou senha inválidos");
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (!isClient) {
-    return null;
-  }
 
   return (
     <section className="py-32 flex justify-center items-center">
@@ -111,7 +94,9 @@ const Login3 = ({
                     disabled={isLoading}
                   />
                   {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -122,16 +107,14 @@ const Login3 = ({
                     disabled={isLoading}
                   />
                   {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Entrando..." : loginText}
                 </Button>
-                {/* <Button variant="outline" className="w-full">
-                  <FcGoogle className="mr-2 size-5" />
-                  {googleText}
-                </Button> */}
               </div>
               <div className="mt-4 text-center">
                 <p className="text-sm text-muted-foreground">

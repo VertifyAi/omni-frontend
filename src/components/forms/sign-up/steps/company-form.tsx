@@ -19,7 +19,7 @@ export function CompanyForm({ form }: CompanyFormProps) {
         control={form.control}
         name="company.name"
         render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Nome da Empresa</FormLabel>
               <FormControl>
@@ -35,7 +35,7 @@ export function CompanyForm({ form }: CompanyFormProps) {
         control={form.control}
         name="company.cnpj"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>CNPJ</FormLabel>
               <FormControl>
@@ -59,7 +59,7 @@ export function CompanyForm({ form }: CompanyFormProps) {
         control={form.control}
         name="company.phone"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Telefone da Empresa</FormLabel>
               <FormControl>

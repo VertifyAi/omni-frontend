@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -16,7 +16,8 @@ const createUserSchema = z.object({
 });
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
+  response: NextResponse,
   { params }: { params: { companyId: string } }
 ) {
   try {

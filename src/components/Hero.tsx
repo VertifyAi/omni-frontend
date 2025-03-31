@@ -111,11 +111,11 @@ const Hero3 = ({
         </div>
         <div className="hidden sm:flex">
           <Image
-            src="/hero-image.png"
+            src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/Ativo+1.svg"
             alt="Hero"
             width={500}
-            height={300}
-            className="rounded-lg shadow-lg"
+            height={500}
+            className=""
           />
         </div>
       </div>

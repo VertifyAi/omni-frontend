@@ -4,14 +4,13 @@ import { WhatsAppMessage } from '@/types/integrations';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export function WhatsAppMessages() {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   const loadMessages = useCallback(async () => {
     try {
@@ -19,13 +18,9 @@ export function WhatsAppMessages() {
       setMessages(data);
     } catch (err) {
       console.error('Erro ao carregar mensagens:', err);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as mensagens",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar as mensagens");
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadMessages();
@@ -33,11 +28,7 @@ export function WhatsAppMessages() {
 
   const handleSendMessage = async () => {
     if (!phone || !newMessage) {
-      toast({
-        title: 'Erro',
-        description: 'Preencha o telefone e a mensagem',
-        variant: 'destructive',
-      });
+      toast.error("Preencha o telefone e a mensagem");
       return;
     }
 
@@ -48,17 +39,10 @@ export function WhatsAppMessages() {
         message: newMessage,
       });
       setNewMessage('');
-      toast({
-        title: 'Sucesso',
-        description: 'Mensagem enviada com sucesso',
-      });
+      toast.success("Mensagem enviada com sucesso");
       loadMessages();
     } catch {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível enviar a mensagem',
-        variant: 'destructive',
-      });
+      toast.error("Não foi possível enviar a mensagem");
     } finally {
       setLoading(false);
     }

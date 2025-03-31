@@ -12,6 +12,7 @@ import { PersonalInfo, AddressInfo, CompanyForm } from "./steps";
 import { CompanyAddress } from "./steps/company-address";
 import { WelcomeScreen } from "./welcome-screen";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -55,8 +56,6 @@ export function SignUpForm() {
   const isLastStep = currentStep === steps.length - 1;
 
   const handleNextStep = async () => {
-    console.log("Tentando avançar...");
-    
     type FieldName = keyof SignUpFormData | 'address.street' | 'address.city' | 'address.state' | 'address.zip_code' | 'address.country' | 'address.complement' | 'company.name' | 'company.cnpj' | 'company.phone' | 'company.address.street' | 'company.address.city' | 'company.address.state' | 'company.address.zip_code' | 'company.address.country' | 'company.address.complement';
     
     const fields: Record<number, FieldName[]> = {
@@ -68,13 +67,8 @@ export function SignUpForm() {
 
     const currentFields = fields[currentStep];
     if (!currentFields) return;
-
-    const values = form.getValues();
-    console.log("Valores atuais:", values);
-
     // Validar todos os campos do passo atual
     const isValid = await form.trigger(currentFields);
-    console.log("Campos válidos?", isValid);
 
     // Validação específica para o primeiro passo (onde está a senha)
     if (currentStep === 0) {
@@ -110,14 +104,11 @@ export function SignUpForm() {
     if (isValid) {
       setCurrentStep(prev => prev + 1);
     } else {
-      // Se houver erros, mostrar todos eles
       form.trigger(currentFields);
     }
   };
 
   const onSubmit = async (data: SignUpFormData) => {
-    console.log("Submit chamado", { currentStep, data });
-
     try {
       setIsLoading(true);
       const response = await fetch('/api/auth/sign-up', {
@@ -136,12 +127,8 @@ export function SignUpForm() {
 
       setIsSuccess(true);
     } catch (error) {
-      console.error('Erro no registro:', error);
-      // Você pode adicionar aqui uma notificação de erro usando um toast
-      if (error instanceof Error) {
-        // Aqui você pode adicionar um toast ou outro feedback visual
-        console.error(error.message);
-      }
+      console.log(error)
+      toast.error(error instanceof Error ? error.message : 'Erro ao criar conta')
     } finally {
       setIsLoading(false);
     }

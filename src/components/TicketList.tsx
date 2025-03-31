@@ -258,7 +258,7 @@ export function TicketList({ onTicketSelect, selectedTicket }: TicketListProps) 
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <Image
-                        src={ticket.customer.avatar}
+                        src={ticket.customer.avatar || '/default-avatar.svg'}
                         alt={ticket.customer.name}
                         width={40}
                         height={40}

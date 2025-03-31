@@ -21,10 +21,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
+import { toast } from "sonner";
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -42,7 +42,6 @@ interface User {
 
 export default function CreateTeamPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
@@ -72,18 +71,14 @@ export default function CreateTeamPage() {
         setUsers(data);
       } catch (error) {
         console.error('Erro ao carregar usuários:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: error instanceof Error ? error.message : 'Erro ao carregar usuários',
-        });
+        toast.error(error instanceof Error ? error.message : 'Erro ao carregar usuários')
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUsers();
-  }, [toast]);
+  }, []);
 
   const onSubmit = async (data: CreateTeamFormData) => {
     try {
@@ -104,19 +99,12 @@ export default function CreateTeamPage() {
         throw new Error(responseData.message || 'Erro ao criar equipe');
       }
 
-      toast({
-        title: "Sucesso",
-        description: "Equipe criada com sucesso!",
-      });
+      toast.success('Equipe criada com sucesso!')
       router.push('/teams');
     } catch (error) {
       console.error('Erro ao criar equipe:', error);
       if (error instanceof Error) {
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: error.message,
-        });
+        toast.error(error.message)
       }
     }
   };

@@ -43,7 +43,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
     };
 
     searchAddress();
-  }, [cep, fetchAddress, form]);
+  }, [cep, form, fetchAddress]);
 
   return (
     <div className="space-y-4">
@@ -51,7 +51,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
         control={form.control}
         name="address.zip_code"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>CEP</FormLabel>
               <FormControl>
@@ -76,7 +76,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
         control={form.control}
         name="address.street"
         render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Rua</FormLabel>
               <FormControl>
@@ -93,7 +93,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
           control={form.control}
           name="address.city"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Cidade</FormLabel>
                 <FormControl>
@@ -109,7 +109,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
           control={form.control}
           name="address.state"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Estado</FormLabel>
                 <FormControl>
@@ -127,7 +127,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
           control={form.control}
           name="address.complement"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Complemento</FormLabel>
                 <FormControl>
@@ -143,7 +143,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
           control={form.control}
           name="address.country"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>País</FormLabel>
                 <FormControl>

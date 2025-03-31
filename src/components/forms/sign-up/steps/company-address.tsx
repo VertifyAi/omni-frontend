@@ -19,7 +19,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
         control={form.control}
         name="company.address.zip_code"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>CEP</FormLabel>
               <FormControl>
@@ -43,7 +43,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
         control={form.control}
         name="company.address.street"
         render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Rua</FormLabel>
               <FormControl>
@@ -60,7 +60,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
           control={form.control}
           name="company.address.city"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Cidade</FormLabel>
                 <FormControl>
@@ -76,7 +76,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
           control={form.control}
           name="company.address.state"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Estado</FormLabel>
                 <FormControl>
@@ -94,7 +94,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
           control={form.control}
           name="company.address.complement"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Complemento</FormLabel>
                 <FormControl>
@@ -110,7 +110,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
           control={form.control}
           name="company.address.country"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>País</FormLabel>
                 <FormControl>

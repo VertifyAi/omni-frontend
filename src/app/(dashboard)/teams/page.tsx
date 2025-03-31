@@ -12,8 +12,7 @@ import {
 import { Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-
+import { toast } from "sonner";
 interface Team {
   id: number;
   name: string;
@@ -28,7 +27,6 @@ interface Team {
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -42,19 +40,15 @@ export default function TeamsPage() {
 
         setTeams(data);
       } catch (error) {
-        console.error('Erro ao carregar equipes:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: error instanceof Error ? error.message : 'Erro ao carregar equipes',
-        });
+        console.error(error);
+        toast.error(error instanceof Error ? error.message : 'Erro ao carregar equipes')
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTeams();
-  }, [toast]);
+  }, []);
 
   return (
     <div className="flex flex-col gap-8 p-8 ml-16">

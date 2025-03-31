@@ -3,10 +3,8 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Dados recebidos:', body);
 
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/login`;
-    console.log('Fazendo requisição para:', apiUrl);
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -15,9 +13,6 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(body),
     });
-
-    console.log('Status da resposta:', response.status);
-    console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
 
     // Verificar se a resposta é JSON antes de tentar fazer o parse
     const contentType = response.headers.get('content-type');
@@ -30,7 +25,6 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    console.log('Dados da resposta:', data);
 
     if (!response.ok) {
       return NextResponse.json(
@@ -48,7 +42,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 7 dias
+      maxAge: 60 * 50, // 50 minutos
     });
 
     // Adicionar o cookie company_id
@@ -57,7 +51,7 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 7 // 7 dias
+        maxAge: 60 * 50, // 50 minutos
       });
     }
 

@@ -6,8 +6,8 @@ import { WhatsAppIntegration } from "@/types/integrations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function WhatsAppIntegrationComponent() {
   const [integration, setIntegration] = useState<WhatsAppIntegration | null>(
@@ -15,7 +15,6 @@ export function WhatsAppIntegrationComponent() {
   );
   const [loading, setLoading] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
-  const { toast } = useToast();
 
   const loadIntegration = useCallback(async () => {
     try {
@@ -27,13 +26,9 @@ export function WhatsAppIntegrationComponent() {
       }
     } catch (err) {
       console.error("Erro ao carregar integração:", err);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a integração",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível carregar a integração");
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadIntegration();
@@ -42,11 +37,7 @@ export function WhatsAppIntegrationComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!whatsappNumber) {
-      toast({
-        title: "Erro",
-        description: "Preencha todos os campos obrigatórios",
-        variant: "destructive",
-      });
+      toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
@@ -59,32 +50,17 @@ export function WhatsAppIntegrationComponent() {
         });
       console.log("Integração criada com sucesso:", data);
       setIntegration(data);
-      toast({
-        title: "Sucesso",
-        description: "Integração criada com sucesso",
-      });
+      toast.success("Integração criada com sucesso");
     } catch (error) {
       console.error("Erro ao criar integração:", error);
       if (error instanceof Error) {
         if (error.message === "Token não encontrado") {
-          toast({
-            title: "Erro de autenticação",
-            description: "Você precisa estar logado para criar uma integração",
-            variant: "destructive",
-          });
+          toast.error("Você precisa estar logado para criar uma integração");
         } else {
-          toast({
-            title: "Erro",
-            description: error.message || "Não foi possível criar a integração",
-            variant: "destructive",
-          });
+          toast.error(error.message || "Não foi possível criar a integração");
         }
       } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível criar a integração",
-          variant: "destructive",
-        });
+        toast.error("Não foi possível criar a integração");
       }
     } finally {
       setLoading(false);
@@ -97,16 +73,9 @@ export function WhatsAppIntegrationComponent() {
       await IntegrationsService.getInstance().deleteWhatsAppIntegration();
       setIntegration(null);
       setWhatsappNumber("");
-      toast({
-        title: "Sucesso",
-        description: "Integração removida com sucesso",
-      });
+      toast.success("Integração removida com sucesso");
     } catch {
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover a integração",
-        variant: "destructive",
-      });
+      toast.error("Não foi possível remover a integração");
     } finally {
       setLoading(false);
     }

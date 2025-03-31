@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const signUpSchema = z.object({
   firstName: z.string().min(1, "Nome é obrigatório"),
@@ -33,25 +33,16 @@ const signUpSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    // Verifica se a URL da API está configurada
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) {
-      console.error('NEXT_PUBLIC_API_URL não está configurada');
-      return NextResponse.json(
-        { message: 'Configuração do servidor incorreta' },
-        { status: 500 }
-      );
-    }
 
-    // Parse e valida o corpo da requisição
     const body = await request.json();
     const validationResult = signUpSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          message: 'Dados inválidos',
-          errors: validationResult.error.errors 
+        {
+          message: "Dados inválidos",
+          errors: validationResult.error.errors,
         },
         { status: 400 }
       );
@@ -60,13 +51,10 @@ export async function POST(request: Request) {
     // Prepara os dados para enviar para a API
     const userData = validationResult.data;
 
-    console.log('Dados para enviar para a API:', JSON.stringify(userData, null, 2));
-
-    // Faz a requisição para a API
     const response = await fetch(`${apiUrl}/users`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
@@ -75,22 +63,63 @@ export async function POST(request: Request) {
 
     // Trata erros da API
     if (!response.ok) {
-      console.error('Erro da API:', data);
+      console.error("Erro da API:", data);
       return NextResponse.json(
-        { 
-          message: data.message || 'Erro ao criar conta',
-          errors: data.errors 
+        {
+          message: data.message || "Erro ao criar conta",
+          errors: data.errors,
         },
         { status: response.status }
       );
     }
 
-    return NextResponse.json(data);
+    const loginResponse = await fetch(`${apiUrl}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const loginData = await loginResponse.json();
+
+    if (!loginResponse.ok) {
+      return NextResponse.json(
+        { message: loginData.message || "Credenciais inválidas" },
+        { status: response.status }
+      );
+    }
+
+    // Criar a resposta com os dados do usuário
+    const nextResponse = NextResponse.json(loginData);
+
+    nextResponse.cookies.set("auth_token", loginData.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 50, // 50 minutos
+    });
+
+    if (loginData.content?.companyId) {
+      nextResponse.cookies.set(
+        "company_id",
+        loginData.content.companyId.toString(),
+        {
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 60 * 50, // 50 minutos
+        }
+      );
+    }
+
+    return nextResponse;
   } catch (error) {
-    console.error('Erro no registro:', error);
+    console.error("Erro no registro:", error);
     return NextResponse.json(
-      { message: 'Erro interno do servidor' },
+      { message: "Erro interno do servidor" },
       { status: 500 }
     );
   }
-} 
+}

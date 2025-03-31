@@ -40,7 +40,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
           control={form.control}
           name="firstName"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Nome</FormLabel>
                 <FormControl>
@@ -55,7 +55,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
           control={form.control}
           name="lastName"
           render={({ field }) => (
-            <FormItem className="min-h-[78px] flex flex-col gap-2">
+            <FormItem className="min-h-[78px] flex flex-col">
               <div>
                 <FormLabel>Sobrenome</FormLabel>
                 <FormControl>
@@ -72,7 +72,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
         control={form.control}
         name="email"
         render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Email</FormLabel>
               <FormControl>
@@ -88,7 +88,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
         control={form.control}
         name="password"
         render={({ field, fieldState }) => (
-          <FormItem className="min-h-[98px] flex flex-col gap-2">
+          <FormItem className="min-h-[98px] flex flex-col">
             <div>
               <FormLabel>Senha</FormLabel>
               <FormControl>
@@ -112,7 +112,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
         control={form.control}
         name="passwordConfirmation"
         render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Confirmar Senha</FormLabel>
               <FormControl>
@@ -134,7 +134,7 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
         control={form.control}
         name="phone"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
-          <FormItem className="min-h-[78px] flex flex-col gap-2">
+          <FormItem className="min-h-[78px] flex flex-col">
             <div>
               <FormLabel>Telefone</FormLabel>
               <FormControl>

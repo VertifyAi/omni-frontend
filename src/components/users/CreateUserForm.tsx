@@ -29,7 +29,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const createUserSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -54,7 +54,6 @@ interface CreateUserFormProps {
 export function CreateUserForm({ companyId, onUserCreated }: CreateUserFormProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const form = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
@@ -84,21 +83,14 @@ export function CreateUserForm({ companyId, onUserCreated }: CreateUserFormProps
         throw new Error(responseData.message || 'Erro ao criar usuário');
       }
 
-      toast({
-        title: "Sucesso",
-        description: "Usuário criado com sucesso!",
-      });
+      toast.success('Usuário criado com sucesso!');
       onUserCreated();
       setOpen(false);
       form.reset();
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
       if (error instanceof Error) {
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: error.message,
-        });
+        toast.error(error.message);
       }
     } finally {
       setIsLoading(false);

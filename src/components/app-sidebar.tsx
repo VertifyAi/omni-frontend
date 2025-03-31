@@ -57,14 +57,14 @@ const navigation = [
 
 const options = [
   {
-    name: "Configurações",
-    href: "/settings",
-    icon: Settings,
-  },
-  {
     name: "Notificações",
     href: "",
     icon: Bell,
+  },
+  {
+    name: "Configurações",
+    href: "/settings",
+    icon: Settings,
   },
   {
     name: "Ajuda",
