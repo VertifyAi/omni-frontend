@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,24 +14,28 @@ import { useState } from "react";
 import { useFacebookSDK } from "@/hooks/useFacebookSDK";
 
 const socialNetworks = [
-  // {
-  //   name: "Facebook",
-  //   description:
-  //     "Conecte sua página do Facebook para gerenciar mensagens.",
-  //   icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
-  //   connected: false,
-  // },
-  // {
-  //   name: "Instagram",
-  //   description:
-  //     "Integre sua conta do Instagram para responder DMs.",
-  //   icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
-  //   connected: false,
-  // },
+  {
+    name: "Facebook",
+    description: "Conecte sua página do Facebook para gerenciar mensagens.",
+    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
+    connected: false,
+  },
+  {
+    name: "Instagram",
+    description: "Integre sua conta do Instagram para responder DMs.",
+    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
+    connected: false,
+  },
   {
     name: "WhatsApp",
     description: "Gerencie todas as conversas do WhatsApp em um só lugar.",
     icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+27.svg",
+    connected: false,
+  },
+  {
+    name: "Telegram",
+    description: "Integre seus canais e grupos do Telegram.",
+    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
     connected: false,
   },
   // {
@@ -40,18 +44,14 @@ const socialNetworks = [
   //   icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+19.svg",
   //   connected: false,
   // },
-  // {
-  //   name: "Telegram",
-  //   description: "Integre seus canais e grupos do Telegram.",
-  //   icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
-  //   connected: false,
-  // },
 ];
 
 export default function IntegrationsPage() {
   const [showWhatsAppTutorial, setShowWhatsAppTutorial] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const fbSDK = useFacebookSDK('SEU_APP_ID_AQUI'); // Substitua pelo seu App ID do Facebook
+  const [code, setCode] = useState<string | null>(null);
+  const { isInitialized } = useFacebookSDK(
+    process.env.NEXT_PUBLIC_FACEBOOK_APP_ID as string
+  );
 
   const handleConnect = (networkName: string) => {
     if (networkName === "WhatsApp") {
@@ -60,29 +60,23 @@ export default function IntegrationsPage() {
   };
 
   const handleWhatsAppConnect = async () => {
-    try {
-      setIsConnecting(true);
-      const loginStatus = await fbSDK.checkLoginState();
+    if (!window.FB) return;
 
-      if (loginStatus.status !== 'connected') {
-        const loginResponse = await fbSDK.login();
-        if (loginResponse.status !== 'connected') {
-          throw new Error('Falha ao conectar com o Facebook');
+    window.FB.login(
+      (response: { authResponse: { code: string } }) => {
+        if (response.authResponse) {
+          setCode(response.authResponse.code);
+          console.log("Response code:", code);
+          alert("Login bem-sucedido! Código recebido.");
+        } else {
+          alert("Erro no login do Facebook.");
         }
+      },
+      {
+        scope: "business_management, whatsapp_business_management",
+        response_type: "code",
       }
-
-      // Após autenticado, redireciona para a página de configuração do WhatsApp
-      window.open(
-        "https://business.facebook.com/wa/signup?configuration_id=648740911195259",
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } catch (error) {
-      console.error('Erro ao conectar com o WhatsApp:', error);
-      // Aqui você pode adicionar uma notificação de erro para o usuário
-    } finally {
-      setIsConnecting(false);
-    }
+    );
   };
 
   if (showWhatsAppTutorial) {
@@ -91,7 +85,7 @@ export default function IntegrationsPage() {
         <WhatsAppTutorial
           onBack={() => setShowWhatsAppTutorial(false)}
           onConnect={handleWhatsAppConnect}
-          isConnecting={isConnecting}
+          isConnecting={isInitialized}
         />
       </div>
     );

@@ -1,48 +1,47 @@
-export enum TicketPriority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high'
+export enum TicketStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  CLOSED = 'CLOSED',
+  CANCELED = 'CANCELED',
 }
 
-export type SocialNetwork = 'facebook' | 'instagram' | 'whatsapp' | 'tiktok' | 'telegram';
+export interface Company {
+  city: string;
+  email: string;
+  id: number;
+  name: string;
+  phone: string;
+  state: string;
+  streetName: string;
+  streetNumber: string;
+  createdAt: string;
+  updatedAt: string
+  deletedAt?: string;
+}
 
 export interface Customer {
   id: number;
-  name: string;
+  city: string;
   email: string;
+  name: string;
+  phone: string;
   avatar?: string;
+  state: string;
+  streetName: string;
+  streetNumber: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface Ticket {
   id: number;
-  status: 'open' | 'in_progress' | 'closed';
-  priority: TicketPriority;
-  summary: string;
-  created_at: string;
-  area_id: number;
+  status: TicketStatus;
+  areaId: number;
+  closedAt: string;
+  company: Company;
+  channel: string
+  companyId: number;
+  createdAt: string;
   customer: Customer;
-  source: SocialNetwork;
 }
-
-export interface Message {
-  ticketId: number;
-  message: string;
-  sender: 'CUSTOMER' | 'AGENT';
-  createdAt: Date;
-}
-
-export interface WebSocketEvents {
-  'new_message': Message;
-  'ticket_updated': {
-    ticketId: number;
-    priority: TicketPriority;
-    summary: string;
-    areaId: number;
-  };
-}
-
-export interface TicketFilters {
-  status?: string[];
-  priority?: TicketPriority[];
-  area?: number[];
-} 

@@ -3,7 +3,6 @@ import { fetchApi } from '@/lib/fetch';
 
 export async function GET() {
   try {
-    // Ajuste a URL para a rota correta do seu backend
     const response = await fetchApi('/tickets/1/messages');
 
     console.log(response);

@@ -30,10 +30,10 @@ const Hero3 = ({
   heading = "Venda Mais e Reduza Custos com IA Omnichannel",
   description = "Automatize e escale o seu atendimento de maneira inteligente com a Vera, a assistente virtual que gerencia conversas por 24h em múltiplos canais. Integre WhatsApp, Instagram, Messenger e muito mais, tudo em um só lugar.",
   buttons = {
-    primary: {
-      text: "Acesso Exclusivo",
-      url: "https://vertify.com.br/sign-up",
-    },
+    // primary: {
+    //   text: "Acesso Exclusivo",
+    //   url: "https://vertify.com.br/sign-up",
+    // },
   },
   reviews = {
     count: 10,
@@ -95,7 +95,7 @@ const Hero3 = ({
           </div>
           <div className="flex w-full flex-col justify-center gap-2 sm:flex-row lg:justify-start">
             {buttons.primary && (
-              <Button asChild className="w-full sm:w-auto">
+              <Button asChild className="w-full sm:w-auto" disabled>
                 <a href={buttons.primary.url}>{buttons.primary.text}</a>
               </Button>
             )}
@@ -109,7 +109,7 @@ const Hero3 = ({
             )}
           </div>
         </div>
-        <div className="hidden sm:flex">
+        <div className="hidden sm:flex sm:justify-center">
           <Image
             src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/Ativo+1.svg"
             alt="Hero"

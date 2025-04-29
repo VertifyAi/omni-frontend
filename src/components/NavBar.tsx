@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Menu, Sunset, Trees, Zap } from "lucide-react";
-import Image from 'next/image';
+import Image from "next/image";
 import {
   Accordion,
   AccordionContent,
@@ -51,7 +51,7 @@ interface Navbar1Props {
       text: string;
       url: string;
     };
-    signup: {
+    signup?: {
       text: string;
       url: string;
     };
@@ -114,7 +114,7 @@ const Navbar1 = ({
   ],
   auth = {
     login: { text: "Entrar", url: "/sign-in" },
-    signup: { text: "Acesso Exclusivo", url: "/sign-up" },
+    // signup: { text: "Acesso Exclusivo", url: "/sign-up" },
   },
 }: Navbar1Props) => {
   const [location, setLocation] = useState("");
@@ -153,9 +153,11 @@ const Navbar1 = ({
             <Button asChild variant="outline" size="sm">
               <a href={auth.login.url}>{auth.login.text}</a>
             </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.text}</a>
-            </Button>
+            {auth.signup && (
+              <Button asChild size="sm">
+                <a href={auth.signup.url}>{auth.signup.text}</a>
+              </Button>
+            )}
           </div>
         </nav>
         {/* Mobile Menu */}
@@ -179,7 +181,10 @@ const Navbar1 = ({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url || location} className="flex items-center gap-2">
+                    <a
+                      href={logo.url || location}
+                      className="flex items-center gap-2"
+                    >
                       <Image
                         src={logo.src}
                         alt={logo.alt}
@@ -206,9 +211,11 @@ const Navbar1 = ({
                     <Button asChild variant="outline">
                       <a href={auth.login.url}>{auth.login.text}</a>
                     </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.text}</a>
-                    </Button>
+                    {auth.signup && (
+                      <Button asChild>
+                        <a href={auth.signup.url}>{auth.signup.text}</a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </SheetContent>
@@ -224,7 +231,9 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title} className="text-muted-foreground">
-        <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50">{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50">
+          {item.title}
+        </NavigationMenuTrigger>
         <NavigationMenuContent>
           <div className="grid w-[400px] gap-1 p-4">
             {item.items.map((subItem) => (

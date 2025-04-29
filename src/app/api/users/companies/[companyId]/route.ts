@@ -3,14 +3,15 @@ import { cookies } from 'next/headers';
 
 export async function GET(
   request: Request,
-  response: Response,
-  { params }: { params: { companyId: string } }
+  context: Promise<{ params: { companyId: string } }>
 ) {
   try {
+    const { params } = await context;
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
     const { companyId } = params;
-
+    console.log('params', params);
+    console.log('companyId', companyId);
     if (!token) {
       return NextResponse.json(
         { message: 'Não autorizado' },

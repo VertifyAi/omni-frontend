@@ -14,6 +14,7 @@ import {
   Building2,
   Archive,
   Monitor,
+  Bot,
 } from "lucide-react";
 import {
   Tooltip,
@@ -42,6 +43,11 @@ const navigation = [
     name: "Atendimento",
     href: "/tickets",
     icon: Inbox,
+  },
+  {
+    name: "Agentes de IA",
+    href: "/agents",
+    icon: Bot,
   },
   {
     name: "Contatos",

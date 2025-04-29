@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +13,10 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { CreateUserForm } from "@/components/users/CreateUserForm";
 import { UserRole } from "@/types/user-role.enum";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { Loading } from "@/components/ui/loading";
+
 // Tipo para usuário
 interface User {
   id: string;
@@ -30,7 +32,7 @@ export default function TeamsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const companyIdFromCookie = Cookies.get('company_id') || null;
+    const companyIdFromCookie = Cookies.get("company_id") || null;
     setCompanyId(companyIdFromCookie);
   }, []);
 
@@ -43,13 +45,13 @@ export default function TeamsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erro ao carregar usuários');
+        throw new Error(data.message || "Erro ao carregar usuários");
       }
 
       setUsers(data);
     } catch (error) {
-      console.error('Erro ao carregar usuários:', error);
-      toast.error('Erro ao carregar usuários');
+      console.error("Erro ao carregar usuários:", error);
+      toast.error("Erro ao carregar usuários");
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +84,10 @@ export default function TeamsPage() {
             Gerencie os membros da sua equipe e suas permissões.
           </p>
         </div>
-        <CreateUserForm onUserCreated={handleUserCreated} companyId={companyId || ""} />
+        <CreateUserForm
+          onUserCreated={handleUserCreated}
+          companyId={companyId || ""}
+        />
       </div>
 
       <Card>
@@ -94,9 +99,13 @@ export default function TeamsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-4">Carregando usuários...</div>
+            <Loading text="Carregando membros da equipe..." />
           ) : users.length === 0 ? (
-            <div className="text-center py-4">Nenhum usuário encontrado.</div>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                Nenhum membro encontrado na equipe.
+              </p>
+            </div>
           ) : (
             <div className="divide-y">
               {users.map((user) => (
@@ -117,12 +126,20 @@ export default function TeamsPage() {
                     </Avatar>
                     <div>
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground mr-4">{user.role}</p>
+                    <p className="text-sm text-muted-foreground mr-4">
+                      {user.role === UserRole.ADMIN
+                        ? "Administrador"
+                        : user.role === UserRole.USER
+                        ? "Usuário"
+                        : "Gestor"}
+                    </p>
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
                         variant="ghost"
