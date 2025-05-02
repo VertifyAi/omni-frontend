@@ -3,26 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { Ticket, TicketStatus } from "@/types/chat";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Filter } from "lucide-react";
+import { Loader2, RefreshCw, Filter, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import { fetchApi } from "@/lib/fetchApi";
-import { formatPhoneNumber } from "@/lib/utils";
-
-const socialIcons: Record<string, string> = {
-  facebook:
-    "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
-  instagram:
-    "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
-  whatsapp:
-    "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+27.svg",
-  tiktok:
-    "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+19.svg",
-  telegram:
-    "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
-};
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { chatService } from "@/services/chat";
+import { TicketCard } from "./TicketCard";
 
 interface TicketListProps {
   onTicketSelect: (ticket: Ticket) => void;
@@ -38,10 +25,9 @@ export function TicketList({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
-    status: [] as string[],
-    area: [] as number[],
-  });
+  const [highlightedTicketId, setHighlightedTicketId] = useState<number | null>(
+    null
+  );
 
   const loadTickets = useCallback(async () => {
     try {
@@ -49,17 +35,22 @@ export function TicketList({
       setError(null);
 
       const result = await fetchApi("/api/tickets");
-      const ticket = await result.json();
-      console.log(ticket)
+      let ticket = await result.json();
+
+      ticket = ticket.sort((a, b) => {
+        const dateA = new Date(a.ticketMessages.at(-1)?.createdAt).getTime();
+        const dateB = new Date(b.ticketMessages.at(-1)?.createdAt).getTime();
+        return dateB - dateA;
+      });
+
       setTickets(ticket);
 
-      // Se não houver ticket selecionado, selecionar o primeiro da lista
-      if (tickets.length > 0 && !selectedTicket) {
-        onTicketSelect(tickets[0]);
+      if (ticket.length > 0 && !selectedTicket) {
+        onTicketSelect(ticket[0]);
       }
     } catch (error) {
-      console.error("TicketList: Erro ao carregar tickets:", error);
-      setError("Não foi possível carregar os tickets. Tente novamente.");
+      console.error("Erro ao carregar tickets:", error);
+      setError("Não foi possível carregar os tickets.");
     } finally {
       setIsLoading(false);
     }
@@ -69,18 +60,47 @@ export function TicketList({
     loadTickets();
   }, [loadTickets]);
 
+  useEffect(() => {
+    const unsubscribe = chatService.onNewMessage((message) => {
+      console.log("Nova mensagem recebida:", message);
+
+      setTickets((prevTickets) => {
+        const updatedTickets = [...prevTickets];
+        const index = updatedTickets.findIndex(
+          (t) => t.id === message.ticketId
+        );
+
+        if (index === -1) return prevTickets;
+
+        const ticketToUpdate = { ...updatedTickets[index] };
+
+        ticketToUpdate.ticketMessages = [
+          ...ticketToUpdate.ticketMessages,
+          message,
+        ];
+
+        updatedTickets.splice(index, 1); // remove
+        const reordered = [ticketToUpdate, ...updatedTickets]; // coloca no topo
+
+        setHighlightedTicketId(message.ticketId);
+        setTimeout(() => setHighlightedTicketId(null), 3000); // 3s destaque
+
+        return reordered;
+      });
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [selectedTicket?.id, onTicketSelect]);
+
   const filteredTickets = tickets.filter((ticket) => {
     const searchMatch =
       searchTerm === "" ||
       ticket.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const statusMatch =
-      filters.status.length === 0 || filters.status.includes(ticket.status);
-    const areaMatch =
-      filters.area.length === 0 || filters.area.includes(ticket.areaId);
-
-    return searchMatch && statusMatch && areaMatch;
+    return searchMatch;
   });
 
   if (authLoading) {
@@ -156,96 +176,61 @@ export function TicketList({
         </div>
       )}
 
-      <div className="flex-1 overflow-auto p-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          </div>
-        ) : filteredTickets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <p>Nenhum ticket encontrado.</p>
-            <Button
-              variant="link"
-              className="mt-2"
-              onClick={() => {
-                setFilters({ status: [], area: [] });
-                setSearchTerm("");
-              }}
-            >
-              Limpar filtros
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {filteredTickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  selectedTicket?.id === ticket.id
-                    ? "bg-blue-50 border-blue-200"
-                    : "hover:bg-gray-50"
-                }`}
-                onClick={() => onTicketSelect(ticket)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <Image
-                        src={ticket.customer.avatar || "/default-avatar.svg"}
-                        alt={ticket.customer.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5">
-                        <Image
-                          src={socialIcons[ticket.channel]}
-                          alt={ticket.channel}
-                          width={16}
-                          height={16}
-                        />
-                      </div>
-                    </div>
-                    <div className="">
-                      <p className="text-sm font-medium">
-                        {ticket.customer.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {formatPhoneNumber(ticket.customer.phone)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500 flex flex-col gap-2 items-end">
-                    {new Date(ticket.createdAt).toLocaleString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    <Badge
-                      variant={
-                        ticket.status === TicketStatus.CLOSED
-                          ? "secondary"
-                          : "default"
-                      }
-                      className="capitalize w-12 text-xs"
-                    >
-                      {ticket.status === TicketStatus.IN_PROGRESS
-                        ? "Em Andamento"
-                        : ticket.status === TicketStatus.CLOSED
-                        ? "Fechado"
-                        : "Aberto"}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <p className="text-gray-700">TEste</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div>
+        <Tabs defaultValue="ai" className="w-full p-2">
+          <TabsList className="w-full">
+            <TabsTrigger value="ai">
+              IA <Sparkles className="h-4 w-4" />
+            </TabsTrigger>
+            <TabsTrigger value="open">Abertos</TabsTrigger>
+            <TabsTrigger value="closed">Fechados</TabsTrigger>
+          </TabsList>
+          <TabsContent value="ai">
+            <div className="flex flex-col gap-4 w-full">
+              {filteredTickets
+                .filter((ticket) => ticket.status === TicketStatus.AI)
+                .map((ticket) => (
+                  <TicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    selected={selectedTicket?.id === ticket.id}
+                    highlighted={highlightedTicketId === ticket.id}
+                    onSelect={onTicketSelect}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="open">
+            <div className="flex flex-col gap-4 w-full">
+              {filteredTickets
+                .filter((ticket) => ticket.status === TicketStatus.IN_PROGRESS)
+                .map((ticket) => (
+                  <TicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    selected={selectedTicket?.id === ticket.id}
+                    highlighted={highlightedTicketId === ticket.id}
+                    onSelect={onTicketSelect}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="closed">
+            <div className="flex flex-col gap-4 w-full">
+              {filteredTickets
+                .filter((ticket) => ticket.status === TicketStatus.CLOSED)
+                .map((ticket) => (
+                  <TicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    selected={selectedTicket?.id === ticket.id}
+                    highlighted={highlightedTicketId === ticket.id}
+                    onSelect={onTicketSelect}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

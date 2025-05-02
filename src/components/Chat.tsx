@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import { Message, Ticket } from '@/types/chat';
-import { chatService } from '@/services/chat';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send } from 'lucide-react';
+import React, { useEffect, useState, useRef } from "react";
+import { Message, Ticket } from "@/types/chat";
+import { chatService } from "@/services/chat";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2, Send } from "lucide-react";
+import { fetchApi } from "@/lib/fetchApi";
+import { formatPhoneNumber } from "@/lib/utils";
+import Image from "next/image";
 
 interface ChatProps {
   ticket: Ticket;
@@ -14,23 +17,28 @@ interface ChatProps {
 
 export function Chat({ ticket }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [isLoadingInitial, setIsLoadingInitial] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [lastMessage, setLastMessage] = useState<Message | null>(null);
 
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        setIsLoading(true);
+        setIsLoadingInitial(true);
         setError(null);
-        const loadedMessages = await chatService.getMessages(ticket.id);
+        const response = await fetchApi(`/api/tickets/${ticket.id}/messages`);
+        const loadedMessages = await response.json();
         setMessages(loadedMessages);
+        chatService.markAsRead(ticket.id);
       } catch (error) {
-        console.error('Chat: Erro ao carregar mensagens:', error);
-        setError('Não foi possível carregar as mensagens. Tente novamente.');
+        console.error("Chat: Erro ao carregar mensagens:", error);
+        setError("Não foi possível carregar as mensagens. Tente novamente.");
       } finally {
-        setIsLoading(false);
+        setIsLoadingInitial(false);
       }
     };
 
@@ -41,7 +49,8 @@ export function Chat({ ticket }: ChatProps) {
     // Configurar listener para novas mensagens
     const unsubscribe = chatService.onNewMessage((message) => {
       if (message.ticketId === ticket.id) {
-        setMessages(prev => [...prev, message]);
+        setMessages((prev) => [...prev, message]);
+        setLastMessage(message);
       }
     });
 
@@ -53,46 +62,63 @@ export function Chat({ ticket }: ChatProps) {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!newMessage.trim()) return;
 
     try {
-      setIsLoading(true);
+      setIsSendingMessage(true);
       setError(null);
       await chatService.sendMessage(ticket.id, newMessage.trim());
-      setNewMessage('');
+      setNewMessage("");
     } catch (error) {
-      console.error('Chat: Erro ao enviar mensagem:', error);
-      setError('Não foi possível enviar a mensagem. Tente novamente.');
+      console.error("Chat: Erro ao enviar mensagem:", error);
+      setError("Não foi possível enviar a mensagem. Tente novamente.");
     } finally {
-      setIsLoading(false);
+      setIsSendingMessage(false);
     }
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(date).toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Ticket #{ticket.id}</h2>
-        <p className="text-sm text-muted-foreground">{ticket.summary}</p>
+      <div className="flex border-b pl-4">
+        <Image
+          src={ticket.customer.avatar || "/default-avatar.svg"}
+          alt={ticket.customer.name}
+          width={40}
+          height={40}
+          className="rounded-full"
+        />
+        <div className="p-4">
+          <h2 className="text-lg font-semibold">{ticket.customer.name}</h2>
+          <p className="text-sm text-muted-foreground">
+            {formatPhoneNumber(ticket.customer.phone)}
+          </p>
+        </div>
+        {chatService.getUnreadCount(ticket.id) > 0 && (
+          <div className="ml-auto p-4">
+            <span className="bg-blue-500 text-white rounded-full px-2 py-1 text-xs">
+              {chatService.getUnreadCount(ticket.id)} nova(s)
+            </span>
+          </div>
+        )}
       </div>
 
-      <ScrollArea ref={scrollRef} className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4">
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
@@ -105,8 +131,8 @@ export function Chat({ ticket }: ChatProps) {
             </Button>
           </div>
         )}
-        
-        {isLoading ? (
+
+        {isLoadingInitial ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
@@ -114,16 +140,23 @@ export function Chat({ ticket }: ChatProps) {
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div
+                ref={scrollRef}
                 key={index}
                 className={`flex ${
-                  message.sender === "AGENT" ? "justify-end" : "justify-start"
+                  message.sender === "AI" || message.sender === "USER"
+                    ? "justify-end"
+                    : "justify-start"
                 }`}
               >
                 <div
-                  className={`max-w-[70%] rounded-lg p-3 ${
-                    message.sender === "AGENT"
+                  className={`max-w-[70%] break-words whitespace-pre-wrap rounded-lg p-3 ${
+                    message.sender === "AI" || message.sender === "USER"
                       ? "bg-blue-500 text-white"
                       : "bg-gray-100"
+                  } ${
+                    lastMessage?.id === message.id
+                      ? "animate-pulse bg-blue-600"
+                      : ""
                   }`}
                 >
                   <p className="text-sm">{message.message}</p>
@@ -139,16 +172,31 @@ export function Chat({ ticket }: ChatProps) {
 
       <div className="p-4 border-t">
         <div className="flex gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage(e)}
-            disabled={isLoading || !newMessage.trim()}
-          />
-          <Button onClick={handleSendMessage} disabled={isLoading || !newMessage.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
+          {ticket.status === "AI" ? (
+            <div>
+              <Button>Pegar Atendimento</Button>
+            </div>
+          ) : (
+            <>
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                onKeyPress={(e) => e.key === "Enter" && handleSendMessage(e)}
+                disabled={isLoadingInitial || !newMessage.trim()}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={isSendingMessage || !newMessage.trim()}
+              >
+                {isSendingMessage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

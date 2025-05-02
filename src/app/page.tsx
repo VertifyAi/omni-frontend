@@ -5,7 +5,7 @@ import { Footer2 } from "@/components/Footer2";
 import { Hero3 } from "@/components/Hero";
 // import { Hero45 } from "@/components/Hero02";
 import { Navbar1 } from "@/components/NavBar";
-// import { Pricing2 } from "@/components/Pricing2";
+import { Pricing2 } from "@/components/Pricing2";
 import { Stats8 } from "@/components/Stats8";
 // import { Cta11 } from "@/components/Cta11";
 
@@ -21,6 +21,7 @@ export default function Home() {
         heading="Comece agora mesmo" 
         description="Garanta acesso antecipado e junte-se a milhares de empresas que já estão usando Agentes de Atendimento com IA"
       /> */}
+      <Pricing2 />
       <Faq1 />
       <Footer2 />
     </div>

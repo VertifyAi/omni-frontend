@@ -42,53 +42,56 @@ const Pricing2 = ({
   description = "Escolha o plano que melhor se encaixa nas suas necessidades",
   plans = [
     {
-      id: "free",
-      name: "Gratuito",
-      description: "Plano gratuito para começar",
-      monthlyPrice: "R$00",
-      yearlyPrice: "R$00",
+      id: "essential",
+      name: "Essencial",
+      description: "Ideal para começar com automação.",
+      monthlyPrice: "R$170",
+      yearlyPrice: "R$120",
       features: [
-        { text: "Dashboard para Análises" },
-        { text: "Integrações Ilimitadas" },
+        { text: "1 Canal de atendimento" },
+        { text: "1 Agente de IA" },
+        { text: "Até 300 tickets/mês" },
+        { text: "Relatórios básicos" },
         { text: "Suporte 24/7" },
-        { text: "" },
       ],
       button: {
-        text: "Purchase",
+        text: "Assinar Agora",
         url: "https://www.shadcnblocks.com",
       },
     },
     {
-      id: "plus",
+      id: "professional",
       name: "Profissional",
-      description: "Para autônomos e equipes pequenas",
-      monthlyPrice: "R$69",
-      yearlyPrice: "R$44",
+      description: "Feito para escalar suas vendas.",
+      monthlyPrice: "R$360",
+      yearlyPrice: "R$250",
       features: [
-        { text: "Agentes de IA para triagem e automação" },
-        { text: "Equipes ilimitadas" },
-        { text: "" },
-        { text: "1GB storage space" },
+        { text: "Canais ilimitados" },
+        { text: "2 Agentes de IA" },
+        { text: "Até 1000 tickets/mês" },
+        { text: "Relatórios detalhados" },
+        { text: "Suporte 24/7" },
       ],
       button: {
-        text: "Purchase",
+        text: "Assinar Agora",
         url: "https://www.shadcnblocks.com",
       },
     },
     {
-      id: "emp",
+      id: "enterprise",
       name: "Empresarial",
-      description: "Para equipes grandes e empresas",
-      monthlyPrice: "R$89",
-      yearlyPrice: "R$64",
+      description: "Soluções sob medida para empresas.",
+      monthlyPrice: "A combinar",
+      yearlyPrice: "A combinar",
       features: [
-        { text: "Unlimited team members" },
-        { text: "Advanced components" },
-        { text: "Priority support" },
-        { text: "Unlimited storage" },
+        { text: "Canais ilimitados" },
+        { text: "Agentes de IA ilimitados" },
+        { text: "Tickets ilimitados" },
+        { text: "Relatórios detalhados" },
+        { text: "Suporte 24/7" },
       ],
       button: {
-        text: "Purchase",
+        text: "Assinar Agora",
         url: "https://www.shadcnblocks.com",
       },
     },
@@ -126,18 +129,21 @@ const Pricing2 = ({
                   </p>
                   <span className="text-4xl font-bold flex items-end gap-1">
                     {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
-                    {plan.id !== 'free' && <p className="text-sm font-normal text-muted-foreground">p/ usuário</p>}
                   </span>
                   <p className="text-muted-foreground">
                     Pagamento anual:{" "}
-                    {isYearly
+                    {isYearly && plan.yearlyPrice === "A combinar"
+                      ? "A combinar"
+                      : !isYearly && plan.monthlyPrice === "A combinar"
+                      ? "A combinar"
+                      : isYearly
                       ? `R$${Number(plan.yearlyPrice.slice(2)) * 12}`
                       : `R$${Number(plan.monthlyPrice.slice(2)) * 12}`}
                   </p>
                 </CardHeader>
                 <CardContent>
                   <Separator className="mb-6" />
-                  {plan.id === "plus" ? (
+                  {/* {plan.id === "plus" ? (
                     <p className="mb-3 font-semibold">
                       Tudo no plano Gratuito +
                     </p>
@@ -145,7 +151,7 @@ const Pricing2 = ({
                     <p className="mb-3 font-semibold">
                       Tudo no plano Profissional +
                     </p>
-                  ) : null}
+                  ) : null} */}
                   <ul className="space-y-4">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2">

@@ -10,7 +10,7 @@ export default function TicketsPage() {
 
   return (
     <div className="flex h-screen ml-16">
-      <div className="w-1/3 border-r">
+      <div className="w-[400px] border-r">
         <TicketList
           onTicketSelect={setSelectedTicket}
           selectedTicket={selectedTicket}
