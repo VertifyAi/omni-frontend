@@ -30,6 +30,8 @@ class ChatService {
 
     this.socket.on("new_message", (data: WebSocketEvents["new_message"]) => {
       console.log('Dados recebidos do WebSocket:', data);
+    
+
       
       // Incrementar contador de mensagens não lidas
       const currentCount = this.unreadMessages.get(data.ticketId) || 0;
@@ -37,6 +39,15 @@ class ChatService {
       this.notifyUnreadChange();
 
       this.messageCallbacks.forEach((callback) => callback(data));
+    });
+
+    this.socket?.on("new_ticket", (data: Ticket) => {
+      console.log("Novo ticket recebido:", data);
+      this.ticketCallbacks.forEach((callback) => callback(data));
+      // Incrementar contador de mensagens não lidas
+      const currentCount = this.unreadMessages.get(data.id) || 0;
+      this.unreadMessages.set(data.id, currentCount + 1);
+      this.notifyUnreadChange();
     });
 
     this.socket.on("disconnect", () => {

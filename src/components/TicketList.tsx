@@ -3,8 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Ticket, TicketStatus } from "@/types/chat";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Filter, Sparkles } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { RefreshCw, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { fetchApi } from "@/lib/fetchApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,13 +13,16 @@ import { TicketCard } from "./TicketCard";
 interface TicketListProps {
   onTicketSelect: (ticket: Ticket) => void;
   selectedTicket: Ticket | null;
+  setSelectedTab: (tab: TicketStatus) => void;
+  selectedTab: TicketStatus;
 }
 
 export function TicketList({
   onTicketSelect,
   selectedTicket,
+  setSelectedTab,
+  selectedTab,
 }: TicketListProps) {
-  const { loading: authLoading, error: authError } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +39,9 @@ export function TicketList({
       const result = await fetchApi("/api/tickets");
       let ticket = await result.json();
 
-      ticket = ticket.sort((a, b) => {
-        const dateA = new Date(a.ticketMessages.at(-1)?.createdAt).getTime();
-        const dateB = new Date(b.ticketMessages.at(-1)?.createdAt).getTime();
+      ticket = ticket.sort((a: Ticket, b: Ticket) => {
+        const dateA = new Date(a.ticketMessages.at(-1)?.createdAt || 0).getTime();
+        const dateB = new Date(b.ticketMessages.at(-1)?.createdAt || 0).getTime();
         return dateB - dateA;
       });
 
@@ -94,6 +96,28 @@ export function TicketList({
     };
   }, [selectedTicket?.id, onTicketSelect]);
 
+  useEffect(() => {
+    const unsubscribe = chatService.onNewTicket((newTicket) => {
+      console.log("Novo ticket recebido:", newTicket);
+
+      setTickets((prevTickets) => {
+        const updatedTickets = [newTicket, ...prevTickets];
+        return updatedTickets.sort((a, b) => {
+          const dateA = new Date(a.ticketMessages.at(-1)?.createdAt || 0).getTime();
+          const dateB = new Date(b.ticketMessages.at(-1)?.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+      });
+
+      setHighlightedTicketId(newTicket.id);
+      setTimeout(() => setHighlightedTicketId(null), 3000); // Destaque por 3 segundos
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   const filteredTickets = tickets.filter((ticket) => {
     const searchMatch =
       searchTerm === "" ||
@@ -102,31 +126,6 @@ export function TicketList({
 
     return searchMatch;
   });
-
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
-  if (authError) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">{authError}</p>
-          <Button
-            variant="outline"
-            onClick={() => (window.location.href = "/sign-in")}
-          >
-            Fazer Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b">
@@ -177,15 +176,28 @@ export function TicketList({
       )}
 
       <div>
-        <Tabs defaultValue="ai" className="w-full p-2">
+        <Tabs value={selectedTab} defaultValue="ai" className="w-full p-2">
           <TabsList className="w-full">
-            <TabsTrigger value="ai">
+            <TabsTrigger
+              value={TicketStatus.AI}
+              onClick={() => setSelectedTab(TicketStatus.AI)}
+            >
               IA <Sparkles className="h-4 w-4" />
             </TabsTrigger>
-            <TabsTrigger value="open">Abertos</TabsTrigger>
-            <TabsTrigger value="closed">Fechados</TabsTrigger>
+            <TabsTrigger
+              value={TicketStatus.IN_PROGRESS}
+              onClick={() => setSelectedTab(TicketStatus.IN_PROGRESS)}
+            >
+              Abertos
+            </TabsTrigger>
+            <TabsTrigger
+              value={TicketStatus.CLOSED}
+              onClick={() => setSelectedTab(TicketStatus.CLOSED)}
+            >
+              Fechados
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="ai">
+          <TabsContent value={TicketStatus.AI}>
             <div className="flex flex-col gap-4 w-full">
               {filteredTickets
                 .filter((ticket) => ticket.status === TicketStatus.AI)
@@ -200,7 +212,7 @@ export function TicketList({
                 ))}
             </div>
           </TabsContent>
-          <TabsContent value="open">
+          <TabsContent value={TicketStatus.IN_PROGRESS}>
             <div className="flex flex-col gap-4 w-full">
               {filteredTickets
                 .filter((ticket) => ticket.status === TicketStatus.IN_PROGRESS)
@@ -215,7 +227,7 @@ export function TicketList({
                 ))}
             </div>
           </TabsContent>
-          <TabsContent value="closed">
+          <TabsContent value={TicketStatus.CLOSED}>
             <div className="flex flex-col gap-4 w-full">
               {filteredTickets
                 .filter((ticket) => ticket.status === TicketStatus.CLOSED)

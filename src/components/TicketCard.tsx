@@ -34,7 +34,7 @@ export function TicketCard({
   highlighted,
   onSelect,
 }: TicketCardProps) {
-  const lastMessage = ticket.ticketMessages.at(-1);
+  const lastMessage = ticket.ticketMessages.at(0);
 
   return (
     <motion.div
@@ -83,11 +83,6 @@ export function TicketCard({
               {formatPhoneNumber(ticket.customer.phone)}
             </p>
           </div>
-          {chatService.getUnreadCount(ticket.id) > 0 && (
-            <span className="bg-blue-500 text-white rounded-full size-6 flex items-center justify-center text-xs">
-              {chatService.getUnreadCount(ticket.id)}
-            </span>
-          )}
         </div>
         <div className="text-sm text-gray-500 flex flex-col gap-2 items-end">
           {lastMessage && (
@@ -105,7 +100,7 @@ export function TicketCard({
             variant={
               ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
             }
-            className="capitalize w-12 text-xs"
+            className="capitalize text-xs"
           >
             {ticket.status === TicketStatus.IN_PROGRESS ? (
               "Em Andamento"
@@ -119,12 +114,17 @@ export function TicketCard({
           </Badge>
         </div>
       </div>
-      <div className="mt-2">
+      <div className="mt-2 flex gap-4">
         {lastMessage && (
           <p className="text-gray-500 truncate w-full">
             <span className="font-semibold">{lastMessage.senderName}:</span>{" "}
             {lastMessage.message}
           </p>
+        )}
+        {chatService.getUnreadCount(ticket.id) > 0 && (
+          <span className="bg-blue-500 text-white rounded-full h-6 w-6 p-2 flex items-center justify-center text-xs">
+            {chatService.getUnreadCount(ticket.id)}
+          </span>
         )}
       </div>
     </motion.div>

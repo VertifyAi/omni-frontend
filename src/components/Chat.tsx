@@ -13,9 +13,10 @@ import Image from "next/image";
 
 interface ChatProps {
   ticket: Ticket;
+  handleChangeStatus: () => Promise<void>;
 }
 
-export function Chat({ ticket }: ChatProps) {
+export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
@@ -23,7 +24,6 @@ export function Chat({ ticket }: ChatProps) {
 
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [lastMessage, setLastMessage] = useState<Message | null>(null);
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -50,7 +50,6 @@ export function Chat({ ticket }: ChatProps) {
     const unsubscribe = chatService.onNewMessage((message) => {
       if (message.ticketId === ticket.id) {
         setMessages((prev) => [...prev, message]);
-        setLastMessage(message);
       }
     });
 
@@ -73,7 +72,20 @@ export function Chat({ ticket }: ChatProps) {
     try {
       setIsSendingMessage(true);
       setError(null);
-      await chatService.sendMessage(ticket.id, newMessage.trim());
+      const response = await fetchApi(`/api/tickets/${ticket.id}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: newMessage,
+          sender: "USER",
+        }),
+      });
+      const newMessageData = await response.json();
+      setMessages((prev) => [...prev, newMessageData]);
+      chatService.sendMessage(ticket.id, newMessageData);
+      chatService.markAsRead(ticket.id);
       setNewMessage("");
     } catch (error) {
       console.error("Chat: Erro ao enviar mensagem:", error);
@@ -153,10 +165,6 @@ export function Chat({ ticket }: ChatProps) {
                     message.sender === "AI" || message.sender === "USER"
                       ? "bg-blue-500 text-white"
                       : "bg-gray-100"
-                  } ${
-                    lastMessage?.id === message.id
-                      ? "animate-pulse bg-blue-600"
-                      : ""
                   }`}
                 >
                   <p className="text-sm">{message.message}</p>
@@ -173,8 +181,13 @@ export function Chat({ ticket }: ChatProps) {
       <div className="p-4 border-t">
         <div className="flex gap-2">
           {ticket.status === "AI" ? (
-            <div>
-              <Button>Pegar Atendimento</Button>
+            <div className="flex w-full items-center justify-center">
+              <p className="mr-12">Atualizar status:</p>
+
+              <div className="flex gap-6">
+                <Button onClick={handleChangeStatus}>Atender Cliente</Button>
+                <Button variant={"destructive"}>Finalizar Atendimento</Button>
+              </div>
             </div>
           ) : (
             <>
@@ -183,7 +196,6 @@ export function Chat({ ticket }: ChatProps) {
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Digite sua mensagem..."
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage(e)}
-                disabled={isLoadingInitial || !newMessage.trim()}
               />
               <Button
                 onClick={handleSendMessage}

@@ -15,28 +15,31 @@ import { useFacebookSDK } from "@/hooks/useFacebookSDK";
 
 const socialNetworks = [
   {
-    name: "Facebook",
-    description: "Conecte sua página do Facebook para gerenciar mensagens.",
-    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
-    connected: false,
-  },
-  {
-    name: "Instagram",
-    description: "Integre sua conta do Instagram para responder DMs.",
-    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
-    connected: false,
-  },
-  {
     name: "WhatsApp",
     description: "Gerencie todas as conversas do WhatsApp em um só lugar.",
     icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+27.svg",
     connected: false,
   },
   {
+    name: "Facebook",
+    description: "Conecte sua página do Facebook para gerenciar mensagens.",
+    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
+    connected: false,
+    soon: true,
+  },
+  {
+    name: "Instagram",
+    description: "Integre sua conta do Instagram para responder DMs.",
+    icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+21.svg",
+    connected: false,
+    soon: true,
+  },
+  {
     name: "Telegram",
     description: "Integre seus canais e grupos do Telegram.",
     icon: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+16.svg",
     connected: false,
+    soon: true,
   },
   // {
   //   name: "TikTok",
@@ -128,10 +131,15 @@ export default function IntegrationsPage() {
             <CardContent>
               <Button
                 variant={network.connected ? "outline" : "default"}
-                className="w-full"
+                className={`w-full ${network.soon ? "cursor-not-allowed" : ""}`}
                 onClick={() => handleConnect(network.name)}
+                disabled={network.soon}
               >
-                {network.connected ? "Desconectar" : "Conectar"}
+                {network.soon
+                  ? "Em breve"
+                  : network.connected
+                  ? "Desconectar"
+                  : "Conectar"}
               </Button>
             </CardContent>
           </Card>
