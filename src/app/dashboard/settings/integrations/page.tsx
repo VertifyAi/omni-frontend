@@ -13,6 +13,7 @@ import { WhatsAppTutorial } from "@/components/WhatsAppTutorial";
 import { useState } from "react";
 import { useFacebookSDK } from "@/hooks/useFacebookSDK";
 
+
 const socialNetworks = [
   {
     name: "WhatsApp",
@@ -52,7 +53,7 @@ const socialNetworks = [
 export default function IntegrationsPage() {
   const [showWhatsAppTutorial, setShowWhatsAppTutorial] = useState(false);
   const [code, setCode] = useState<string | null>(null);
-  const { isInitialized } = useFacebookSDK(
+  const { isReady, login } = useFacebookSDK(
     process.env.NEXT_PUBLIC_FACEBOOK_APP_ID as string
   );
   console.log('code', code);
@@ -63,24 +64,20 @@ export default function IntegrationsPage() {
     }
   };
 
-  const handleWhatsAppConnect = async () => {
-    if (!window.FB) return;
-
-    window.FB.login(
-      (response: { status: string; authResponse?: { accessToken: string; userID: string; expiresIn: number; signedRequest: string } }) => {
-        if (response.authResponse) {
-          setCode(response.authResponse.accessToken);
-          console.log("Access token:", response.authResponse.accessToken);
-          alert("Login bem-sucedido! Token recebido.");
-        } else {
-          alert("Erro no login do Facebook.");
-        }
-      },
-      {
-        scope: "business_management, whatsapp_business_management",
-        response_type: "code",
+  const handleWhatsAppConnect = () => {
+    if (!isReady) {
+      return;
+    }
+  
+    login((response) => {
+      if (response.authResponse) {
+        setCode(response.authResponse.accessToken);
+        console.log("Access token:", response.authResponse.accessToken);
+        alert("Login bem-sucedido! Token recebido.");
+      } else {
+        alert("Erro no login do Facebook.");
       }
-    );
+    });
   };
 
   if (showWhatsAppTutorial) {
@@ -89,7 +86,7 @@ export default function IntegrationsPage() {
         <WhatsAppTutorial
           onBack={() => setShowWhatsAppTutorial(false)}
           onConnect={handleWhatsAppConnect}
-          isConnecting={isInitialized}
+          isConnecting={true}
         />
       </div>
     );

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `api.${NEXT_PUBLIC_API_URL}/:path*`,
+        destination: `${NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },
