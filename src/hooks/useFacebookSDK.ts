@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 interface FacebookSDK {
-  init: (params: any) => void;
-  login: (callback: (response: any) => void, options?: any) => void;
+  init: (params: { appId: string; cookie?: boolean; xfbml?: boolean; version: string }) => void;
+  login: (callback: (response: { status: string; authResponse?: { accessToken: string; userID: string; expiresIn: number; signedRequest: string; } }) => void, options?: Record<string, unknown>) => void;
 }
 
 declare global {

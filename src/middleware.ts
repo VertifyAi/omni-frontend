@@ -3,15 +3,8 @@ import type { NextRequest } from 'next/server'
 
 // Rotas que precisam de autenticação
 const privatePaths = [
-  // '/api/chat',
-  // '/api/auth/me',
-  // '/api/integrations',
-  // '/dashboard',
-  // '/dashboard/:path*',
-  // '/settings',
-  // '/settings/:path*',
-  // '/teams',
-  // '/teams/:path*',
+  '/dashboard',
+  '/dashboard/:path*',
 ]
 
 export function middleware(request: NextRequest) {

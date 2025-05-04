@@ -41,22 +41,22 @@ const navigation = [
   },
   {
     name: "Atendimento",
-    href: "/tickets",
+    href: "/dashboard/tickets",
     icon: Inbox,
   },
   {
     name: "Agentes de IA",
-    href: "/agents",
+    href: "/dashboard/agents",
     icon: Bot,
   },
   {
     name: "Contatos",
-    href: "/customers",
+    href: "/dashboard/customers",
     icon: Users,
   },
   {
     name: "Equipes",
-    href: "/teams",
+    href: "/dashboard/teams",
     icon: Building2,
   },
 ];
@@ -69,17 +69,17 @@ const options = [
   },
   {
     name: "Configurações",
-    href: "/settings",
+    href: "/dashboard/settings",
     icon: Settings,
   },
   {
     name: "Ajuda",
-    href: "/help",
+    href: "/dashboard/help",
     icon: HelpCircle,
   },
   {
     name: "Perfil",
-    href: "/profile",
+    href: "/dashboard/profile",
     icon: User,
   },
 ];

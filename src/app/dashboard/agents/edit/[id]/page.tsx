@@ -106,7 +106,7 @@ export default function EditAgentPage() {
       }
 
       toast.success("Agente atualizado com sucesso!");
-      router.push("/agents");
+      router.push("/dashboard/agents");
     } catch (error) {
       console.error("Erro ao atualizar agente:", error);
       if (error instanceof Error) {
@@ -223,7 +223,7 @@ export default function EditAgentPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/agents")}
+                onClick={() => router.push("/dashboard/agents")}
               >
                 Cancelar
               </Button>

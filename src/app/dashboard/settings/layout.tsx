@@ -16,7 +16,7 @@ import {
 const settingsNavigation = [
   {
     name: "Geral",
-    href: "/settings",
+    href: "/dashboard/settings",
     icon: Settings,
     description: "Configurações gerais da conta",
   },
@@ -28,7 +28,7 @@ const settingsNavigation = [
   // },
   {
     name: "Equipe",
-    href: "/settings/teams",
+    href: "/dashboard/settings/teams",
     icon: Users,
     description: "Gerenciar membros da equipe",
   },
@@ -46,19 +46,19 @@ const settingsNavigation = [
   // },
   {
     name: "Integrações",
-    href: "/settings/integrations",
+    href: "/dashboard/settings/integrations",
     icon: Plug,
     description: "Conectar com outros serviços",
   },
   {
     name: "Faturamento",
-    href: "/settings/billing",
+    href: "/dashboard/settings/billing",
     icon: CreditCard,
     description: "Planos e pagamentos",
   },
   {
     name: "Empresa",
-    href: "/settings/company",
+    href: "/dashboard/settings/company",
     icon: Building2,
     description: "Informações da empresa",
   },

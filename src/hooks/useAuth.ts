@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchApi } from '@/lib/fetchApi';
 import { useEffect, useState, useCallback } from 'react';
 
 interface Company {
@@ -20,29 +21,25 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUserData = useCallback(async () => {
+  const me = useCallback(async () => {
     try {
       const token = getAuthToken();
       if (!token) {
-        console.log('Token não encontrado');
-        return;
+        throw new Error('Token de autenticação não encontrado');
       }
 
-      console.log('Buscando dados do usuário com token:', token);
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch('/api/auth/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('Status da resposta /me:', response.status);
       if (!response.ok) {
         throw new Error('Falha ao carregar dados do usuário');
       }
 
       const userData = await response.json();
-      console.log('Dados do usuário recebidos:', userData);
       setUser(userData);
     } catch (err) {
       console.error('useAuth: Erro ao carregar dados do usuário:', err);
@@ -55,17 +52,14 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       console.log('Iniciando login com email:', email);
-      const response = await fetch('/api/auth/login', {
+      const response = await fetchApi('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
-
-      console.log('Status da resposta login:', response.status);
       const data = await response.json();
-      console.log('Dados da resposta login:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Credenciais inválidas');
@@ -75,8 +69,8 @@ export function useAuth() {
         throw new Error('Token não recebido do servidor');
       }
 
-      // O cookie será definido automaticamente pelo servidor
-      await fetchUserData();
+      document.cookie = `auth_token=${data.access_token}; path=/; max-age=3600; secure; samesite=strict`;
+      await me();
       window.location.href = '/dashboard';
     } catch (err) {
       console.error('useAuth: Erro ao fazer login:', err);
@@ -85,8 +79,8 @@ export function useAuth() {
   };
 
   useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+    me();
+  }, [me]);
 
   const getAuthToken = (): string | null => {
     const cookies = document.cookie.split(';');

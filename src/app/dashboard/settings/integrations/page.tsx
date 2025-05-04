@@ -55,6 +55,7 @@ export default function IntegrationsPage() {
   const { isInitialized } = useFacebookSDK(
     process.env.NEXT_PUBLIC_FACEBOOK_APP_ID as string
   );
+  console.log('code', code);
 
   const handleConnect = (networkName: string) => {
     if (networkName === "WhatsApp") {
@@ -66,11 +67,11 @@ export default function IntegrationsPage() {
     if (!window.FB) return;
 
     window.FB.login(
-      (response: { authResponse: { code: string } }) => {
+      (response: { status: string; authResponse?: { accessToken: string; userID: string; expiresIn: number; signedRequest: string } }) => {
         if (response.authResponse) {
-          setCode(response.authResponse.code);
-          console.log("Response code:", code);
-          alert("Login bem-sucedido! Código recebido.");
+          setCode(response.authResponse.accessToken);
+          console.log("Access token:", response.authResponse.accessToken);
+          alert("Login bem-sucedido! Token recebido.");
         } else {
           alert("Erro no login do Facebook.");
         }

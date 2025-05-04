@@ -50,27 +50,36 @@ const Login3 = ({
   });
 
   const {
-    formState: { errors },
     handleSubmit,
   } = form;
 
   const onSubmit = async (data: z.infer<typeof SignInFormSchema>) => {
     try {
       setIsLoading(true);
+      console.log("Iniciando login:", data);
       await login(data.email, data.password);
     } catch (error) {
       console.log(error);
-      toast.error("E-mail ou senha inválidos");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const onError = (errors: typeof form.formState.errors) => {
+    const firstError = Object.values(errors)[0];
+    if (firstError?.message) {
+      toast.error(firstError.message.toString());
+    } else {
+      toast.error("Erro ao enviar o formulário");
+    }
+  };
+  
+
   return (
     <section className="py-32 flex justify-center items-center">
       <div className="container">
         <div className="flex flex-col gap-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit, onError)}>
             <div className="mx-auto w-full max-w-sm rounded-md p-6 shadow">
               <div className="mb-6 flex flex-col items-center">
                 <a href={logo.url}>
@@ -93,11 +102,11 @@ const Login3 = ({
                     {...form.register("email")}
                     disabled={isLoading}
                   />
-                  {errors.email && (
+                  {/* {errors.email && (
                     <p className="text-sm text-red-500">
                       {errors.email.message}
                     </p>
-                  )}
+                  )} */}
                 </div>
                 <div className="space-y-2">
                   <Input
@@ -106,11 +115,11 @@ const Login3 = ({
                     {...form.register("password")}
                     disabled={isLoading}
                   />
-                  {errors.password && (
+                  {/* {errors.password && (
                     <p className="text-sm text-red-500">
                       {errors.password.message}
                     </p>
-                  )}
+                  )} */}
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Entrando..." : loginText}

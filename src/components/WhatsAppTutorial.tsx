@@ -8,6 +8,7 @@ interface WhatsAppTutorialProps {
 }
 
 export function WhatsAppTutorial({ onBack, onConnect, isConnecting = false }: WhatsAppTutorialProps) {
+  console.log("WhatsAppTutorial", { onBack, onConnect, isConnecting });
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -47,9 +48,8 @@ export function WhatsAppTutorial({ onBack, onConnect, isConnecting = false }: Wh
       <Button 
         onClick={onConnect} 
         className="w-full"
-        disabled={isConnecting}
       >
-        {isConnecting ? "Conectando..." : "Conectar WhatsApp"}
+        {"Conectar WhatsApp"}
       </Button>
     </Card>
   );

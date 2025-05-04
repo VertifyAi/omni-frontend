@@ -1,11 +1,10 @@
-// import Cookies from "js-cookie"
+import Cookies from "js-cookie"
 
 export async function fetchApi(
   input: RequestInfo,
   options: RequestInit = {}
 ): Promise<Response> {
-  // Lê o token do cookie (se existir)
-  // const token = Cookies.get("Authorization")
+  const token = Cookies.get("auth_token");
 
   const headers = new Headers(options.headers || {});
 
@@ -15,12 +14,12 @@ export async function fetchApi(
   }
 
   // Adiciona Authorization se o token existir
-  // if (token) {
+  if (token) {
     headers.set(
       "Authorization",
-      `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ikpvw6NvIFBlcmV0dGkiLCJlbWFpbCI6ImpvYW9wZXJldHRpQHZlcnRpZnkuY29tLmJyIiwicm9sZSI6IkFETUlOIiwic3RyZWV0TmFtZSI6IiIsInN0cmVldE51bWJlciI6IiIsImNpdHkiOiJKYcO6Iiwic3RhdGUiOiJTw6NvIFBhdWxvIiwicGhvbmUiOiI1NTE0OTk4MzI4MTA3IiwiYXJlYUlkIjowLCJjb21wYW55SWQiOjIsImlhdCI6MTc0NjMwMjY3MiwiZXhwIjoxNzQ2MzE3MDcyfQ.7_DXh01h9emwypaxZsW-qS-iIl-ZlSw_imxLiEwUXfI`
+      `Bearer ${token}`
     );
-  // }
+  }
 
   const finalOptions: RequestInit = {
     ...options,

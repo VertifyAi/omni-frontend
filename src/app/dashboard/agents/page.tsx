@@ -76,7 +76,7 @@ export default function AgentsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/agents/create">
+          <Link href="/dashboard/agents/create">
             <Plus className="mr-2 h-4 w-4" />
             Novo Agente
           </Link>
@@ -115,7 +115,7 @@ export default function AgentsPage() {
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-primary"
                 >
-                  <Link href={`/agents/edit/${agent.id}`}>
+                  <Link href={`/dashboard/agents/edit/${agent.id}`}>
                     <Pencil className="h-4 w-4" />
                   </Link>
                 </Button>
