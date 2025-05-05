@@ -12,8 +12,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { WhatsAppTutorial } from "@/components/WhatsAppTutorial";
 import { useState } from "react";
 import { useFacebookSDK } from "@/hooks/useFacebookSDK";
-import { fetchApi } from "@/lib/fetchApi";
-import { toast } from "sonner";
 
 
 const socialNetworks = [
@@ -54,11 +52,9 @@ const socialNetworks = [
 
 export default function IntegrationsPage() {
   const [showWhatsAppTutorial, setShowWhatsAppTutorial] = useState(false);
-  const [code, setCode] = useState<string | null>(null);
   const { isReady, login } = useFacebookSDK(
     process.env.NEXT_PUBLIC_FACEBOOK_APP_ID as string
   );
-  console.log('code', code);
 
   const handleConnect = (networkName: string) => {
     if (networkName === "WhatsApp") {
@@ -66,30 +62,12 @@ export default function IntegrationsPage() {
     }
   };
 
-  const handleWhatsAppConnect = () => {
+  const handleWhatsAppConnect = async () => {
     if (!isReady) {
       return;
     }
   
-    login(async (response) => {
-      if (response.authResponse) {
-        setCode(response.authResponse.accessToken);
-        
-        const responseApi = await fetchApi('/api/integrations/whatsapp', {
-          method: 'POST',
-          body: JSON.stringify(response),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (responseApi.ok) {
-          toast.success("WhatsApp conectado com sucesso!");
-          setShowWhatsAppTutorial(false);
-        }
-      } else {
-        alert("Erro no login do Facebook.");
-      }
-    });
+    await login();
   };
 
   if (showWhatsAppTutorial) {

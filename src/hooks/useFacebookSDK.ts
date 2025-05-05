@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface FacebookSDK {
   init: (params: {
@@ -59,14 +59,34 @@ export const useFacebookSDK = (appId: string) => {
   }, [appId]);
 
   // Wrapper para chamar login apenas quando estiver pronto
-  const login = (callback: Parameters<FacebookSDK["login"]>[0]) => {
-    if (typeof window !== "undefined" && isReady && window.FB) {
-      window.FB.login(callback, {
-        scope: "business_management, whatsapp_business_management",
-        response_type: "code",
-      });
-    } else {
+  const login = async () => {
+    if (!isReady || typeof window === "undefined") {
       console.warn("Facebook SDK ainda não está pronto.");
+      return;
+    }
+
+    const redirectUri = "https://vertify.com.br/whatsapp/onboarding";
+    const oauthUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=token&scope=${encodeURIComponent(
+      "business_management,whatsapp_business_management"
+    )}`;
+
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.innerWidth - width) / 2;
+    const top = window.screenY + (window.innerHeight - height) / 2;
+
+    const popup = window.open(
+      oauthUrl,
+      "Facebook Login",
+      `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars=yes`
+    );
+
+    if (!popup) {
+      alert(
+        "Não foi possível abrir a janela de login. Verifique se o navegador bloqueou pop-ups."
+      );
     }
   };
 
