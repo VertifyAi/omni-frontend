@@ -5,7 +5,6 @@ import type { NextRequest } from 'next/server'
 const privatePaths = [
   '/dashboard',
   '/dashboard/:path*',
-  '/whatsapp/onboarding',
 ]
 
 export function middleware(request: NextRequest) {
