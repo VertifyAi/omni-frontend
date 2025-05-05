@@ -13,9 +13,9 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { CreateUserForm } from "@/components/users/CreateUserForm";
 import { UserRole } from "@/types/user-role.enum";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Loading } from "@/components/ui/loading";
+import { fetchApi } from "@/lib/fetchApi";
 
 // Tipo para usuário
 interface User {
@@ -28,20 +28,12 @@ interface User {
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [companyId, setCompanyId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const companyIdFromCookie = Cookies.get("company_id") || null;
-    setCompanyId(companyIdFromCookie);
-  }, []);
-
   const fetchUsers = useCallback(async () => {
-    if (!companyId) return;
-
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/users/companies/${companyId}`);
+      const response = await fetchApi(`/api/users`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -55,7 +47,7 @@ export default function TeamsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [companyId]);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -86,7 +78,7 @@ export default function TeamsPage() {
         </div>
         <CreateUserForm
           onUserCreated={handleUserCreated}
-          companyId={companyId || ""}
+          companyId={""}
         />
       </div>
 

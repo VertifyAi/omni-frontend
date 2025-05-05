@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { fetchApi } from "@/lib/fetchApi";
 import { Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -31,7 +32,7 @@ export default function TeamsPage() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await fetch('/api/teams');
+        const response = await fetchApi('/api/teams');
         const data = await response.json();
 
         if (!response.ok) {

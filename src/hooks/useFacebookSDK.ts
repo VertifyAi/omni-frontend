@@ -40,7 +40,7 @@ export const useFacebookSDK = (appId: string) => {
     // Cria o script
     const script = document.createElement("script");
     script.id = "facebook-jssdk";
-    script.src = "https://connect.facebook.net/en_US/sdk.js";
+    script.src = "https://connect.facebook.net/pt_BR/sdk.js";
     script.async = true;
     script.defer = true;
 

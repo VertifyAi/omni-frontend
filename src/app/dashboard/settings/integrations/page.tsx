@@ -72,7 +72,7 @@ export default function IntegrationsPage() {
     login((response) => {
       if (response.authResponse) {
         setCode(response.authResponse.accessToken);
-        console.log("Access token:", response.authResponse.accessToken);
+        console.log("Access token:", response);
         alert("Login bem-sucedido! Token recebido.");
       } else {
         alert("Erro no login do Facebook.");
