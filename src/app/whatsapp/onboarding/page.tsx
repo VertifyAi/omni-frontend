@@ -5,18 +5,20 @@ import { useEffect, useState } from "react";
 
 export default function WhatsAppOnboarding() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+
   useEffect(() => {
     const updateIntegration = async () => {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = params.get("access_token");
       setAccessToken(accessToken);
+      const vertifyToken = localStorage.getItem("vertify_token");
       const dataAccessExpirationTime = params.get(
         "data_access_expiration_time"
       );
       const expiresIn = params.get("expires_in");
 
       if (accessToken && dataAccessExpirationTime && expiresIn) {
-        await fetchApi("/integrations/whatsapp", {
+        await fetchApi("/api/integrations/whatsapp", {
           method: "POST",
           body: JSON.stringify({
             config: {
@@ -25,16 +27,15 @@ export default function WhatsAppOnboarding() {
               expires_in: expiresIn,
             },
           }),
+          headers: {
+            Authorization: `Bearer ${vertifyToken}`,
+            "Content-Type": "application/json",
+          },
         });
       }
     };
 
-    updateIntegration().catch((error) => {
-      alert(
-        "Houve um erro ao tentar conectar sua conta do WhatsApp. Tente novamente mais tarde."
-      );
-      console.error("Error updating integration:", error);
-    });
+    updateIntegration();
   }, []);
 
   return (

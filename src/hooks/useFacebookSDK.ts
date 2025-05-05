@@ -34,6 +34,20 @@ export const useFacebookSDK = (appId: string) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // 🔒 Lê o auth_token do cookie
+    const getAuthTokenFromCookie = () => {
+      const cookieValue = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("auth_token="));
+      return cookieValue ? cookieValue.split("=")[1] : null;
+    };
+
+    // 💾 Salva no localStorage (disponível para onboarding depois)
+    const authToken = getAuthTokenFromCookie();
+    if (authToken) {
+      localStorage.setItem("vertify_token", authToken);
+    }
+
     const scriptAlreadyAdded = document.getElementById("facebook-jssdk");
     if (scriptAlreadyAdded) return;
 
