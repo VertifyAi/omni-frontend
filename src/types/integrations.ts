@@ -4,7 +4,7 @@ export interface WhatsAppIntegration {
   account_sid: string;
   auth_token: string;
   whatsapp_number: string;
-  status: 'pending' | 'active' | 'inactive' | 'error';
+  status: "pending" | "active" | "inactive" | "error";
   config: {
     webhook_url: string;
     webhook_method: string;
@@ -19,8 +19,8 @@ export interface WhatsAppMessage {
   id: number;
   phone: string;
   message: string;
-  direction: 'incoming' | 'outgoing';
-  status: 'sent' | 'delivered' | 'read' | 'failed';
+  direction: "incoming" | "outgoing";
+  status: "sent" | "delivered" | "read" | "failed";
   created_at: string;
   updated_at: string;
 }
@@ -29,4 +29,18 @@ export interface WhatsAppIntegrationFormData {
   account_sid: string;
   auth_token: string;
   whatsapp_number: string;
-} 
+}
+
+export enum IntegrationType {
+  WHATSAPP = "WHATSAPP",
+}
+
+export interface Integration {
+  active: boolean;
+  companyId: number;
+  config: string;
+  createdAt: string;
+  id: number;
+  type: IntegrationType.WHATSAPP;
+  updatedAt: string;
+}

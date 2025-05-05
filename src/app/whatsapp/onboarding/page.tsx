@@ -12,6 +12,7 @@ export default function WhatsAppOnboarding() {
       const accessToken = params.get("access_token");
       setAccessToken(accessToken);
       const vertifyToken = localStorage.getItem("vertify_token");
+      localStorage.removeItem("vertify_token");
       const dataAccessExpirationTime = params.get(
         "data_access_expiration_time"
       );
