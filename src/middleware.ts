@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server'
 const privatePaths = [
   '/dashboard',
   '/dashboard/:path*',
+  '/whatsapp/onboarding',
 ]
 
 export function middleware(request: NextRequest) {
@@ -33,6 +34,7 @@ export const config = {
     '/teams',
     '/teams/:path*',
     '/dashboard/:path*',
+    '/whatsapp/onboarding',
     '/settings/:path*',
     '/api/chat/:path*',
     '/api/auth/me',
