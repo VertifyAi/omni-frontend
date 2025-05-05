@@ -1,17 +1,40 @@
 "use client";
 
+import { fetchApi } from "@/lib/fetchApi";
 import { useEffect, useState } from "react";
 
 export default function WhatsAppOnboarding() {
-  const [wabaId, setWabaId] = useState<string | null>(null);
-  const [phoneNumberId, setPhoneNumberId] = useState<string | null>(null);
-  const [businessId, setBusinessId] = useState<string | null>(null);
-
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setWabaId(params.get("waba_id"));
-    setPhoneNumberId(params.get("phone_number_id"));
-    setBusinessId(params.get("business_id"));
+    const updateIntegration = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const accessToken = params.get("access_token");
+      setAccessToken(accessToken);
+      const dataAccessExpirationTime = params.get(
+        "data_access_expiration_time"
+      );
+      const expiresIn = params.get("expires_in");
+
+      if (accessToken && dataAccessExpirationTime && expiresIn) {
+        await fetchApi("/integrations/whatsapp", {
+          method: "POST",
+          body: JSON.stringify({
+            config: {
+              access_token: accessToken,
+              data_access_expiration_time: dataAccessExpirationTime,
+              expires_in: expiresIn,
+            },
+          }),
+        });
+      }
+    };
+
+    updateIntegration().catch((error) => {
+      alert(
+        "Houve um erro ao tentar conectar sua conta do WhatsApp. Tente novamente mais tarde."
+      );
+      console.error("Error updating integration:", error);
+    });
   }, []);
 
   return (
@@ -27,13 +50,7 @@ export default function WhatsAppOnboarding() {
 
       <div className="text-left text-sm bg-gray-50 p-4 rounded-xl border mt-4">
         <p>
-          <strong>WABA ID:</strong> {wabaId || "Carregando..."}
-        </p>
-        <p>
-          <strong>Phone Number ID:</strong> {phoneNumberId || "Carregando..."}
-        </p>
-        <p>
-          <strong>Business ID:</strong> {businessId || "Carregando..."}
+          <strong>Access Token:</strong> {accessToken || "Carregando..."}
         </p>
       </div>
     </div>
