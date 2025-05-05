@@ -22,11 +22,9 @@ export default function WhatsAppOnboarding() {
         await fetchApi("/api/integrations/whatsapp", {
           method: "POST",
           body: JSON.stringify({
-            config: {
-              access_token: accessToken,
-              data_access_expiration_time: dataAccessExpirationTime,
-              expires_in: expiresIn,
-            },
+            access_token: accessToken,
+            data_access_expiration_time: dataAccessExpirationTime,
+            expires_in: expiresIn,
           }),
           headers: {
             Authorization: `Bearer ${vertifyToken}`,
