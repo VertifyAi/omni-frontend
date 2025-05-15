@@ -27,8 +27,8 @@ const settingsNavigation = [
   //   description: "Preferências de notificações",
   // },
   {
-    name: "Equipe",
-    href: "/dashboard/settings/teams",
+    name: "Usuários",
+    href: "/dashboard/settings/users",
     icon: Users,
     description: "Gerenciar membros da equipe",
   },
@@ -100,7 +100,7 @@ export default function SettingsLayout({
         </nav>
       </div>
       <main className="flex-1 overflow-auto">
-        <div className="container max-w-6xl py-6">
+        <div className="container py-6">
           {children}
         </div>
       </main>

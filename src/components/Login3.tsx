@@ -76,7 +76,7 @@ const Login3 = ({
   
 
   return (
-    <section className="py-32 flex justify-center items-center">
+    <section className="py-32 flex justify-center items-center h-screen">
       <div className="container">
         <div className="flex flex-col gap-4">
           <form onSubmit={handleSubmit(onSubmit, onError)}>

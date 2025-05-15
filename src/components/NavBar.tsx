@@ -126,7 +126,7 @@ const Navbar1 = ({
   }, []);
 
   return (
-    <section className="py-4 flex justify-center items-center">
+    <section className="py-4 flex justify-center items-center fixed w-screen z-50 bg-background/90 backdrop-blur-sm">
       <div className="container">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">

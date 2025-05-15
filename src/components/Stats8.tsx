@@ -45,7 +45,7 @@ const Stats8 = ({
   ],
 }: Stats8Props) => {
   return (
-    <section className="pt-32 flex justify-center items-center">
+    <section className="py-32 flex justify-center items-center">
       <div className="container">
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold md:text-4xl">{heading}</h2>

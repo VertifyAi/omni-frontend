@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Cookies from 'js-cookie';
 import { toast } from "sonner";
+import { fetchApi } from "@/lib/fetchApi";
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -43,7 +44,7 @@ interface User {
 export default function CreateTeamPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
 
   const form = useForm<CreateTeamFormData>({
@@ -57,21 +58,21 @@ export default function CreateTeamPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const companyId = Cookies.get('company_id');
-      if (!companyId) return;
-
       try {
-        const response = await fetch(`/api/users/companies/${companyId}`);
+        setIsLoading(true);
+        const response = await fetchApi(`/api/users`);
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Erro ao carregar usuários');
+          throw new Error(data.message || "Erro ao carregar usuários");
         }
 
         setUsers(data);
       } catch (error) {
-        console.error('Erro ao carregar usuários:', error);
-        toast.error(error instanceof Error ? error.message : 'Erro ao carregar usuários')
+        console.error("Erro ao carregar usuários:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Erro ao carregar usuários"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -82,10 +83,10 @@ export default function CreateTeamPage() {
 
   const onSubmit = async (data: CreateTeamFormData) => {
     try {
-      const response = await fetch('/api/teams', {
-        method: 'POST',
+      const response = await fetch("/api/teams", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...data,
@@ -96,15 +97,15 @@ export default function CreateTeamPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || 'Erro ao criar equipe');
+        throw new Error(responseData.message || "Erro ao criar equipe");
       }
 
-      toast.success('Equipe criada com sucesso!')
-      router.push('/teams');
+      toast.success("Equipe criada com sucesso!");
+      router.push("/dashboard/teams");
     } catch (error) {
-      console.error('Erro ao criar equipe:', error);
+      console.error("Erro ao criar equipe:", error);
       if (error instanceof Error) {
-        toast.error(error.message)
+        toast.error(error.message);
       }
     }
   };
@@ -127,9 +128,18 @@ export default function CreateTeamPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome da Equipe</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Equipe de Desenvolvimento" {...field} />
-                  </FormControl>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <Input
+                        placeholder="Ex: Equipe de Desenvolvimento"
+                        {...field}
+                      />
+                    </FormControl>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -141,13 +151,19 @@ export default function CreateTeamPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Descreva o propósito desta equipe..."
-                      className="min-h-[100px]"
-                      {...field} 
-                    />
-                  </FormControl>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <Textarea
+                        placeholder="Descreva o propósito desta equipe..."
+                        className="min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -158,75 +174,144 @@ export default function CreateTeamPage() {
               name="users"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Membros da Equipe</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      const userId = parseInt(value);
-                      if (!selectedUsers.includes(userId)) {
-                        setSelectedUsers([...selectedUsers, userId]);
-                        field.onChange([...selectedUsers, userId]);
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione os membros" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {users.map((user) => (
-                        <SelectItem 
-                          key={user.id} 
-                          value={user.id.toString()}
-                          disabled={selectedUsers.includes(user.id)}
-                        >
-                          {user.name} ({user.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Usuário Responsável</FormLabel>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ) : (
+                    <>
+                      <Select
+                        onValueChange={(value) => {
+                          const userId = parseInt(value);
+                          if (!selectedUsers.includes(userId)) {
+                            setSelectedUsers([...selectedUsers, userId]);
+                            field.onChange([...selectedUsers, userId]);
+                          }
+                        }}
+                        value={field.value.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione os membros" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {users.map((user) => (
+                            <SelectItem
+                              key={user.id}
+                              value={user.id.toString()}
+                              disabled={selectedUsers.includes(user.id)}
+                            >
+                              {user.name} ({user.email})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {selectedUsers.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Membros selecionados:</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedUsers.map((userId) => {
-                    const user = users.find(u => u.id === userId);
-                    return (
-                      <div
-                        key={userId}
-                        className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-full text-sm"
+            <FormField
+              control={form.control}
+              name="users"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Usuários da Equipe</FormLabel>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ) : (
+                    <>
+                      <Select
+                        onValueChange={(value) => {
+                          const userId = parseInt(value);
+                          if (!selectedUsers.includes(userId)) {
+                            setSelectedUsers([...selectedUsers, userId]);
+                            field.onChange([...selectedUsers, userId]);
+                          }
+                        }}
                       >
-                        <span>{user?.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedUsers(selectedUsers.filter(id => id !== userId));
-                            form.setValue('users', selectedUsers.filter(id => id !== userId));
-                          }}
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    );
-                  })}
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione os membros" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {users.map((user) => (
+                            <SelectItem
+                              key={user.id}
+                              value={user.id.toString()}
+                              disabled={selectedUsers.includes(user.id)}
+                            >
+                              {user.name} ({user.email})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-32" />
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-8 w-24 rounded-full" />
+                  <Skeleton className="h-8 w-32 rounded-full" />
+                  <Skeleton className="h-8 w-28 rounded-full" />
                 </div>
               </div>
+            ) : (
+              selectedUsers.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Membros selecionados:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedUsers.map((userId) => {
+                      const user = users.find((u) => u.id === userId);
+                      return (
+                        <div
+                          key={userId}
+                          className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-full text-sm"
+                        >
+                          <span>{user?.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedUsers(
+                                selectedUsers.filter((id) => id !== userId)
+                              );
+                              form.setValue(
+                                "users",
+                                selectedUsers.filter((id) => id !== userId)
+                              );
+                            }}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )
             )}
 
             <div className="flex gap-4">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Criando..." : "Criar Equipe"}
-              </Button>
+              <Button type="submit">Criar Equipe</Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push('/teams')}
+                onClick={() => router.push("/dashboard/teams")}
+                disabled={isLoading}
               >
                 Cancelar
               </Button>

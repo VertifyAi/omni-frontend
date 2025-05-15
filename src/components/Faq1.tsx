@@ -66,7 +66,7 @@ import {
     ],
   }: Faq1Props) => {
     return (
-      <section className="pt-32 flex justify-center items-center">
+      <section className="py-32 flex justify-center items-center">
         <div className="container">
           <h1 className="mb-4 text-3xl font-semibold md:mb-11 md:text-4xl">
             {heading}

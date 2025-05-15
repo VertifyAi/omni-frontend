@@ -60,11 +60,11 @@ const Pricing2 = ({
         { text: "Suporte 24/7" },
       ],
       monthlyButton: {
-        text: "Assinar Agora",
+        text: "Testar grátis por 14 dias",
         url: "https://buy.stripe.com/00gbJL6mD4jz63K7st",
       },
       yearlyButton: {
-        text: "Assinar Agora",
+        text: "Testar grátis por 14 dias",
         url: "https://buy.stripe.com/3cseVXcL1g2h3VCbII",
       },
     },
@@ -83,11 +83,11 @@ const Pricing2 = ({
         { text: "Suporte 24/7" },
       ],
       monthlyButton: {
-        text: "Assinar Agora",
+        text: "Testar grátis por 14 dias",
         url: "https://buy.stripe.com/9AQdRTcL14jz9fW7sv",
       },
       yearlyButton: {
-        text: "Assinar Agora",
+        text: "Testar grátis por 14 dias",
         url: "https://buy.stripe.com/eVa01326naHX3VC5km",
       },
     },
@@ -105,11 +105,11 @@ const Pricing2 = ({
         { text: "Suporte 24/7" },
       ],
       monthlyButton: {
-        text: "Assinar Agora",
+        text: "Fale com especialista",
         url: "https://www.shadcnblocks.com",
       },
       yearlyButton: {
-        text: "Assinar Agora",
+        text: "Fale com especialista",
         url: "https://www.shadcnblocks.com",
       },
     },
@@ -117,7 +117,7 @@ const Pricing2 = ({
 }: Pricing2Props) => {
   const [isYearly, setIsYearly] = useState(true);
   return (
-    <section className="pt-32 flex justify-center items-center">
+    <section className="py-32 flex justify-center items-center">
       <div className="container">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
           <h2 className="text-pretty text-4xl font-bold lg:text-4xl">

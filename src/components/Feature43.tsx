@@ -60,7 +60,7 @@ import {
     ],
   }: Feature43Props) => {
     return (
-      <section className="pt-32 flex justify-center items-center">
+      <section className="py-32 flex justify-center items-center">
         <div className="container">
           <div className="mb-10 md:mb-20">
             <h2 className="mb-2 text-center text-3xl font-bold lg:text-4xl">
