@@ -82,19 +82,19 @@ import Image from 'next/image';
         title: "Redes Sociais",
         items: [
           {
-            title: "Facebook",
-            description: "Conheça nossa história e missão",
-            url: "#",
-          },
-          {
             title: "Instagram",
             description: "Entre em contato conosco",
-            url: "#",
+            url: "https://www.instagram.com/vertifybr/",
           },
           {
             title: "Linkedin",
             description: "Últimas notícias e atualizações",
-            url: "#",
+            url: "https://www.linkedin.com/company/vertifybr",
+          },
+          {
+            title: "Facebook",
+            description: "Conheça nossa história e missão",
+            url: "https://www.facebook.com/people/Vertify/61574481330894/",
           },
         ],
       },
@@ -149,7 +149,7 @@ import Image from 'next/image';
                         key={itemIdx}
                         className="font-medium hover:text-primary"
                       >
-                        <a href={item.url}>{item.title}</a>
+                        <a href={item.url} target="_blank">{item.title}</a>
                       </li>
                     ))}
                   </ul>
