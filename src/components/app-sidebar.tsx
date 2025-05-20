@@ -9,12 +9,12 @@ import {
   Users,
   Settings,
   Bell,
-  HelpCircle,
+  // HelpCircle,
   User,
   Building2,
   Archive,
   Monitor,
-  Bot,
+  // Bot,
 } from "lucide-react";
 import {
   Tooltip,
@@ -44,11 +44,11 @@ const navigation = [
     href: "/dashboard/tickets",
     icon: Inbox,
   },
-  {
-    name: "Agentes de IA",
-    href: "/dashboard/agents",
-    icon: Bot,
-  },
+  // {
+  //   name: "Agentes de IA",
+  //   href: "/dashboard/agents",
+  //   icon: Bot,
+  // },
   {
     name: "Contatos",
     href: "/dashboard/customers",
@@ -72,11 +72,11 @@ const options = [
     href: "/dashboard/settings",
     icon: Settings,
   },
-  {
-    name: "Ajuda",
-    href: "/dashboard/help",
-    icon: HelpCircle,
-  },
+  // {
+  //   name: "Ajuda",
+  //   href: "/dashboard/help",
+  //   icon: HelpCircle,
+  // },
   {
     name: "Perfil",
     href: "/dashboard/profile",

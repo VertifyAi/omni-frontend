@@ -8,7 +8,7 @@ import { fetchApi } from "@/lib/fetchApi";
 
 export default function TicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [selectedTab, setSelectedTab] = useState<TicketStatus>(TicketStatus.AI);
+  const [selectedTab, setSelectedTab] = useState<TicketStatus>(TicketStatus.IN_PROGRESS);
 
   const handleChangeStatus = async () => {
     try {

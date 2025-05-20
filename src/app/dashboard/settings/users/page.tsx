@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { CreateUserForm } from "@/components/users/CreateUserForm";
-import { UserRole } from "@/types/user-role.enum";
+import { UserRole } from "@/types/users";
 import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
 import { Skeleton } from "@/components/ui/skeleton";

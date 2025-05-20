@@ -84,9 +84,9 @@ export default function AgentsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Carregando agentes...</div>
+        <div className="text-center py-8 text-muted-foreground">Carregando agentes...</div>
       ) : agents.length === 0 ? (
-        <div className="text-center py-8">Nenhum agente encontrado.</div>
+        <div className="text-center py-8 text-muted-foreground">Nenhum agente encontrado.</div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => (

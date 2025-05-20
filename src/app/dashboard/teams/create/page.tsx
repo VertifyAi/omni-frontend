@@ -26,20 +26,16 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
+import { User } from "@/types/users";
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().min(1, "Descrição é obrigatória"),
-  users: z.array(z.number()).min(1, "Selecione pelo menos um usuário"),
+  ownerId: z.string().min(1, "Selecione um usuário"),
+  members: z.array(z.number()).min(1, "Selecione pelo menos um usuário"),
 });
 
 type CreateTeamFormData = z.infer<typeof createTeamSchema>;
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
 
 export default function CreateTeamPage() {
   const router = useRouter();
@@ -52,7 +48,8 @@ export default function CreateTeamPage() {
     defaultValues: {
       name: "",
       description: "",
-      users: [],
+      members: [],
+      ownerId: "",
     },
   });
 
@@ -67,7 +64,7 @@ export default function CreateTeamPage() {
           throw new Error(data.message || "Erro ao carregar usuários");
         }
 
-        setUsers(data);
+        setUsers(data.users);
       } catch (error) {
         console.error("Erro ao carregar usuários:", error);
         toast.error(
@@ -90,7 +87,7 @@ export default function CreateTeamPage() {
         },
         body: JSON.stringify({
           ...data,
-          users: selectedUsers,
+          ownerId: Number(data.ownerId),
         }),
       });
 
@@ -171,7 +168,7 @@ export default function CreateTeamPage() {
 
             <FormField
               control={form.control}
-              name="users"
+              name="ownerId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Usuário Responsável</FormLabel>
@@ -182,13 +179,7 @@ export default function CreateTeamPage() {
                   ) : (
                     <>
                       <Select
-                        onValueChange={(value) => {
-                          const userId = parseInt(value);
-                          if (!selectedUsers.includes(userId)) {
-                            setSelectedUsers([...selectedUsers, userId]);
-                            field.onChange([...selectedUsers, userId]);
-                          }
-                        }}
+                        onValueChange={field.onChange}
                         value={field.value.toString()}
                       >
                         <FormControl>
@@ -197,15 +188,18 @@ export default function CreateTeamPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {users.map((user) => (
-                            <SelectItem
-                              key={user.id}
-                              value={user.id.toString()}
-                              disabled={selectedUsers.includes(user.id)}
-                            >
-                              {user.name} ({user.email})
-                            </SelectItem>
-                          ))}
+                          {users.map((user) => {
+                            if (user.role === "USER") return;
+                            return (
+                              <SelectItem
+                                key={user.id}
+                                value={user.id.toString()}
+                                disabled={selectedUsers.includes(user.id)}
+                              >
+                                {user.name} ({user.email})
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     </>
@@ -217,7 +211,7 @@ export default function CreateTeamPage() {
 
             <FormField
               control={form.control}
-              name="users"
+              name="members"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Usuários da Equipe</FormLabel>
@@ -289,7 +283,7 @@ export default function CreateTeamPage() {
                                 selectedUsers.filter((id) => id !== userId)
                               );
                               form.setValue(
-                                "users",
+                                "members",
                                 selectedUsers.filter((id) => id !== userId)
                               );
                             }}

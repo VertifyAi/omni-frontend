@@ -4,21 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Settings,
   // Bell,
   Users,
   // Palette,
   Plug,
-  CreditCard,
+  User,
+  // CreditCard,
   Building2,
 } from "lucide-react";
 
 const settingsNavigation = [
   {
-    name: "Geral",
-    href: "/dashboard/settings",
-    icon: Settings,
-    description: "Configurações gerais da conta",
+    name: "Perfil",
+    href: "/dashboard/profile",
+    icon: User,
+    description: "Gerenciar perfil",
   },
   // {
   //   name: "Notificações",
@@ -50,12 +50,12 @@ const settingsNavigation = [
     icon: Plug,
     description: "Conectar com outros serviços",
   },
-  {
-    name: "Faturamento",
-    href: "/dashboard/settings/billing",
-    icon: CreditCard,
-    description: "Planos e pagamentos",
-  },
+  // {
+  //   name: "Faturamento",
+  //   href: "/dashboard/settings/billing",
+  //   icon: CreditCard,
+  //   description: "Planos e pagamentos",
+  // },
   {
     name: "Empresa",
     href: "/dashboard/settings/company",

@@ -40,8 +40,12 @@ export function TicketList({
       let ticket = await result.json();
 
       ticket = ticket.sort((a: Ticket, b: Ticket) => {
-        const dateA = new Date(a.ticketMessages.at(-1)?.createdAt || 0).getTime();
-        const dateB = new Date(b.ticketMessages.at(-1)?.createdAt || 0).getTime();
+        const dateA = new Date(
+          a.ticketMessages.at(-1)?.createdAt || 0
+        ).getTime();
+        const dateB = new Date(
+          b.ticketMessages.at(-1)?.createdAt || 0
+        ).getTime();
         return dateB - dateA;
       });
 
@@ -103,8 +107,12 @@ export function TicketList({
       setTickets((prevTickets) => {
         const updatedTickets = [newTicket, ...prevTickets];
         return updatedTickets.sort((a, b) => {
-          const dateA = new Date(a.ticketMessages.at(-1)?.createdAt || 0).getTime();
-          const dateB = new Date(b.ticketMessages.at(-1)?.createdAt || 0).getTime();
+          const dateA = new Date(
+            a.ticketMessages.at(-1)?.createdAt || 0
+          ).getTime();
+          const dateB = new Date(
+            b.ticketMessages.at(-1)?.createdAt || 0
+          ).getTime();
           return dateB - dateA;
         });
       });
@@ -179,12 +187,6 @@ export function TicketList({
         <Tabs value={selectedTab} defaultValue="ai" className="w-full p-2">
           <TabsList className="w-full">
             <TabsTrigger
-              value={TicketStatus.AI}
-              onClick={() => setSelectedTab(TicketStatus.AI)}
-            >
-              IA <Sparkles className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger
               value={TicketStatus.IN_PROGRESS}
               onClick={() => setSelectedTab(TicketStatus.IN_PROGRESS)}
             >
@@ -195,6 +197,12 @@ export function TicketList({
               onClick={() => setSelectedTab(TicketStatus.CLOSED)}
             >
               Fechados
+            </TabsTrigger>
+            <TabsTrigger
+              value={TicketStatus.AI}
+              onClick={() => setSelectedTab(TicketStatus.AI)}
+            >
+              IA <Sparkles className="h-4 w-4" />
             </TabsTrigger>
           </TabsList>
           <TabsContent value={TicketStatus.AI}>

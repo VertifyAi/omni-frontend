@@ -127,7 +127,7 @@ export default function TeamsPage() {
                   <span className="font-bold">Responsável: </span>
                   {team.owner.name}
                 </p>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-sm text-muted-foreground mb-2 min-h-16">
                   <span className="font-bold">Descrição: </span>
                   {team.description.length > 80
                     ? `${team.description.substring(0, 80)}...`

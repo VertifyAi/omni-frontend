@@ -77,7 +77,7 @@ export default function CreateAgentPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [isLoadingPhones, setIsLoadingPhones] = useState(false);
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
   const form = useForm<CreateAgentFormData>({
     resolver: zodResolver(createAgentSchema),
     defaultValues: {
@@ -173,19 +173,115 @@ export default function CreateAgentPage() {
       case 1:
         return (
           <>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do Agente</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Agente de Vendas" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex justify-between gap-4">
+              <div className="w-1/2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Agente</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="h-10"
+                          placeholder="Ex: Agente de Vendas"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex gap-4 w-1/2">
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="channel"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Canal de comunicação</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um canal de comunicação" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {integrations.map((integration) => (
+                                <SelectItem
+                                  key={integration.id}
+                                  value={integration.type}
+                                >
+                                  {integration.type ===
+                                    IntegrationType.WHATSAPP && (
+                                    <div className="flex items-center gap-6">
+                                      <Image
+                                        src={
+                                          socialIcons[
+                                            IntegrationType.WHATSAPP.toLowerCase()
+                                          ]
+                                        }
+                                        alt={integration.type}
+                                        width={24}
+                                        height={24}
+                                      />
+                                      Whatsapp
+                                    </div>
+                                  )}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {selectedChannel === IntegrationType.WHATSAPP && (
+                  <FormField
+                    control={form.control}
+                    name="whatsappNumber"
+                    render={({ field }) => (
+                      <FormItem className="w-1/2">
+                        <FormLabel>Número de WhatsApp</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger disabled={isLoadingPhones}>
+                              <SelectValue
+                                placeholder={
+                                  isLoadingPhones
+                                    ? "Carregando números..."
+                                    : "Selecione um número"
+                                }
+                              />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              {phoneNumbers.map((phone) => (
+                                <SelectItem key={phone.id} value={phone.id}>
+                                  {phone.verified_name} -{" "}
+                                  {phone.display_phone_number}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            </div>
 
             <FormField
               control={form.control}
@@ -196,7 +292,7 @@ export default function CreateAgentPage() {
                   <FormControl>
                     <Textarea
                       placeholder="Descreva o propósito deste agente..."
-                      className="min-h-[100px]"
+                      className="min-h-[400px]"
                       {...field}
                     />
                   </FormControl>
@@ -204,92 +300,6 @@ export default function CreateAgentPage() {
                 </FormItem>
               )}
             />
-
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="channel"
-                render={({ field }) => (
-                  <FormItem className="w-1/2">
-                    <FormLabel>Canal de comunicação</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um canal de comunicação" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {integrations.map((integration) => (
-                            <SelectItem
-                              key={integration.id}
-                              value={integration.type}
-                            >
-                              {integration.type ===
-                                IntegrationType.WHATSAPP && (
-                                <div className="flex items-center gap-6">
-                                  <Image
-                                    src={
-                                      socialIcons[
-                                        IntegrationType.WHATSAPP.toLowerCase()
-                                      ]
-                                    }
-                                    alt={integration.type}
-                                    width={24}
-                                    height={24}
-                                  />
-                                  Whatsapp
-                                </div>
-                              )}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedChannel === IntegrationType.WHATSAPP && (
-                <FormField
-                  control={form.control}
-                  name="whatsappNumber"
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <FormLabel>Número de WhatsApp</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger disabled={isLoadingPhones}>
-                            <SelectValue
-                              placeholder={
-                                isLoadingPhones
-                                  ? "Carregando números..."
-                                  : "Selecione um número"
-                              }
-                            />
-                          </SelectTrigger>
-
-                          <SelectContent>
-                            {phoneNumbers.map((phone) => (
-                              <SelectItem key={phone.id} value={phone.id}>
-                                {phone.verified_name} -{" "}
-                                {phone.display_phone_number}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
           </>
         );
       case 2:
@@ -300,36 +310,18 @@ export default function CreateAgentPage() {
             <div className="flex flex-wrap gap-16 mt-4 w-full">
               <Card className="w-[350px]">
                 <CardHeader>
-                  <CardTitle>Suporte Técnico</CardTitle>
+                  <CardTitle>Triagem de tickets</CardTitle>
                   <CardDescription>
-                    Agente IA conversacional para suporte técnico.
+                    Agente IA conversacional para triagem de tickets.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid w-full items-center gap-4">
-                    <img
+                    <Image
                       src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/ChatGPT+Image+May+5%2C+2025%2C+05_05_32+PM.png"
                       alt=""
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                  <Button className="w-full">Selecionar</Button>
-                </CardFooter>
-              </Card>
-
-              <Card className="w-[350px]">
-                <CardHeader>
-                  <CardTitle>Vendas Inbound</CardTitle>
-                  <CardDescription>
-                    Agente IA conversacional para vendas inbound.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid w-full items-center gap-4">
-                    <img
-                      src="https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/May+5%2C+2025%2C+05_07_28+PM.png"
-                      alt=""
+                      width={350}
+                      height={350}
                     />
                   </div>
                 </CardContent>
@@ -343,208 +335,7 @@ export default function CreateAgentPage() {
       case 3:
         return (
           <>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Qual produto ou serviço você oferece suporte?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Sistema de atendimento Vertify, utilizado por pequenas e médias empresas para centralizar conversas de WhatsApp, Instagram e Messenger."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Como o cliente final geralmente utiliza esse produto?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Os usuários usam o sistema diariamente para conversar com seus clientes, criar tickets e automatizar o atendimento com IA."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Quais são os problemas mais comuns relatados pelos seus
-                    clientes?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Dificuldade para acessar a conta, mensagens não aparecendo no painel, falhas na integração com o WhatsApp Business."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Como você costuma resolver esses problemas?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Acesso ao painel de administração, verificação de token expirado, orientação para reconectar o canal no painel."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Existe algum passo a passo que o agente pode seguir para
-                    resolver esses problemas?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Acesso ao painel de administração, verificação de token expirado, orientação para reconectar o canal no painel."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Você tem links úteis, tutoriais ou documentos que o agente
-                    pode compartilhar?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Sim, temos vídeos tutoriais no YouTube e artigos no nosso help center: https://ajuda.vertify.com.br"
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    O que o agente não deve fazer ou responder?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: O agente não deve realizar testes no lugar do cliente, confirmar pagamentos ou acessar dados sensíveis."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Qual é o tom de voz desejado para o agente?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: Profissional e empático, com foco em clareza e resolução rápida."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Qual é o horário de atendimento da sua equipe humana?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: De segunda a sexta, das 09h às 18h. Fora desse horário, o agente pode avisar que a equipe retornará assim que possível."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    O que o agente deve fazer se não conseguir ajudar?
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ex: De segunda a sexta, das 09h às 18h. Fora desse horário, o agente pode avisar que a equipe retornará assim que possível."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <p>odasodk</p>
           </>
         );
       default:
@@ -553,7 +344,7 @@ export default function CreateAgentPage() {
   };
 
   return (
-    <div className="container p-8 ml-16 w-full">
+    <div className="p-8 ml-16 h-screen w-[calc(100vw-4rem)] flex flex-col">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Criar Agente</h1>
         <p className="text-muted-foreground mt-2">
@@ -561,11 +352,16 @@ export default function CreateAgentPage() {
         </p>
       </div>
 
-      <div className="">
+      <div className="h-full">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {handleStep()}
-            <div className="flex gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 h-full flex flex-col justify-between"
+          >
+            <div className="h-full overflow-y-auto">
+              {handleStep()}
+            </div>
+            <div className="flex gap-4 justify-end">
               {step >= 1 && step < 4 ? (
                 <Button
                   type="button"
