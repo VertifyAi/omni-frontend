@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { useState } from "react";
+import { UserRole } from "@/types/users";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
   {
@@ -58,6 +60,7 @@ const navigation = [
     name: "Equipes",
     href: "/dashboard/teams",
     icon: Building2,
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
   },
 ];
 
@@ -71,6 +74,7 @@ const options = [
     name: "Configurações",
     href: "/dashboard/settings",
     icon: Settings,
+    roles: [UserRole.ADMIN],
   },
   // {
   //   name: "Ajuda",
@@ -87,13 +91,30 @@ const options = [
 export function AppSidebar() {
   const pathname = usePathname();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { hasRole } = useAuth();
+
+  // Filtra os itens de navegação com base nas permissões do usuário
+  const filteredNavigation = navigation.filter(item => {
+    // Se não tiver roles definidas, permite para todos
+    if (!item.roles) return true;
+    // Caso contrário, verifica se o usuário tem pelo menos uma das roles necessárias
+    return hasRole(item.roles);
+  });
+
+  // Filtra as opções com base nas permissões do usuário
+  const filteredOptions = options.filter(item => {
+    // Se não tiver roles definidas, permite para todos
+    if (!item.roles) return true;
+    // Caso contrário, verifica se o usuário tem pelo menos uma das roles necessárias
+    return hasRole(item.roles);
+  });
 
   return (
     <div className="fixed left-0 top-0 z-40 h-screen w-16 border-r bg-background">
       <div className="flex h-full flex-col items-center py-4">
         <nav className="flex-1 space-y-2">
           <TooltipProvider>
-            {navigation.map((item) => {
+            {filteredNavigation.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
               return (
@@ -119,7 +140,7 @@ export function AppSidebar() {
         </nav>
         <nav className="flex flex-col gap-2">
           <TooltipProvider>
-            {options.map((item, index) => {
+            {filteredOptions.map((item, index) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
 

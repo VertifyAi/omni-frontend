@@ -93,7 +93,7 @@ const Hero7 = ({
   description = "Automatize e escale o seu atendimento de maneira inteligente com a Vera, a assistente virtual que gerencia conversas por 24h em múltiplos canais. Integre WhatsApp, Instagram, Messenger e muito mais, tudo em um só lugar.",
   button = {
     text: "Teste grátis por 14 dias",
-    url: "https://www.shadcnblocks.com", 
+    url: "https://forms.gle/FsLDDF5dWTSSVZGfA", 
   },
   reviews = {
     count: 200,

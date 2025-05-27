@@ -1,24 +1,13 @@
 "use client";
 
 import { fetchApi } from '@/lib/fetchApi';
+import { User } from '@/types/users';
 import { useEffect, useState, useCallback } from 'react';
 
-interface Company {
-  id: number;
-  name: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  company_id: number;
-  company: Company;
-}
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const me = useCallback(async () => {
@@ -45,13 +34,12 @@ export function useAuth() {
       console.error('useAuth: Erro ao carregar dados do usuário:', err);
       setError('Não foi possível carregar seus dados. Por favor, faça login novamente.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Iniciando login com email:', email);
       const response = await fetchApi('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -60,6 +48,8 @@ export function useAuth() {
         body: JSON.stringify({ email, password })
       });
       const data = await response.json();
+
+      console.log('Resposta do login:', response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Credenciais inválidas');
@@ -93,7 +83,7 @@ export function useAuth() {
   return {
     user,
     company: user?.company,
-    loading,
+    isLoading,
     error,
     isAuthenticated: !!user,
     login

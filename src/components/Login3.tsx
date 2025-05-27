@@ -56,10 +56,9 @@ const Login3 = ({
   const onSubmit = async (data: z.infer<typeof SignInFormSchema>) => {
     try {
       setIsLoading(true);
-      console.log("Iniciando login:", data);
       await login(data.email, data.password);
     } catch (error) {
-      console.log(error);
+      toast.error(error instanceof Error ? error.message : 'Erro ao fazer login');
     } finally {
       setIsLoading(false);
     }

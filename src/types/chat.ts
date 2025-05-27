@@ -1,21 +1,9 @@
+import { Company } from "./companies";
+
 export enum TicketStatus {
   AI = 'AI',
   IN_PROGRESS = 'IN_PROGRESS',
   CLOSED = 'CLOSED',
-}
-
-export interface Company {
-  city: string;
-  email: string;
-  id: number;
-  name: string;
-  phone: string;
-  state: string;
-  streetName: string;
-  streetNumber: string;
-  createdAt: string;
-  updatedAt: string
-  deletedAt?: string;
 }
 
 export interface Customer {

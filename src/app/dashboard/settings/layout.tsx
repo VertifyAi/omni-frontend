@@ -10,13 +10,13 @@ import {
   Plug,
   User,
   // CreditCard,
-  Building2,
+  // Building2,
 } from "lucide-react";
 
 const settingsNavigation = [
   {
     name: "Perfil",
-    href: "/dashboard/profile",
+    href: "/dashboard/settings/profile",
     icon: User,
     description: "Gerenciar perfil",
   },
@@ -56,12 +56,12 @@ const settingsNavigation = [
   //   icon: CreditCard,
   //   description: "Planos e pagamentos",
   // },
-  {
-    name: "Empresa",
-    href: "/dashboard/settings/company",
-    icon: Building2,
-    description: "Informações da empresa",
-  },
+  // {
+  //   name: "Empresa",
+  //   href: "/dashboard/settings/company",
+  //   icon: Building2,
+  //   description: "Informações da empresa",
+  // },
 ];
 
 export default function SettingsLayout({

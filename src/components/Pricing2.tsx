@@ -113,11 +113,11 @@ const Pricing2 = ({
       ],
       monthlyButton: {
         text: "Fale com especialista",
-        url: "https://www.shadcnblocks.com",
+        url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
       },
       yearlyButton: {
         text: "Fale com especialista",
-        url: "https://www.shadcnblocks.com",
+        url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
       },
     },
   ],

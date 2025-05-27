@@ -1,17 +1,20 @@
+import { Company } from "./companies";
+
 export interface User {
-  areaId: number;
-  city: string;
-  companyId: number;
-  createdAt: string;
-  email: string;
   id: number;
   name: string;
-  phone: string;
+  email: string;
   role: UserRole;
-  state: string;
   streetName: string;
   streetNumber: string;
-  updatedAt: string;
+  city: string;
+  state: string;
+  phone: string;
+  areaId: number;
+  companyId: number;
+  company: Company;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export enum UserRole {

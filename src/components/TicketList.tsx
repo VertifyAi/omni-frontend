@@ -207,47 +207,63 @@ export function TicketList({
           </TabsList>
           <TabsContent value={TicketStatus.AI}>
             <div className="flex flex-col gap-4 w-full">
-              {filteredTickets
-                .filter((ticket) => ticket.status === TicketStatus.AI)
-                .map((ticket) => (
-                  <TicketCard
-                    key={ticket.id}
-                    ticket={ticket}
-                    selected={selectedTicket?.id === ticket.id}
-                    highlighted={highlightedTicketId === ticket.id}
-                    onSelect={onTicketSelect}
-                  />
-                ))}
+              {filteredTickets.length > 0 ? (
+                filteredTickets
+                  .filter((ticket) => ticket.status === TicketStatus.AI)
+                  .map((ticket) => (
+                    <TicketCard
+                      key={ticket.id}
+                      ticket={ticket}
+                      selected={selectedTicket?.id === ticket.id}
+                      highlighted={highlightedTicketId === ticket.id}
+                      onSelect={onTicketSelect}
+                    />
+                  ))
+              ) : (
+                <p className="text-muted-foreground">Nenhum ticket AI</p>
+              )}
             </div>
           </TabsContent>
           <TabsContent value={TicketStatus.IN_PROGRESS}>
             <div className="flex flex-col gap-4 w-full">
-              {filteredTickets
-                .filter((ticket) => ticket.status === TicketStatus.IN_PROGRESS)
-                .map((ticket) => (
-                  <TicketCard
-                    key={ticket.id}
-                    ticket={ticket}
-                    selected={selectedTicket?.id === ticket.id}
-                    highlighted={highlightedTicketId === ticket.id}
-                    onSelect={onTicketSelect}
-                  />
-                ))}
+              {filteredTickets.length > 0 ? (
+                filteredTickets
+                  .filter(
+                    (ticket) => ticket.status === TicketStatus.IN_PROGRESS
+                  )
+                  .map((ticket) => (
+                    <TicketCard
+                      key={ticket.id}
+                      ticket={ticket}
+                      selected={selectedTicket?.id === ticket.id}
+                      highlighted={highlightedTicketId === ticket.id}
+                      onSelect={onTicketSelect}
+                    />
+                  ))
+              ) : (
+                <p className="text-muted-foreground">
+                  Nenhum ticket em andamento
+                </p>
+              )}
             </div>
           </TabsContent>
           <TabsContent value={TicketStatus.CLOSED}>
             <div className="flex flex-col gap-4 w-full">
-              {filteredTickets
-                .filter((ticket) => ticket.status === TicketStatus.CLOSED)
-                .map((ticket) => (
-                  <TicketCard
-                    key={ticket.id}
-                    ticket={ticket}
-                    selected={selectedTicket?.id === ticket.id}
-                    highlighted={highlightedTicketId === ticket.id}
-                    onSelect={onTicketSelect}
-                  />
-                ))}
+              {filteredTickets.length > 0 ? (
+                filteredTickets
+                  .filter((ticket) => ticket.status === TicketStatus.CLOSED)
+                  .map((ticket) => (
+                    <TicketCard
+                      key={ticket.id}
+                      ticket={ticket}
+                      selected={selectedTicket?.id === ticket.id}
+                      highlighted={highlightedTicketId === ticket.id}
+                      onSelect={onTicketSelect}
+                    />
+                  ))
+              ) : (
+                <p className="text-muted-foreground">Nenhum ticket fechado</p>
+              )}
             </div>
           </TabsContent>
         </Tabs>
