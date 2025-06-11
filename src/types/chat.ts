@@ -61,4 +61,5 @@ export interface WebSocketEvents {
     summary?: string;
     areaId?: number;
   };
+  new_ticket: Ticket;
 }

@@ -1,18 +1,59 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { SignUpFormData } from "../schema";
 import dynamic from "next/dynamic";
+import { useCEP } from "@/hooks/use-cep";
+import { useEffect } from "react";
 
-const MaskedInput = dynamic(() => import("@/components/ui/masked-input").then(mod => mod.MaskedInput), {
-  ssr: false
-});
+const MaskedInput = dynamic(
+  () => import("@/components/ui/masked-input").then((mod) => mod.MaskedInput),
+  {
+    ssr: false,
+  }
+);
 
 interface CompanyAddressProps {
   form: UseFormReturn<SignUpFormData>;
 }
 
 export function CompanyAddress({ form }: CompanyAddressProps) {
+  const { fetchAddress, loading, error } = useCEP();
+
+  // Observar mudanças no CEP
+  const cep = form.watch("company.address.zip_code");
+
+  useEffect(() => {
+    const searchAddress = async () => {
+      // Remove caracteres não numéricos para validação
+      const cleanCEP = cep?.replace(/\D/g, "");
+
+      if (cleanCEP?.length === 8) {
+        const address = await fetchAddress(cleanCEP);
+
+        if (address) {
+          form.setValue("company.address.street", address.logradouro);
+          form.setValue("company.address.city", address.localidade);
+          form.setValue("company.address.state", address.uf);
+          form.setValue("company.address.country", "Brasil");
+
+          // Se houver complemento da API, adiciona ao campo
+          if (address.complemento) {
+            form.setValue("company.address.complement", address.complemento);
+          }
+        }
+      }
+    };
+
+    searchAddress();
+  }, [cep, form, fetchAddress]);
+
   return (
     <div className="space-y-6">
       <FormField
@@ -34,6 +75,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
                 />
               </FormControl>
             </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <FormMessage />
           </FormItem>
         )}
@@ -47,7 +89,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
             <div>
               <FormLabel>Rua</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={loading} />
               </FormControl>
             </div>
             <FormMessage />
@@ -124,4 +166,4 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
       </div>
     </div>
   );
-} 
+}

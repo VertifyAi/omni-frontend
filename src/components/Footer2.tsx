@@ -121,47 +121,56 @@ import Image from 'next/image';
     ],
   }: Footer2Props) => {
     return (
-      <section className="pt-32 flex justify-center items-center">
-        <div className="container">
-          <footer>
-            <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
+      <section className="bg-gradient-to-b from-white-soft to-white-warm border-t border-white-warm">
+        <div className="px-4">
+          <footer className="pt-20 pb-12">
+            <div className="grid grid-cols-2 gap-12 lg:grid-cols-6 mb-16">
               <div className="col-span-2 mb-8 lg:mb-0">
-                <div className="flex items-center gap-2 lg:justify-start">
+                <div className="flex items-center gap-2 lg:justify-start mb-6">
                   <a href="https://shadcnblocks.com">
                     <Image
                       src={logo.src}
                       alt={logo.alt}
                       width={150}
                       height={50}
-                      className="h-8 w-auto"
+                      className="h-10 w-auto"
                     />
                   </a>
-                  {/* <p className="text-xl font-semibold">{logo}</p> */}
                 </div>
-                <p className="mt-4 font-bold">{tagline}</p>
+                <p className="text-muted-foreground leading-relaxed max-w-sm">{tagline}</p>
               </div>
+              
               {menuItems.map((section, sectionIdx) => (
                 <div key={sectionIdx}>
-                  <h3 className="mb-4 font-bold">{section.title}</h3>
-                  <ul className="space-y-4 text-muted-foreground">
+                  <h3 className="mb-6 font-bold text-foreground">{section.title}</h3>
+                  <ul className="space-y-4">
                     {section.items.map((item, itemIdx) => (
-                      <li
-                        key={itemIdx}
-                        className="font-medium hover:text-primary"
-                      >
-                        <a href={item.url} target="_blank">{item.title}</a>
+                      <li key={itemIdx}>
+                        <a 
+                          href={item.url} 
+                          target="_blank"
+                          className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                        >
+                          {item.title}
+                        </a>
                       </li>
                     ))}
                   </ul>
                 </div>
               ))}
             </div>
-            <div className="mt-24 flex flex-col justify-between gap-4 border-t pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
-              <p>{copyright}</p>
-              <ul className="flex gap-4">
+            
+            <div className="flex flex-col justify-between gap-6 border-t border-white-warm pt-8 text-sm md:flex-row md:items-center">
+              <p className="text-muted-foreground">{copyright}</p>
+              <ul className="flex gap-6">
                 {bottomLinks.map((link, linkIdx) => (
-                  <li key={linkIdx} className="underline hover:text-primary">
-                    <a href={link.url}>{link.text}</a>
+                  <li key={linkIdx}>
+                    <a 
+                      href={link.url}
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                    >
+                      {link.text}
+                    </a>
                   </li>
                 ))}
               </ul>

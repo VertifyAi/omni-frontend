@@ -9,6 +9,7 @@ import { fetchApi } from "@/lib/fetchApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { chatService } from "@/services/chat";
 import { TicketCard } from "./TicketCard";
+import "../app/globals.css";
 
 interface TicketListProps {
   onTicketSelect: (ticket: Ticket) => void;
@@ -101,12 +102,25 @@ export function TicketList({
   }, [selectedTicket?.id, onTicketSelect]);
 
   useEffect(() => {
+    console.log("TicketList: Configurando listener para novos tickets...");
+    
     const unsubscribe = chatService.onNewTicket((newTicket) => {
-      console.log("Novo ticket recebido:", newTicket);
+      console.log("TicketList: Novo ticket recebido via callback:", newTicket);
+      console.log("TicketList: Tipo do ticket:", typeof newTicket);
+      console.log("TicketList: ID do ticket:", newTicket.id);
 
       setTickets((prevTickets) => {
+        console.log("TicketList: Tickets anteriores:", prevTickets.length);
+        
+        // Verificar se o ticket já existe na lista
+        const ticketExists = prevTickets.some(ticket => ticket.id === newTicket.id);
+        if (ticketExists) {
+          console.log("TicketList: Ticket já existe na lista, ignorando duplicação");
+          return prevTickets;
+        }
+        
         const updatedTickets = [newTicket, ...prevTickets];
-        return updatedTickets.sort((a, b) => {
+        const sortedTickets = updatedTickets.sort((a, b) => {
           const dateA = new Date(
             a.ticketMessages.at(-1)?.createdAt || 0
           ).getTime();
@@ -115,13 +129,22 @@ export function TicketList({
           ).getTime();
           return dateB - dateA;
         });
+        console.log("TicketList: Tickets após adicionar novo:", sortedTickets.length);
+        return sortedTickets;
       });
 
       setHighlightedTicketId(newTicket.id);
-      setTimeout(() => setHighlightedTicketId(null), 3000); // Destaque por 3 segundos
+      console.log("TicketList: Destacando ticket ID:", newTicket.id);
+      setTimeout(() => {
+        setHighlightedTicketId(null);
+        console.log("TicketList: Removendo destaque do ticket");
+      }, 3000); // Destaque por 3 segundos
     });
 
+    console.log("TicketList: Listener configurado, função de cleanup criada");
+
     return () => {
+      console.log("TicketList: Removendo listener de novos tickets");
       unsubscribe();
     };
   }, []);
@@ -135,15 +158,19 @@ export function TicketList({
     return searchMatch;
   });
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full bg-white-soft">
+      {/* Nível 1: Header com elementos principais */}
+      <div className="p-4 border-b border-white-warm bg-white-pure shadow-white-soft">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-semibold">Atendimentos</h1>
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Atendimentos
+          </h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={loadTickets}
             disabled={isLoading}
+            className="hover-brand-orange elevated-1"
           >
             <RefreshCw
               className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
@@ -156,12 +183,14 @@ export function TicketList({
             placeholder="Buscar mensagem ou contato"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-white-soft border-white-warm focus:border-primary"
           />
           <Button
             variant="ghost"
             size="icon"
             onClick={() => {}}
             disabled={isLoading}
+            className="hover-brand-orange elevated-1"
           >
             <Filter className="h-4 w-4" />
           </Button>
@@ -169,12 +198,12 @@ export function TicketList({
       </div>
 
       {error && (
-        <div className="p-4">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="p-4 bg-white-soft">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg elevated-1">
             {error}
             <Button
               variant="link"
-              className="ml-2 text-red-700"
+              className="ml-2 text-red-700 hover:text-red-800"
               onClick={() => setError(null)}
             >
               Fechar
@@ -183,30 +212,35 @@ export function TicketList({
         </div>
       )}
 
-      <div>
+      {/* Nível 1: Tabs */}
+      <div className="bg-white-soft">
         <Tabs value={selectedTab} defaultValue="ai" className="w-full p-2">
-          <TabsList className="w-full">
+          <TabsList className="w-full bg-white-pure border border-white-warm shadow-white-soft">
             <TabsTrigger
               value={TicketStatus.IN_PROGRESS}
               onClick={() => setSelectedTab(TicketStatus.IN_PROGRESS)}
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
             >
               Abertos
             </TabsTrigger>
             <TabsTrigger
               value={TicketStatus.CLOSED}
               onClick={() => setSelectedTab(TicketStatus.CLOSED)}
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
             >
               Fechados
             </TabsTrigger>
             <TabsTrigger
               value={TicketStatus.AI}
               onClick={() => setSelectedTab(TicketStatus.AI)}
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
             >
-              IA <Sparkles className="h-4 w-4" />
+              IA <Sparkles className="h-4 w-4 ml-1" />
             </TabsTrigger>
           </TabsList>
-          <TabsContent value={TicketStatus.AI}>
-            <div className="flex flex-col gap-4 w-full">
+          
+          <TabsContent value={TicketStatus.AI} className="mt-4">
+            <div className="flex flex-col gap-3 w-full px-2">
               {filteredTickets.length > 0 ? (
                 filteredTickets
                   .filter((ticket) => ticket.status === TicketStatus.AI)
@@ -220,12 +254,18 @@ export function TicketList({
                     />
                   ))
               ) : (
-                <p className="text-muted-foreground">Nenhum ticket AI</p>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhum ticket IA</p>
+                </div>
               )}
             </div>
           </TabsContent>
-          <TabsContent value={TicketStatus.IN_PROGRESS}>
-            <div className="flex flex-col gap-4 w-full">
+          
+          <TabsContent value={TicketStatus.IN_PROGRESS} className="mt-4">
+            <div className="flex flex-col gap-3 w-full px-2">
               {filteredTickets.length > 0 ? (
                 filteredTickets
                   .filter(
@@ -241,14 +281,18 @@ export function TicketList({
                     />
                   ))
               ) : (
-                <p className="text-muted-foreground">
-                  Nenhum ticket em andamento
-                </p>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                    <RefreshCw className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhum ticket em andamento</p>
+                </div>
               )}
             </div>
           </TabsContent>
-          <TabsContent value={TicketStatus.CLOSED}>
-            <div className="flex flex-col gap-4 w-full">
+          
+          <TabsContent value={TicketStatus.CLOSED} className="mt-4">
+            <div className="flex flex-col gap-3 w-full px-2">
               {filteredTickets.length > 0 ? (
                 filteredTickets
                   .filter((ticket) => ticket.status === TicketStatus.CLOSED)
@@ -262,7 +306,14 @@ export function TicketList({
                     />
                   ))
               ) : (
-                <p className="text-muted-foreground">Nenhum ticket fechado</p>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-muted-foreground">Nenhum ticket fechado</p>
+                </div>
               )}
             </div>
           </TabsContent>

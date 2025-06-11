@@ -61,26 +61,35 @@ import {
       {
         question: "Como faço para testar uma assinatura? Posso cancelar depois?",
         answer:
-          "Ao contratar qualquer assinatura, você tem 7 dias para testar e avaliar o serviço. Caso a Vertify não atenda suas expectativas nesse período, você pode cancelar e receberá integralmente o valor pago.",
+          "Ao contratar qualquer assinatura, você tem 30 dias para testar e avaliar o serviço. Caso a Vertify não atenda suas expectativas nesse período, você pode cancelar e receberá integralmente o valor pago.",
       },
     ],
   }: Faq1Props) => {
     return (
-      <section className="py-32 flex justify-center items-center">
-        <div className="container">
-          <h1 className="mb-4 text-3xl font-semibold md:mb-11 md:text-4xl">
-            {heading}
-          </h1>
-          {items.map((item, index) => (
-            <Accordion key={index} type="single" collapsible>
-              <AccordionItem value={`item-${index}`}>
-                <AccordionTrigger className="hover:text-foreground/60 hover:no-underline">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent>{item.answer}</AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          ))}
+      <section className="py-24 bg-gradient-to-b from-background to-white-soft flex justify-center">
+        <div className="container max-w-4xl px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              {heading}
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {items.map((item, index) => (
+              <div key={index} className="elevated-1 rounded-2xl overflow-hidden">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value={`item-${index}`} className="border-0">
+                    <AccordionTrigger className="hover:text-primary hover:no-underline px-8 py-6 text-left font-semibold text-lg">
+                      {item.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="px-8 pb-6 text-muted-foreground leading-relaxed">
+                      {item.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );

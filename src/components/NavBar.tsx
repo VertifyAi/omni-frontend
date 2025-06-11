@@ -66,7 +66,7 @@ const Navbar1 = ({
     title: "Vertify",
   },
   menu = [
-    { title: "Home", url: "#" },
+    { title: "Início", url: "#" },
     {
       title: "Produtos",
       url: "#",
@@ -114,7 +114,7 @@ const Navbar1 = ({
   ],
   auth = {
     login: { text: "Entrar", url: "/sign-in" },
-    // signup: { text: "Acesso Exclusivo", url: "/sign-up" },
+    signup: { text: "Teste grátis por 30 dias", url: "/sign-up" },
   },
 }: Navbar1Props) => {
   const [location, setLocation] = useState("");
@@ -126,8 +126,13 @@ const Navbar1 = ({
   }, []);
 
   return (
-    <section className="flex justify-center py-4 items-center  w-full bg-background/90 backdrop-blur-sm z-50">
-      <div className="container">
+<<<<<<< HEAD
+    <section className="flex justify-center py-4 items-center w-full bg-white-soft/95 backdrop-blur-sm z-50 border-b border-white-warm shadow-white-soft">
+      <div className="container px-4">
+=======
+    <section className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-7xl px-4 z-50">
+      <div className="bg-white-pure/80 backdrop-blur-md border border-white-warm/50 rounded-2xl shadow-white-elevated px-4 py-2">
+>>>>>>> 61d60be (feat: :rocket:)
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
@@ -150,11 +155,19 @@ const Navbar1 = ({
             </div>
           </div>
           <div className="flex gap-2 items-center">
-            <Button asChild variant="outline" size="sm">
+<<<<<<< HEAD
+            <Button asChild variant="outline" size="sm" className="hover-cool-blue bg-white-pure border-white-warm">
               <a href={auth.login.url}>{auth.login.text}</a>
             </Button>
             {auth.signup && (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="gradient-cool hover:opacity-90 elevated-1">
+=======
+            <Button asChild variant="outline" size="sm" className="hover-cool-blue bg-white-pure/50 border-white-warm backdrop-blur-sm">
+              <a href={auth.login.url}>{auth.login.text}</a>
+            </Button>
+            {auth.signup && (
+              <Button asChild size="sm" className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] hover:opacity-90 elevated-1">
+>>>>>>> 61d60be (feat: :rocket:)
                 <a href={auth.signup.url}>{auth.signup.text}</a>
               </Button>
             )}
@@ -174,11 +187,15 @@ const Navbar1 = ({
             </a>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
+<<<<<<< HEAD
+                <Button variant="outline" size="icon" className="hover-cool-blue">
+=======
+                <Button variant="outline" size="icon" className="hover-cool-blue bg-white-pure/50 backdrop-blur-sm">
+>>>>>>> 61d60be (feat: :rocket:)
                   <Menu className="size-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
+              <SheetContent className="overflow-y-auto bg-white-pure/95 backdrop-blur-md">
                 <SheetHeader>
                   <SheetTitle>
                     <a
@@ -208,11 +225,11 @@ const Navbar1 = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
+                    <Button asChild variant="outline" className="hover-cool-blue">
                       <a href={auth.login.url}>{auth.login.text}</a>
                     </Button>
                     {auth.signup && (
-                      <Button asChild>
+                      <Button asChild className="gradient-cool hover:opacity-90">
                         <a href={auth.signup.url}>{auth.signup.text}</a>
                       </Button>
                     )}
@@ -231,11 +248,11 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title} className="text-muted-foreground">
-        <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50">
+        <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50 hover-warm-slate">
           {item.title}
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-          <div className="grid w-[400px] gap-1 p-4">
+          <div className="grid w-[400px] gap-1 p-4 bg-white-pure border border-white-warm shadow-white-elevated">
             {item.items.map((subItem) => (
               <NavigationMenuLink asChild key={subItem.title}>
                 <SubMenuLink item={subItem} />
@@ -250,7 +267,7 @@ const renderMenuItem = (item: MenuItem) => {
   return (
     <a
       key={item.title}
-      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-accent-foreground"
+      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white-warm hover:text-accent-foreground hover-warm-slate"
       href={item.url}
     >
       {item.title}
@@ -284,10 +301,10 @@ const renderMobileMenuItem = (item: MenuItem) => {
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
   return (
     <a
-      className="flex flex-row gap-4 rounded-md p-4 leading-none no-underline transition-colors outline-none select-none hover:bg-accent/50 hover:text-accent-foreground"
+      className="flex flex-row gap-4 rounded-md p-4 leading-none no-underline transition-colors outline-none select-none hover:bg-accent/50 hover:text-accent-foreground hover-cool-teal"
       href={item.url}
     >
-      <div className="rounded-md bg-accent/10 p-2">{item.icon}</div>
+      <div className="rounded-md bg-accent/10 p-2 bg-cool-teal-subtle">{item.icon}</div>
       <div>
         <div className="text-sm font-semibold leading-none">{item.title}</div>
         {item.description && (

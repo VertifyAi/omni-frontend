@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Layout, Pointer, Zap } from "lucide-react";
-import Image from 'next/image';
+import Image from "next/image";
 
 // import { Badge } from "@/components/ui/badge";
 // import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ interface TabContent {
   buttonText: string;
   imageSrc: string;
   imageAlt: string;
+  benefit: string;
+  roi: string;
 }
 
 interface Tab {
@@ -30,22 +32,24 @@ interface Feature108Props {
 
 const Feature108 = ({
   // badge = "shadcnblocks.com",
-  heading = "Gerencie Todos os Seus Canais de Atendimento com IA em Minutos",
-  description = "Automatize conversas com IA, conecte-se com clientes nos principais canais e implemente tudo em poucos minutos.",
+  heading = "3 Formas Comprovadas de Aumentar Suas Vendas com IA",
+  description = "Veja como empresas como a sua estão usando nossa IA para resolver problemas reais e gerar resultados em semanas, não meses.",
   tabs = [
     {
       value: "tab-1",
       icon: <Zap className="h-auto w-4 shrink-0" />,
       label: "Vendas",
       content: {
-        badge: "Modern Tactics",
-        title: "Automatize Sua Prospecção e Qualifique Leads",
+        badge: "Resultados em 30 dias",
+        title: "Transforme 67% Mais Visitantes em Clientes Pagantes",
         description:
-          "Nossa IA inteligente identifica, qualifica e interage com leads 24h por dia, garantindo um funil de vendas mais aquecido e eficiente. Aumente suas conversões enquanto sua equipe foca no que realmente importa: fechar negócios.",
-        buttonText: "See Plans",
+          "Pare de perder vendas por falta de atendimento. Nossa IA Vera qualifica leads, responde objeções e agenda reuniões automaticamente.",
+        buttonText: "Ver Resultados",
         imageSrc:
           "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/VENDAS%404x.png",
-        imageAlt: "placeholder",
+        imageAlt: "IA de vendas automatizada",
+        benefit: "+340% em conversões",
+        roi: "ROI médio: 1.200%",
       },
     },
     {
@@ -53,14 +57,16 @@ const Feature108 = ({
       icon: <Pointer className="h-auto w-4 shrink-0" />,
       label: "Suporte",
       content: {
-        badge: "Expert Features",
-        title: "Reduza o Tempo de Espera e Aumente a Eficiência",
+        badge: "Redução de 85% nos custos",
+        title: "Elimine Filas e Reduza 85% dos Custos de Suporte",
         description:
-          "Ofereça suporte instantâneo e humanizado com a Vera. Ela responde dúvidas, resolve solicitações e direciona atendimentos complexos para a equipe certa – tudo isso 24h por dia, sem filas e sem custos extras.",
-        buttonText: "See Tools",
+          "Chega de clientes irritados esperando atendimento. A Vera resolve 89% das dúvidas instantaneamente e escalona apenas casos complexos.",
+        buttonText: "Calcular Economia",
         imageSrc:
           "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/SUPORTE%404x.png",
-        imageAlt: "placeholder",
+        imageAlt: "Suporte automatizado com IA",
+        benefit: "89% de resolução automática",
+        roi: "Economia de tempo",
       },
     },
     {
@@ -68,21 +74,24 @@ const Feature108 = ({
       icon: <Layout className="h-auto w-4 shrink-0" />,
       label: "Equipes",
       content: {
-        badge: "Elite Solutions",
-        title: "Facilite a Comunicação e Aumente a Produtividade",
+        badge: "Produtividade 3x maior",
+        title: "Multiplique a Produtividade da Sua Equipe por 3",
         description:
-          "A Vera organiza e direciona chamados automaticamente para a equipe mais qualificada, otimizando o fluxo de trabalho. Crie equipes, restrinja acessos e reduza ruídos na comunicação, garantindo mais eficiência e segurança na troca de informações.",
-        buttonText: "See Options",
+          "Pare de perder tempo com tarefas repetitivas. A Vera organiza, prioriza e distribui chamados automaticamente para o especialista certo.",
+        buttonText: "Ver Cases",
         imageSrc:
           "https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/EQUIPE%404x.png",
-        imageAlt: "placeholder",
+        imageAlt: "Gestão de equipes com IA",
+        benefit: "3x mais produtividade",
+        roi: "78% menos retrabalho",
       },
     },
   ],
 }: Feature108Props) => {
   return (
+<<<<<<< HEAD
     <section className="py-32">
-      <div className="container mx-auto" id="tab">
+      <div className="container mx-auto px-4" id="tab">
         <div className="flex flex-col items-center gap-4 text-center">
           {/* <Badge variant="outline">{badge}</Badge> */}
           <h1 className="max-w-2xl text-3xl font-bold md:text-4xl">
@@ -90,47 +99,147 @@ const Feature108 = ({
           </h1>
           <p className="text-muted-foreground">{description}</p>
         </div>
-        <Tabs defaultValue={tabs[0].value} className="mt-8">
-          <TabsList className="container flex items-center justify-center gap-4 md:gap-10">
+        <Tabs defaultValue={tabs[0].value} className="mt-8 flex flex-col items-center">
+=======
+    <section className="py-32 bg-gradient-to-b from-white-warm to-white-soft">
+      <div className="container mx-auto px-4" id="tab">
+        <div className="flex flex-col items-center gap-6 text-center mb-12">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              {heading}
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-3xl">
+              {description}
+            </p>
+          </div>
+
+          {/* Social Proof com Resultados */}
+          <div className="flex flex-wrap justify-center gap-6 mt-6">
+            {/* <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
+              <TrendingUp className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-green-800">
+                +R$ 2.3M gerados pelos clientes
+              </span>
+            </div> */}
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium text-blue-800">
+                Implementação em 24h
+              </span>
+            </div>
+            <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-full px-4 py-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span className="text-sm font-medium text-purple-800">
+                97% de satisfação
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <Tabs
+          defaultValue={tabs[0].value}
+          className="mt-8 flex flex-col items-center"
+        >
+>>>>>>> 61d60be (feat: :rocket:)
+          <TabsList className="rounded-lg w-fit container flex items-center justify-center gap-4 md:gap-10 bg-white-soft border border-white-warm shadow-white-soft">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-primary"
+<<<<<<< HEAD
+                className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-white-pure data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-cool-blue"
+=======
+                className="flex items-center gap-2 rounded-lg px-6 py-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-white-pure data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-cool-blue transition-all duration-300"
+>>>>>>> 61d60be (feat: :rocket:)
               >
                 {tab.icon} {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="mx-auto mt-8 max-w-screen-xl rounded-2xl bg-muted/70 p-6 lg:p-16">
+<<<<<<< HEAD
+          <div className="mx-auto mt-8 max-w-screen-xl rounded-2xl bg-white-warm p-6 lg:p-16 border border-white-warm shadow-white-elevated">
+=======
+
+          <div className="mx-auto mt-12 max-w-screen-xl rounded-3xl bg-white-warm p-8 lg:p-16 border border-white-warm shadow-white-elevated">
+>>>>>>> 61d60be (feat: :rocket:)
             {tabs.map((tab) => (
               <TabsContent
                 id={tab.value}
                 key={tab.value}
                 value={tab.value}
-                className="grid place-items-center gap-20 lg:h-[500px] lg:grid-cols-2 lg:gap-10"
+                className="grid place-items-center gap-20 lg:h-[500px] lg:grid-cols-2 lg:gap-12"
               >
-                <div className="flex flex-col gap-5">
-                  {/* <Badge variant="outline" className="w-fit bg-background">
-                    {tab.content.badge}
-                  </Badge> */}
-                  <h3 className="text-3xl font-semibold lg:text-5xl">
+                <div className="flex flex-col gap-6">
+                  {/* Badge de resultado */}
+                  <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2 w-fit">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-green-800">
+                      {tab.content.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="text-3xl font-bold lg:text-4xl text-foreground">
                     {tab.content.title}
                   </h3>
-                  <p className="text-muted-foreground lg:text-lg">
+
+                  <p className="text-muted-foreground lg:text-lg leading-relaxed">
                     {tab.content.description}
                   </p>
-                  {/* <Button className="mt-2.5 w-fit gap-2" size="lg">
-                    {tab.content.buttonText}
-                  </Button> */}
+
+                  {/* Métricas de resultado */}
+                  <div className="flex flex-wrap gap-4 mt-4">
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl px-4 py-3">
+                      <div className="text-lg font-bold text-green-700">
+                        {tab.content.benefit}
+                      </div>
+                      <div className="text-xs text-green-600">
+                        resultado médio
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl px-4 py-3">
+                      <div className="text-lg font-bold text-purple-700">
+                        {tab.content.roi}
+                      </div>
+                      {/* <div className="text-xs text-purple-600">comprovado</div> */}
+                    </div>
+                  </div>
+
+                  {/* CTA implícito */}
+                  <div className="mt-6 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white-warm">
+                    <p className="text-sm text-muted-foreground">
+                      ✨ <strong>Quer resultados similares?</strong> Implemente
+                      em 24h e veja os primeiros resultados em 30 dias.
+                    </p>
+                  </div>
                 </div>
+
+                <div className="relative">
+                  <Image
+                    src={tab.content.imageSrc}
+                    alt={tab.content.imageAlt}
+                    width={500}
+                    height={300}
+                    className="rounded-2xl shadow-white-elevated bg-white-pure hover:scale-105 transition-transform duration-500"
+                  />
+
+                  {/* Overlay com benefício */}
+                  <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-[#E97939] to-[#8A39DB] text-white px-4 py-2 rounded-xl shadow-lg">
+                    <div className="text-sm font-bold">Resultado Real</div>
+                    <div className="text-xs opacity-90">
+                      {tab.content.benefit}
+                    </div>
+                  </div>
+                </div>
+<<<<<<< HEAD
                 <Image
                   src={tab.content.imageSrc}
                   alt={tab.content.imageAlt}
                   width={500}
                   height={300}
-                  className="rounded-lg"
+                  className="rounded-lg shadow-white-elevated bg-white-pure"
                 />
+=======
+>>>>>>> 61d60be (feat: :rocket:)
               </TabsContent>
             ))}
           </div>

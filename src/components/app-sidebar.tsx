@@ -14,7 +14,11 @@ import {
   Building2,
   Archive,
   Monitor,
-  // Bot,
+  Bot,
+<<<<<<< HEAD
+=======
+  Workflow,
+>>>>>>> 61d60be (feat: :rocket:)
 } from "lucide-react";
 import {
   Tooltip,
@@ -37,20 +41,16 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
   {
-    name: "Dashboard",
+    name: "Visão Geral",
     href: "/dashboard",
     icon: LayoutDashboard,
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
   },
   {
     name: "Atendimento",
     href: "/dashboard/tickets",
     icon: Inbox,
   },
-  // {
-  //   name: "Agentes de IA",
-  //   href: "/dashboard/agents",
-  //   icon: Bot,
-  // },
   {
     name: "Contatos",
     href: "/dashboard/customers",
@@ -62,6 +62,21 @@ const navigation = [
     icon: Building2,
     roles: [UserRole.ADMIN, UserRole.MANAGER],
   },
+  {
+    name: "Agentes de IA",
+    href: "/dashboard/agents",
+    icon: Bot,
+    roles: [UserRole.ADMIN, UserRole.MANAGER],
+  },
+<<<<<<< HEAD
+=======
+  {
+    name: "Fluxo de Atendimento",
+    href: "/dashboard/workflow",
+    icon: Workflow,
+    roles: [UserRole.ADMIN],
+  },
+>>>>>>> 61d60be (feat: :rocket:)
 ];
 
 const options = [
@@ -72,7 +87,7 @@ const options = [
   },
   {
     name: "Configurações",
-    href: "/dashboard/settings",
+    href: "/dashboard/settings/profile",
     icon: Settings,
     roles: [UserRole.ADMIN],
   },
@@ -110,7 +125,7 @@ export function AppSidebar() {
   });
 
   return (
-    <div className="fixed left-0 top-0 z-40 h-screen w-16 border-r bg-background">
+    <div className="fixed left-0 top-0 z-40 h-screen w-16 border-r bg-white">
       <div className="flex h-full flex-col items-center py-4">
         <nav className="flex-1 space-y-2">
           <TooltipProvider>

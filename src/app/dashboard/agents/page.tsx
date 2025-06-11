@@ -1,131 +1,100 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { fetchApi } from "@/lib/fetchApi";
-import { Plus, Users, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-interface Agent {
-  id: number;
-  name: string;
-  description: string;
-  whatsappNumber: string;
-  systemMessage: string;
-  companyId: number;
-  createdAt: string;
-  updatedAt: string;
-  deleted_at: string | null;
-}
-
-// {
-//     "id": 1,
-//     "name": "Vera IA",
-//     "description": "Agente de Vendas B2B",
-//     "whatsappNumber": "5511914403625",
-//     "systemMessage": "IDENTIDADE E TOM DE VOZ:\n- Identidade: Vera é a especialista virtual de vendas da Vertify, atuando como representante digital da empresa no WhatsApp. Ela se identifica claramente como Vera e fala em nome da Vertify.\nPersonalidade e Tom: Mantém sempre um t",
-//     "companyId": 2,
-//     "createdAt": "2025-04-29T03:10:40.209Z",
-//     "updatedAt": "2025-04-29T03:10:40.209Z",
-//     "deletedAt": null
-// }
+import { AgentCard } from "@/components/AgentCard";
+import { Agent } from "@/types/agent";
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filteredAgents, setFilteredAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const response = await fetchApi("/api/agents");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Erro ao carregar equipes");
-        }
-
-        setAgents(data);
-      } catch (error) {
-        console.error(error);
-        toast.error(
-          error instanceof Error ? error.message : "Erro ao carregar equipes"
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTeams();
+    fetchAgents();
   }, []);
+
+  const fetchAgents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchApi("/api/agents");
+      
+      if (!response.ok) {
+        throw new Error("Erro ao carregar agentes");
+      }
+      
+      const data = await response.json();
+      setFilteredAgents(data);
+    } catch (error) {
+      console.error("Erro ao buscar agentes:", error);
+      toast.error("Erro ao carregar agentes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando agentes...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 p-8 ml-16">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Meus Agentes</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Agentes de IA
+          </h1>
           <p className="text-muted-foreground">
-            Gerencie seus agentes de inteligência artificial
+            Gerencie seus agentes de IA
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/agents/create">
+          <Link href="/dashboard/teams/create">
             <Plus className="mr-2 h-4 w-4" />
             Novo Agente
           </Link>
         </Button>
       </div>
 
-      {isLoading ? (
-        <div className="text-center py-8 text-muted-foreground">Carregando agentes...</div>
-      ) : agents.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">Nenhum agente encontrado.</div>
+      {/* Agents Grid */}
+      {filteredAgents.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="mx-auto max-w-md">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Plus className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">
+              Nenhum agente criado
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Comece criando seu primeiro agente de IA para automatizar o atendimento.
+            </p>
+            <Button asChild className="mt-4">
+              <Link href="/dashboard/agents/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Criar Primeiro Agente
+              </Link>
+            </Button>
+          </div>
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
-            <Card
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredAgents.map((agent) => (
+            <AgentCard
               key={agent.id}
-              className="hover:border-primary/50 transition-colors"
-            >
-              <CardHeader className="flex flex-row items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback>
-                    {agent.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <CardTitle>{agent.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    teste
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary"
-                >
-                  <Link href={`/dashboard/agents/edit/${agent.id}`}>
-                    <Pencil className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {agent.description}
-                </p>
-              </CardContent>
-            </Card>
+              agent={agent}
+            />
           ))}
         </div>
       )}

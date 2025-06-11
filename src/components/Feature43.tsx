@@ -60,21 +60,31 @@ import {
     ],
   }: Feature43Props) => {
     return (
-      <section className="py-32 flex justify-center items-center">
-        <div className="container">
-          <div className="mb-10 md:mb-20">
-            <h2 className="mb-2 text-center text-3xl font-bold lg:text-4xl">
+      <section className="py-24 bg-gradient-to-b from-white-warm to-background flex justify-center">
+        <div className="container px-4">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               {heading}
             </h2>
           </div>
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+          
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {reasons.map((reason, i) => (
-              <div key={i} className="flex flex-col">
-                <div className="mb-5 flex size-16 items-center justify-center rounded-full bg-accent">
-                  {reason.icon}
+              <div 
+                key={i} 
+                className="elevated-1 p-8 rounded-2xl hover:elevated-2 transition-all duration-300 group"
+              >
+                <div className="mb-6 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cool-blue-subtle to-cool-teal-subtle group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-primary">
+                    {reason.icon}
+                  </div>
                 </div>
-                <h3 className="mb-2 text-xl font-semibold">{reason.title}</h3>
-                <p className="text-muted-foreground">{reason.description}</p>
+                <h3 className="mb-4 text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                  {reason.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {reason.description}
+                </p>
               </div>
             ))}
           </div>

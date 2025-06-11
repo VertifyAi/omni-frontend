@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumber } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
 import { Ticket, TicketStatus } from "@/types/chat";
 import { chatService } from "@/services/chat";
+import "../app/globals.css";
 
 const socialIcons: Record<string, string> = {
   facebook:
@@ -43,16 +44,16 @@ export function TicketCard({
       animate={{
         opacity: 1,
         y: 0,
-        scale: highlighted ? 1.01 : 1,
-        backgroundColor: highlighted ? "#FEF9C3" : "#ffffff",
+        scale: highlighted ? 1.02 : 1,
+        backgroundColor: highlighted ? "oklch(0.998 0.001 250)" : "oklch(1 0 0)",
       }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className={`w-full min-h-[100px] p-4 rounded-lg border cursor-pointer transition-colors ${
+      className={`w-full min-h-[100px] p-4 rounded-xl border cursor-pointer transition-all duration-200 elevated-1 hover:elevated-2 ${
         selected
-          ? "bg-blue-50 border-blue-200"
+          ? "bg-white-pure border-primary shadow-brand-orange"
           : highlighted
-          ? "hover:bg-yellow-100"
-          : "hover:bg-gray-50"
+          ? "bg-white-soft border-yellow-300 shadow-lg"
+          : "bg-white-pure border-white-warm hover:border-primary"
       }`}
       onClick={() => onSelect(ticket)}
       role="button"
@@ -66,27 +67,27 @@ export function TicketCard({
               alt={ticket.customer.name}
               width={40}
               height={40}
-              className="rounded-full"
+              className="rounded-full border-2 border-white-warm"
             />
-            <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5">
+            <div className="absolute -bottom-1 -right-1 rounded-full bg-white-pure p-1 shadow-white-soft border border-white-warm">
               <Image
                 src={socialIcons[ticket.channel]}
                 alt={ticket.channel}
-                width={16}
-                height={16}
+                width={14}
+                height={14}
               />
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="font-medium">{ticket.customer.name}</h3>
+            <h3 className="font-semibold text-foreground">{ticket.customer.name}</h3>
             <p className="text-sm text-muted-foreground">
               {formatPhoneNumber(ticket.customer.phone)}
             </p>
           </div>
         </div>
-        <div className="text-sm text-gray-500 flex flex-col gap-2 items-end">
+        <div className="text-sm text-muted-foreground flex flex-col gap-2 items-end">
           {lastMessage && (
-            <span>
+            <span className="text-xs">
               {new Date(lastMessage.createdAt).toLocaleString("pt-BR", {
                 day: "2-digit",
                 month: "2-digit",
@@ -100,7 +101,13 @@ export function TicketCard({
             variant={
               ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
             }
-            className="capitalize text-xs"
+            className={`capitalize text-xs font-medium ${
+              ticket.status === TicketStatus.AI 
+                ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:opacity-90"
+                : ticket.status === TicketStatus.IN_PROGRESS
+                ? "bg-gradient-to-r from-primary to-secondary text-white"
+                : "bg-gray-100 text-gray-700"
+            }`}
           >
             {ticket.status === TicketStatus.IN_PROGRESS ? (
               "Em Andamento"
@@ -108,21 +115,22 @@ export function TicketCard({
               "Fechado"
             ) : (
               <span className="flex items-center gap-1">
-                IA <Sparkles className="h-4 w-4" />
+                <Bot className="h-3 w-3" />
+                IA
               </span>
             )}
           </Badge>
         </div>
       </div>
-      <div className="mt-2 flex gap-4">
+      <div className="mt-3 flex items-center justify-between gap-4">
         {lastMessage && (
-          <p className="text-gray-500 truncate w-full">
-            <span className="font-semibold">{lastMessage.senderName}:</span>{" "}
+          <p className="text-muted-foreground truncate flex-1 text-sm">
+            <span className="font-medium text-foreground">{lastMessage.senderName}:</span>{" "}
             {lastMessage.message}
           </p>
         )}
         {chatService.getUnreadCount(ticket.id) > 0 && (
-          <span className="bg-blue-500 text-white rounded-full h-6 w-6 p-2 flex items-center justify-center text-xs">
+          <span className="bg-gradient-to-r from-primary to-secondary text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-semibold elevated-1 animate-pulse">
             {chatService.getUnreadCount(ticket.id)}
           </span>
         )}

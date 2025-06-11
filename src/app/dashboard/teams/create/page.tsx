@@ -23,10 +23,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
 import { User } from "@/types/users";
+import { Camera, Users } from "lucide-react";
+<<<<<<< HEAD
+=======
+import Image from "next/image";
+>>>>>>> 61d60be (feat: :rocket:)
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -42,6 +47,9 @@ export default function CreateTeamPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<CreateTeamFormData>({
     resolver: zodResolver(createTeamSchema),
@@ -78,9 +86,70 @@ export default function CreateTeamPage() {
     fetchUsers();
   }, []);
 
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith("image/")) {
+        toast.error("Por favor, selecione apenas arquivos de imagem");
+        return;
+      }
+
+      // Validar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("A imagem deve ter no máximo 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+
+      // Criar preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadTeamImage = async (teamId: number) => {
+    if (!selectedImage) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedImage);
+
+    try {
+<<<<<<< HEAD
+      const response = await fetch(`/api/teams/${teamId}/upload-picture`, {
+=======
+      const response = await fetchApi(`/api/teams/${teamId}/upload-image`, {
+>>>>>>> 61d60be (feat: :rocket:)
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao fazer upload da imagem");
+      }
+<<<<<<< HEAD
+
+      toast.success("Imagem da equipe carregada com sucesso!");
+=======
+>>>>>>> 61d60be (feat: :rocket:)
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erro ao fazer upload da imagem"
+      );
+    }
+  };
+
   const onSubmit = async (data: CreateTeamFormData) => {
     try {
-      const response = await fetch("/api/teams", {
+      const response = await fetchApi("/api/teams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,6 +167,17 @@ export default function CreateTeamPage() {
       }
 
       toast.success("Equipe criada com sucesso!");
+
+      // Fazer upload da imagem se uma foi selecionada
+<<<<<<< HEAD
+      if (selectedImage && responseData.team?.id) {
+        await uploadTeamImage(responseData.team.id);
+=======
+      if (selectedImage && responseData.id) {
+        await uploadTeamImage(responseData.id);
+>>>>>>> 61d60be (feat: :rocket:)
+      }
+
       router.push("/dashboard/teams");
     } catch (error) {
       console.error("Erro ao criar equipe:", error);
@@ -108,15 +188,74 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className="container p-8 ml-16">
-      <div className="mb-8">
+    <div className="flex flex-col justify-center items-center p-8 ml-16">
+      <div className="mb-8 w-full">
         <h1 className="text-3xl font-bold">Criar Nova Equipe</h1>
         <p className="text-muted-foreground mt-2">
           Preencha os dados abaixo para criar uma nova equipe.
         </p>
       </div>
 
-      <div className="max-w-2xl">
+      <div className="max-w-4xl w-full">
+        {/* Input de Imagem */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative">
+            <div
+              className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors bg-gray-50 hover:bg-gray-100"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {imagePreview ? (
+<<<<<<< HEAD
+                <img
+                  src={imagePreview}
+                  alt="Preview da equipe"
+                  className="w-full h-full object-cover rounded-full"
+=======
+                <Image
+                  src={imagePreview}
+                  alt="Preview da equipe"
+                  className="w-full h-full object-cover rounded-full"
+                  width={128}
+                  height={128}
+>>>>>>> 61d60be (feat: :rocket:)
+                />
+              ) : (
+                <div className="flex flex-col items-center text-gray-500">
+                  <Users className="w-8 h-8 mb-2" />
+                  <span className="text-xs text-center">
+                    Foto da
+                    <br />
+                    Equipe
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Botão de câmera */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-2 right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          <p className="text-sm text-muted-foreground mt-2 text-center">
+            Clique para adicionar uma foto da equipe
+            <br />
+            <span className="text-xs">Máximo 5MB • JPG, PNG, GIF</span>
+          </p>
+        </div>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -125,18 +264,13 @@ export default function CreateTeamPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome da Equipe</FormLabel>
-                  {isLoading ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ) : (
-                    <FormControl>
-                      <Input
-                        placeholder="Ex: Equipe de Desenvolvimento"
-                        {...field}
-                      />
-                    </FormControl>
-                  )}
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: Equipe de Desenvolvimento"
+                      {...field}
+                    />
+                  </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -148,19 +282,14 @@ export default function CreateTeamPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
-                  {isLoading ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ) : (
-                    <FormControl>
-                      <Textarea
-                        placeholder="Descreva o propósito desta equipe..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                  )}
+                  <FormControl>
+                    <Textarea
+                      placeholder="Descreva o propósito desta equipe..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -254,49 +383,38 @@ export default function CreateTeamPage() {
               )}
             />
 
-            {isLoading ? (
+            {selectedUsers.length > 0 && (
               <div className="space-y-2">
-                <Skeleton className="h-6 w-32" />
+                <p className="text-sm font-medium">Membros selecionados:</p>
                 <div className="flex flex-wrap gap-2">
-                  <Skeleton className="h-8 w-24 rounded-full" />
-                  <Skeleton className="h-8 w-32 rounded-full" />
-                  <Skeleton className="h-8 w-28 rounded-full" />
+                  {selectedUsers.map((userId) => {
+                    const user = users.find((u) => u.id === userId);
+                    return (
+                      <div
+                        key={userId}
+                        className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-full text-sm"
+                      >
+                        <span>{user?.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedUsers(
+                              selectedUsers.filter((id) => id !== userId)
+                            );
+                            form.setValue(
+                              "members",
+                              selectedUsers.filter((id) => id !== userId)
+                            );
+                          }}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ) : (
-              selectedUsers.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Membros selecionados:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedUsers.map((userId) => {
-                      const user = users.find((u) => u.id === userId);
-                      return (
-                        <div
-                          key={userId}
-                          className="flex items-center gap-2 bg-secondary px-3 py-1 rounded-full text-sm"
-                        >
-                          <span>{user?.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedUsers(
-                                selectedUsers.filter((id) => id !== userId)
-                              );
-                              form.setValue(
-                                "members",
-                                selectedUsers.filter((id) => id !== userId)
-                              );
-                            }}
-                            className="text-muted-foreground hover:text-foreground"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )
             )}
 
             <div className="flex gap-4">

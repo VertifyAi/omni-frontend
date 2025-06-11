@@ -20,7 +20,7 @@ export function AddressInfo({ form }: AddressInfoProps) {
   // Observar mudanças no CEP
   const cep = form.watch("address.zip_code");
 
-  useEffect(() => {
+  useEffect(() => { 
     const searchAddress = async () => {
       // Remove caracteres não numéricos para validação
       const cleanCEP = cep?.replace(/\D/g, '');
