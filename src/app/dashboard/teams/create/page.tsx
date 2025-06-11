@@ -28,10 +28,6 @@ import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
 import { User } from "@/types/users";
 import { Camera, Users } from "lucide-react";
-<<<<<<< HEAD
-=======
-import Image from "next/image";
->>>>>>> 61d60be (feat: :rocket:)
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -119,11 +115,7 @@ export default function CreateTeamPage() {
     formData.append("image", selectedImage);
 
     try {
-<<<<<<< HEAD
       const response = await fetch(`/api/teams/${teamId}/upload-picture`, {
-=======
-      const response = await fetchApi(`/api/teams/${teamId}/upload-image`, {
->>>>>>> 61d60be (feat: :rocket:)
         method: "POST",
         body: formData,
       });
@@ -132,11 +124,8 @@ export default function CreateTeamPage() {
         const errorData = await response.json();
         throw new Error(errorData.message || "Erro ao fazer upload da imagem");
       }
-<<<<<<< HEAD
 
       toast.success("Imagem da equipe carregada com sucesso!");
-=======
->>>>>>> 61d60be (feat: :rocket:)
     } catch (error) {
       console.error("Erro ao fazer upload da imagem:", error);
       toast.error(
@@ -169,13 +158,8 @@ export default function CreateTeamPage() {
       toast.success("Equipe criada com sucesso!");
 
       // Fazer upload da imagem se uma foi selecionada
-<<<<<<< HEAD
       if (selectedImage && responseData.team?.id) {
         await uploadTeamImage(responseData.team.id);
-=======
-      if (selectedImage && responseData.id) {
-        await uploadTeamImage(responseData.id);
->>>>>>> 61d60be (feat: :rocket:)
       }
 
       router.push("/dashboard/teams");
@@ -205,19 +189,10 @@ export default function CreateTeamPage() {
               onClick={() => fileInputRef.current?.click()}
             >
               {imagePreview ? (
-<<<<<<< HEAD
                 <img
                   src={imagePreview}
                   alt="Preview da equipe"
                   className="w-full h-full object-cover rounded-full"
-=======
-                <Image
-                  src={imagePreview}
-                  alt="Preview da equipe"
-                  className="w-full h-full object-cover rounded-full"
-                  width={128}
-                  height={128}
->>>>>>> 61d60be (feat: :rocket:)
                 />
               ) : (
                 <div className="flex flex-col items-center text-gray-500">

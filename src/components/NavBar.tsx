@@ -126,13 +126,8 @@ const Navbar1 = ({
   }, []);
 
   return (
-<<<<<<< HEAD
     <section className="flex justify-center py-4 items-center w-full bg-white-soft/95 backdrop-blur-sm z-50 border-b border-white-warm shadow-white-soft">
       <div className="container px-4">
-=======
-    <section className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-7xl px-4 z-50">
-      <div className="bg-white-pure/80 backdrop-blur-md border border-white-warm/50 rounded-2xl shadow-white-elevated px-4 py-2">
->>>>>>> 61d60be (feat: :rocket:)
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
@@ -155,19 +150,11 @@ const Navbar1 = ({
             </div>
           </div>
           <div className="flex gap-2 items-center">
-<<<<<<< HEAD
             <Button asChild variant="outline" size="sm" className="hover-cool-blue bg-white-pure border-white-warm">
               <a href={auth.login.url}>{auth.login.text}</a>
             </Button>
             {auth.signup && (
               <Button asChild size="sm" className="gradient-cool hover:opacity-90 elevated-1">
-=======
-            <Button asChild variant="outline" size="sm" className="hover-cool-blue bg-white-pure/50 border-white-warm backdrop-blur-sm">
-              <a href={auth.login.url}>{auth.login.text}</a>
-            </Button>
-            {auth.signup && (
-              <Button asChild size="sm" className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] hover:opacity-90 elevated-1">
->>>>>>> 61d60be (feat: :rocket:)
                 <a href={auth.signup.url}>{auth.signup.text}</a>
               </Button>
             )}
@@ -187,11 +174,7 @@ const Navbar1 = ({
             </a>
             <Sheet>
               <SheetTrigger asChild>
-<<<<<<< HEAD
                 <Button variant="outline" size="icon" className="hover-cool-blue">
-=======
-                <Button variant="outline" size="icon" className="hover-cool-blue bg-white-pure/50 backdrop-blur-sm">
->>>>>>> 61d60be (feat: :rocket:)
                   <Menu className="size-4" />
                 </Button>
               </SheetTrigger>

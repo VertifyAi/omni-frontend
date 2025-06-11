@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,12 +16,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { TeamDetailsPanel } from "@/components/TeamDetailsPanel";
 import { DeleteTeamDialog } from "@/components/DeleteTeamDialog";
-=======
-import { TeamCard } from "@/components/TeamCard";
->>>>>>> 61d60be (feat: :rocket:)
 
 export interface Team {
   id: number;
@@ -43,14 +39,10 @@ export interface Team {
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-<<<<<<< HEAD
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-=======
-
->>>>>>> 61d60be (feat: :rocket:)
   const router = useRouter();
 
   const handleDeleteSuccess = (deletedTeamId: number) => {
@@ -101,10 +93,6 @@ export default function TeamsPage() {
     setTeamToDelete(null);
   };
 
-  const handleDeleteSuccess = (deletedTeamId: number) => {
-    setTeams(teams.filter(team => team.id !== deletedTeamId));
-  };
-
   return (
     <div className="flex flex-col gap-8 p-8 ml-16">
       {/* Header */}
@@ -126,13 +114,8 @@ export default function TeamsPage() {
       </div>
 
       {isLoading ? (
-<<<<<<< HEAD
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card className="hover:border-primary/50 transition-colors">
-=======
-        <div className="flex gap-4 flex-wrap">
-          <Card className="hover:border-primary/50 transition-colors w-[420px]">
->>>>>>> 61d60be (feat: :rocket:)
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar className="h-12 w-12">
                 <Skeleton className="h-12 w-12" />
@@ -181,7 +164,6 @@ export default function TeamsPage() {
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
-<<<<<<< HEAD
                   </div>
                 </div>
               </div>
@@ -514,262 +496,12 @@ export default function TeamsPage() {
                     ) : (
                       <p className="text-sm text-muted-foreground">
                         Nenhum membro encontrado
-=======
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                <span className="font-bold">Responsável: </span>
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-24" />
-              </p>
-              <p className="text-sm text-muted-foreground mb-2 min-h-24 flex flex-col gap-2">
-                <span className="font-bold">Descrição: </span>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-4 w-32" />
-              </p>
-              <div className="text-sm text-muted-foreground text-center flex justify-start">
-                <span className="inline-flex items-start -space-x-4">
-                  {true ? (
-                    <div className="flex flex-col gap-2 items-start">
-                      <p className="text-sm text-muted-foreground font-bold">
-                        Membros:
->>>>>>> 61d60be (feat: :rocket:)
                       </p>
-
-                      <span className="inline-flex items-center -space-x-4 ">
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-                      </span>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Nenhum membro encontrado
-                    </p>
-                  )}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:border-primary/50 transition-colors w-[420px]">
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <Skeleton className="h-12 w-12" />
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      <Skeleton className="h-4 w-24" />
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <Skeleton className="h-4 w-4" />
-                      membros
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        console.log("view");
-                      }}
-                      disabled
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer"
-                      onClick={() => router.push(`/dashboard/teams/2`)}
-                      disabled
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer text-red-500"
-                      onClick={() => {
-                        console.log("delete");
-                      }}
-                      disabled
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    )}
+                  </span>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                <span className="font-bold">Responsável: </span>
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-24" />
-              </p>
-              <p className="text-sm text-muted-foreground mb-2 min-h-24 flex flex-col gap-2">
-                <span className="font-bold">Descrição: </span>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-48" />
-              </p>
-              <div className="text-sm text-muted-foreground text-center flex justify-start">
-                <span className="inline-flex items-start -space-x-4">
-                  {true ? (
-                    <div className="flex flex-col gap-2 items-start">
-                      <p className="text-sm text-muted-foreground font-bold">
-                        Membros:
-                      </p>
-
-                      <span className="inline-flex items-center -space-x-4 ">
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-                      </span>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Nenhum membro encontrado
-                    </p>
-                  )}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:border-primary/50 transition-colors w-[420px]">
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <Skeleton className="h-12 w-12" />
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      <Skeleton className="h-4 w-24" />
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <Skeleton className="h-4 w-4" />
-                      membros
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        console.log("view");
-                      }}
-                      disabled
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer"
-                      onClick={() => router.push(`/dashboard/teams/2`)}
-                      disabled
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer text-red-500"
-                      onClick={() => {
-                        console.log("delete");
-                      }}
-                      disabled
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                <span className="font-bold">Responsável: </span>
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-24" />
-              </p>
-              <p className="text-sm text-muted-foreground mb-2 min-h-24 flex flex-col gap-2">
-                <span className="font-bold">Descrição: </span>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-4 w-32" />
-              </p>
-              <div className="text-sm text-muted-foreground text-center flex justify-start">
-                <span className="inline-flex items-start -space-x-4">
-                  {true ? (
-                    <div className="flex flex-col gap-2 items-start">
-                      <p className="text-sm text-muted-foreground font-bold">
-                        Membros:
-                      </p>
-
-                      <span className="inline-flex items-center -space-x-4 ">
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-
-                        <Avatar className="size-12 border">
-                          <Skeleton className="h-12 w-12 rounded-full" />
-                        </Avatar>
-                      </span>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Nenhum membro encontrado
-                    </p>
-                  )}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : teams.length === 0 ? (
-        <div className="text-center py-8 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-          Nenhuma equipe encontrada.
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => (
-            <TeamCard
-              key={team.id}
-              team={team}
-              onDeleteSuccess={handleDeleteSuccess}
-              toSelectTeam={false}
-            />
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

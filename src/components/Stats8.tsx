@@ -45,20 +45,13 @@ const Stats8 = ({
   ],
 }: Stats8Props) => {
   return (
-<<<<<<< HEAD
     <section className="py-24 bg-gradient-to-b from-white-soft to-white-warm flex justify-center">
       <div className="container px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
-=======
-    <section className="pt-32 bg-gradient-to-b from-white-soft to-white-warm flex justify-center">
-      <div className="container px-4">
-        <div className="text-center max-w-4xl mx-auto mb-16">
->>>>>>> 61d60be (feat: :rocket:)
           <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
             {heading}
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">{description}</p>
-<<<<<<< HEAD
         </div>
         
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -66,39 +59,11 @@ const Stats8 = ({
             <div 
               key={stat.id} 
               className="elevated-1 p-8 rounded-2xl text-center hover:elevated-2 transition-all duration-300 group"
-=======
-          
-          {/* Social Proof Adicional */}
-          <div className="mt-8 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl border border-green-200 max-w-2xl mx-auto">
-            <p className="text-sm text-green-800 font-medium">
-              🏆 Líderes em automação escolhem nossa IA
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <div 
-              key={stat.id} 
-              className="elevated-1 p-8 rounded-2xl text-center hover:elevated-2 transition-all duration-300 group bg-white/90 backdrop-blur-sm"
->>>>>>> 61d60be (feat: :rocket:)
             >
               <div className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-cool-teal bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                 {stat.value}
               </div>
-<<<<<<< HEAD
               <p className="text-muted-foreground leading-relaxed">{stat.label}</p>
-=======
-              <p className="text-muted-foreground leading-relaxed text-sm font-medium">{stat.label}</p>
-              
-              {/* Micro-interaction visual */}
-              <div className="mt-4 w-full bg-muted/30 rounded-full h-1 overflow-hidden">
-                <div 
-                  className="h-1 bg-gradient-to-r from-primary to-cool-teal rounded-full transition-all duration-1000 group-hover:w-full"
-                  style={{ width: `${25 + (index * 20)}%` }}
-                />
-              </div>
->>>>>>> 61d60be (feat: :rocket:)
             </div>
           ))}
         </div>

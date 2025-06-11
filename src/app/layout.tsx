@@ -4,11 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { CookiesProviderClient } from "@/components/providers/CookiesProvider";
 import { ChatServiceProvider } from "@/components/ChatServiceProvider";
-<<<<<<< HEAD
-=======
 import { AuthProvider } from "@/contexts/AuthContext";
 import { BillingProvider } from "@/contexts/BillingContext";
->>>>>>> 61d60be (feat: :rocket:)
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -53,11 +50,6 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <CookiesProviderClient>
-<<<<<<< HEAD
-          <ChatServiceProvider>
-            {children}
-          </ChatServiceProvider>
-=======
           <AuthProvider>
             <BillingProvider>
               <ChatServiceProvider>
@@ -65,7 +57,6 @@ export default function RootLayout({
               </ChatServiceProvider>
             </BillingProvider>
           </AuthProvider>
->>>>>>> 61d60be (feat: :rocket:)
           <Toaster />
         </CookiesProviderClient>
       </body>

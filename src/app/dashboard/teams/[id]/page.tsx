@@ -29,10 +29,6 @@ import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
 import React from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-<<<<<<< HEAD
-=======
-import Image from "next/image";
->>>>>>> 61d60be (feat: :rocket:)
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -101,10 +97,7 @@ export default function EditTeamPage() {
         data.members.map((member: User) => member.id)
       );
       form.setValue("ownerId", data.owner.id);
-<<<<<<< HEAD
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-=======
->>>>>>> 61d60be (feat: :rocket:)
       setSelectedUsers(data.members.map((member: User) => member.id));
 
       // Carregar imagem da equipe se existir
@@ -222,19 +215,10 @@ export default function EditTeamPage() {
               onClick={() => fileInputRef.current?.click()}
             >
               {imagePreview ? (
-<<<<<<< HEAD
                 <img
                   src={imagePreview}
                   alt="Preview da equipe"
                   className="w-full h-full object-cover rounded-full"
-=======
-                <Image
-                  src={imagePreview}
-                  alt="Preview da equipe"
-                  className="w-full h-full object-cover rounded-full"
-                  width={128}
-                  height={128}
->>>>>>> 61d60be (feat: :rocket:)
                 />
               ) : (
                 <div className="flex flex-col items-center text-gray-500">

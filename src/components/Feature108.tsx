@@ -89,7 +89,6 @@ const Feature108 = ({
   ],
 }: Feature108Props) => {
   return (
-<<<<<<< HEAD
     <section className="py-32">
       <div className="container mx-auto px-4" id="tab">
         <div className="flex flex-col items-center gap-4 text-center">
@@ -100,68 +99,18 @@ const Feature108 = ({
           <p className="text-muted-foreground">{description}</p>
         </div>
         <Tabs defaultValue={tabs[0].value} className="mt-8 flex flex-col items-center">
-=======
-    <section className="py-32 bg-gradient-to-b from-white-warm to-white-soft">
-      <div className="container mx-auto px-4" id="tab">
-        <div className="flex flex-col items-center gap-6 text-center mb-12">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              {heading}
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-3xl">
-              {description}
-            </p>
-          </div>
-
-          {/* Social Proof com Resultados */}
-          <div className="flex flex-wrap justify-center gap-6 mt-6">
-            {/* <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
-              <TrendingUp className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">
-                +R$ 2.3M gerados pelos clientes
-              </span>
-            </div> */}
-            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm font-medium text-blue-800">
-                Implementação em 24h
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-full px-4 py-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-sm font-medium text-purple-800">
-                97% de satisfação
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <Tabs
-          defaultValue={tabs[0].value}
-          className="mt-8 flex flex-col items-center"
-        >
->>>>>>> 61d60be (feat: :rocket:)
           <TabsList className="rounded-lg w-fit container flex items-center justify-center gap-4 md:gap-10 bg-white-soft border border-white-warm shadow-white-soft">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-<<<<<<< HEAD
                 className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:bg-white-pure data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-cool-blue"
-=======
-                className="flex items-center gap-2 rounded-lg px-6 py-4 text-sm font-semibold text-muted-foreground data-[state=active]:bg-white-pure data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-cool-blue transition-all duration-300"
->>>>>>> 61d60be (feat: :rocket:)
               >
                 {tab.icon} {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
-<<<<<<< HEAD
           <div className="mx-auto mt-8 max-w-screen-xl rounded-2xl bg-white-warm p-6 lg:p-16 border border-white-warm shadow-white-elevated">
-=======
-
-          <div className="mx-auto mt-12 max-w-screen-xl rounded-3xl bg-white-warm p-8 lg:p-16 border border-white-warm shadow-white-elevated">
->>>>>>> 61d60be (feat: :rocket:)
             {tabs.map((tab) => (
               <TabsContent
                 id={tab.value}
@@ -230,7 +179,6 @@ const Feature108 = ({
                     </div>
                   </div>
                 </div>
-<<<<<<< HEAD
                 <Image
                   src={tab.content.imageSrc}
                   alt={tab.content.imageAlt}
@@ -238,8 +186,6 @@ const Feature108 = ({
                   height={300}
                   className="rounded-lg shadow-white-elevated bg-white-pure"
                 />
-=======
->>>>>>> 61d60be (feat: :rocket:)
               </TabsContent>
             ))}
           </div>

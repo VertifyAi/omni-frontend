@@ -46,82 +46,8 @@ interface Pricing2Props {
 }
 
 const Pricing2 = ({
-<<<<<<< HEAD
   heading = "Conheça nossos planos",
   description = "Escolha o plano que melhor se encaixa nas suas necessidades",
-  plans = [
-    {
-      id: "professional",
-      name: "Profissional",
-      description: "Feito para escalar suas vendas.",
-      monthlyPrice: "R$360",
-      yearlyPrice: "R$250",
-      main: true,
-      features: [
-        { text: "Canais ilimitados" },
-        { text: "2 Agentes de IA" },
-        { text: "Até 1000 tickets/mês" },
-        { text: "Relatórios detalhados" },
-        { text: "Suporte 24/7" },
-      ],
-      monthlyButton: {
-        text: "Testar grátis por 30 dias",
-        url: "https://buy.stripe.com/9AQdRTcL14jz9fW7sv",
-      },
-      yearlyButton: {
-        text: "Testar grátis por 30 dias",
-        url: "https://buy.stripe.com/eVa01326naHX3VC5km",
-      },
-    },
-    {
-      id: "essential",
-      name: "Essencial",
-      description: "Ideal para começar com automação.",
-      monthlyPrice: "R$170",
-      yearlyPrice: "R$120",
-      features: [
-        { text: "1 Canal de atendimento" },
-        { text: "1 Agente de IA" },
-        { text: "Até 300 tickets/mês" },
-        { text: "Relatórios básicos" },
-        { text: "Suporte 24/7" },
-      ],
-      monthlyButton: {
-        text: "Testar grátis por 30 dias",
-        url: "https://buy.stripe.com/00gbJL6mD4jz63K7st",
-      },
-      yearlyButton: {
-        text: "Testar grátis por 30 dias",
-        url: "https://buy.stripe.com/3cseVXcL1g2h3VCbII",
-      },
-    },
-    {
-      id: "enterprise",
-      name: "Empresarial",
-      description: "Soluções sob medida para empresas.",
-      monthlyPrice: "A combinar",
-      yearlyPrice: "A combinar",
-      features: [
-        { text: "Canais ilimitados" },
-        { text: "Agentes de IA ilimitados" },
-        { text: "Tickets ilimitados" },
-        { text: "Relatórios detalhados" },
-        { text: "Suporte 24/7" },
-      ],
-      monthlyButton: {
-        text: "Fale com especialista",
-        url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
-      },
-      yearlyButton: {
-        text: "Fale com especialista",
-        url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
-      },
-    },
-  ],
-=======
-  heading = "Invista no Seu Crescimento. Veja o Retorno em 30 Dias.",
-  description = "Com a nossa IA, suas vendas estão prestes a decolar. Qual será o impacto no seu negócio?",
->>>>>>> 61d60be (feat: :rocket:)
 }: Pricing2Props) => {
   const [isYearly, setIsYearly] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -229,25 +155,10 @@ const Pricing2 = ({
               </span>
             </div>
           </div>
-<<<<<<< HEAD
           <Card className="flex w-78 flex-col justify-between text-left bg-white-pure rounded-xl elevated-2">
             <CardHeader>
               <CardTitle>
                 <p>{plan.name}</p>
-=======
-
-          {/* Badge de Desconto Anual */}
-          {isYearly && plan.id !== 'empresarial' && (
-            <div className="absolute top-6 right-6 z-10 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-              -{discount}%
-            </div>
-          )}
-          
-          <Card className="flex w-96 flex-col text-left bg-white-pure rounded-2xl elevated-2 h-[600px] overflow-hidden">
-            <CardHeader className="pt-5 pb-3 px-5 flex-shrink-0">
-              <CardTitle className="flex items-center justify-between mb-2">
-                <p className="text-xl font-bold">{plan.name}</p>
->>>>>>> 61d60be (feat: :rocket:)
               </CardTitle>
               <p className="text-sm text-muted-foreground leading-snug mb-3">
                 {plan.description}
@@ -327,11 +238,7 @@ const Pricing2 = ({
       return (
         <Card
           key={plan.id}
-<<<<<<< HEAD
           className="flex w-80 flex-col justify-between text-left bg-white-pure border-white-warm shadow-white-elevated hover:shadow-cool-teal transition-all duration-300"
-=======
-          className="flex w-80 flex-col text-left bg-white-pure border-white-warm shadow-white-elevated h-[600px] relative overflow-hidden"
->>>>>>> 61d60be (feat: :rocket:)
         >
           {/* Badge de Desconto Anual */}
           {isYearly && plan.id !== 'empresarial' && (
@@ -387,34 +294,16 @@ const Pricing2 = ({
               )}
             </div>
           </CardHeader>
-<<<<<<< HEAD
           <CardContent>
             <Separator className="mb-6" />
             <ul className="space-y-4">
-              {plan.features.map((feature, index) => (
+              {plan.features.map((feature: string, index: number) => (
                 <li key={index} className="flex items-center gap-2">
                   <CircleCheck className="size-4 text-primary" />
-                  <span>{feature.text}</span>
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
-=======
-          
-          <CardContent className="flex-1 px-5 py-0 overflow-hidden">
-            <Separator className="mb-3" />
-            <div className="h-full overflow-y-auto">
-              <ul className="space-y-1.5 pb-2">
-                {features.map((feature, index) => (
-                  <li key={index} className={`flex items-start gap-2 ${feature.highlight ? 'bg-green-50 p-2 rounded-md border border-green-200' : 'py-0.5'}`}>
-                    <CircleCheck className={`size-4 mt-0.5 shrink-0 ${feature.highlight ? 'text-green-600' : 'text-primary'}`} />
-                    <span className={`text-sm ${feature.highlight ? 'font-medium text-green-800' : ''} leading-snug`}>
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
->>>>>>> 61d60be (feat: :rocket:)
           </CardContent>
           
           <CardFooter className="pt-4 pb-5 px-5 flex-shrink-0">
@@ -440,8 +329,8 @@ const Pricing2 = ({
 
   // Ordenar planos: popular no meio
   const getOrderedPlans = () => {
-    const popularPlan = plans.find(plan => plan.popular);
-    const otherPlans = plans.filter(plan => !plan.popular);
+    const popularPlan = plans.find((plan: PlanData) => plan.popular);
+    const otherPlans = plans.filter((plan: PlanData) => !plan.popular);
     
     if (!popularPlan) return plans;
     
@@ -459,7 +348,6 @@ const Pricing2 = ({
   return (
     <section className="py-24 bg-gradient-to-b from-background to-white-soft flex justify-center">
       <div className="container px-4">
-<<<<<<< HEAD
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
             {heading}
@@ -472,15 +360,6 @@ const Pricing2 = ({
               onCheckedChange={() => setIsYearly(!isYearly)}
             />
             Anual
-=======
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 text-center">
-          {/* ATTENTION - Social Proof com Urgência Sutil */}
-          <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2 mb-4">
-            <Users className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium text-green-700">
-              <strong>Multiplique</strong> suas vendas com IA
-            </span>
->>>>>>> 61d60be (feat: :rocket:)
           </div>
 
           {/* INTEREST - Headlines persuasivos */}
@@ -570,7 +449,7 @@ const Pricing2 = ({
             <div className="w-full max-w-md mx-auto">
               <Carousel opts={{ loop: true, align: "center" }}>
                 <CarouselContent className="-ml-2 md:-ml-4">
-                  {orderedPlans.map((plan) => (
+                  {orderedPlans.map((plan: PlanData) => (
                     <CarouselItem key={plan.id} className="pl-2 md:pl-4 flex justify-center">
                       <div className="w-full flex justify-center mt-4">
                         {renderPlanCard(plan)}
@@ -585,7 +464,7 @@ const Pricing2 = ({
           ) : (
             /* Layout com alinhamento perfeito para telas maiores */
             <div className="flex flex-row items-end justify-center gap-8 w-full max-w-7xl mx-auto mt-12">
-              {orderedPlans.map((plan) => (
+              {orderedPlans.map((plan: PlanData) => (
                 <div key={plan.id} className={`flex justify-center ${plan.popular ? '' : 'mt-6'}`}>
                   {renderPlanCard(plan)}
                 </div>

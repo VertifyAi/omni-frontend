@@ -80,11 +80,7 @@ export default function DashboardPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-<<<<<<< HEAD
               <SelectItem value="7d">7 dias</SelectItem>
-=======
-              <SelectItem value="7d">30 dias</SelectItem>
->>>>>>> 61d60be (feat: :rocket:)
               <SelectItem value="30d">30 dias</SelectItem>
               <SelectItem value="90d">90 dias</SelectItem>
               <SelectItem value="1y">Último ano</SelectItem>
