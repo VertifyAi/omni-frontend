@@ -27,7 +27,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
   const { fetchAddress, loading, error } = useCEP();
 
   // Observar mudanças no CEP
-  const cep = form.watch("company.address.zip_code");
+  const cep = form.watch("company.address.zipCode");
 
   useEffect(() => {
     const searchAddress = async () => {
@@ -38,7 +38,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
         const address = await fetchAddress(cleanCEP);
 
         if (address) {
-          form.setValue("company.address.street", address.logradouro);
+          form.setValue("company.address.streetName", address.logradouro);
           form.setValue("company.address.city", address.localidade);
           form.setValue("company.address.state", address.uf);
           form.setValue("company.address.country", "Brasil");
@@ -58,7 +58,7 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
     <div className="space-y-6">
       <FormField
         control={form.control}
-        name="company.address.zip_code"
+        name="company.address.zipCode"
         render={({ field: { value, onChange, onBlur, ...field } }) => (
           <FormItem className="min-h-[78px] flex flex-col">
             <div>
@@ -81,21 +81,39 @@ export function CompanyAddress({ form }: CompanyAddressProps) {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="company.address.street"
-        render={({ field }) => (
-          <FormItem className="min-h-[78px] flex flex-col">
-            <div>
-              <FormLabel>Rua</FormLabel>
-              <FormControl>
-                <Input {...field} disabled={loading} />
-              </FormControl>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="company.address.streetName"
+          render={({ field }) => (
+            <FormItem className="min-h-[78px] flex flex-col">
+              <div>
+                <FormLabel>Rua</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={loading} />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="company.address.streetNumber"
+          render={({ field }) => (
+            <FormItem className="min-h-[78px] flex flex-col">
+              <div>
+                <FormLabel>Número</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={loading} />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-6">
         <FormField

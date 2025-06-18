@@ -297,27 +297,27 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                 ref={scrollRef}
                 key={index}
                 className={`flex ${
-                  message.sender === "AI" || message.sender === "USER"
+                  message.senderType === "AI" || message.senderType === "USER"
                     ? "justify-end"
                     : "justify-start"
                 }`}
               >
                 <div className={`flex items-end gap-2 max-w-[70%] ${
-                  message.sender === "AI" || message.sender === "USER"
+                  message.senderType === "AI" || message.senderType === "USER"
                     ? "flex-row-reverse"
                     : "flex-row"
                 }`}>
                   {/* Avatar do remetente */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
-                    message.sender === "AI" 
+                    message.senderType === "AI" 
                       ? "bg-gradient-to-r from-purple-500 to-purple-600" 
-                      : message.sender === "USER"
+                      : message.senderType === "USER"
                       ? "bg-gradient-to-r from-primary to-secondary"
                       : "bg-gradient-to-r from-gray-400 to-gray-500"
                   }`}>
-                    {message.sender === "AI" ? (
+                    {message.senderType === "AI" ? (
                       <Bot className="w-4 h-4" />
-                    ) : message.sender === "USER" ? (
+                    ) : message.senderType === "USER" ? (
                       <User className="w-4 h-4" />
                     ) : (
                       ticket.customer.name.charAt(0).toUpperCase()
@@ -327,16 +327,16 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                   {/* Mensagem */}
                   <div
                     className={`break-words whitespace-pre-wrap rounded-2xl p-4 elevated-1 ${
-                      message.sender === "AI"
+                      message.senderType === "AI"
                         ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
-                        : message.sender === "USER"
+                        : message.senderType === "USER"
                         ? "bg-gradient-to-r from-primary to-purple-600 text-white"
                         : "bg-white-pure border border-white-warm"
                     }`}
                   >
                     <p className="text-sm leading-relaxed">{message.message}</p>
                     <p className={`text-xs mt-2 ${
-                      message.sender === "AI" || message.sender === "USER"
+                      message.senderType === "AI" || message.senderType === "USER"
                         ? "text-white/70"
                         : "text-muted-foreground"
                     }`}>

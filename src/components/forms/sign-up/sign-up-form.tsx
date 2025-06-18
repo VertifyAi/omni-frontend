@@ -36,10 +36,11 @@ export function SignUpForm() {
       passwordConfirmation: "",
       phone: "",
       address: {
-        street: "",
+        streetName: "",
+        streetNumber: "",
         city: "",
         state: "",
-        zip_code: "",
+        zipCode: "",
         country: "",
         complement: "",
       },
@@ -48,10 +49,11 @@ export function SignUpForm() {
         cnpj: "",
         phone: "",
         address: {
-          street: "",
+          streetName: "",
+          streetNumber: "",
           city: "",
           state: "",
-          zip_code: "",
+          zipCode: "",
           country: "",
           complement: "",
         },
@@ -65,19 +67,21 @@ export function SignUpForm() {
   const handleNextStep = async () => {
     type FieldName =
       | keyof SignUpFormData
-      | "address.street"
+      | "address.streetName"
+      | "address.streetNumber"
       | "address.city"
       | "address.state"
-      | "address.zip_code"
+      | "address.zipCode"
       | "address.country"
       | "address.complement"
       | "company.name"
       | "company.cnpj"
       | "company.phone"
-      | "company.address.street"
+      | "company.address.streetName"
+      | "company.address.streetNumber"
       | "company.address.city"
       | "company.address.state"
-      | "company.address.zip_code"
+      | "company.address.zipCode"
       | "company.address.country"
       | "company.address.complement";
 
@@ -91,18 +95,20 @@ export function SignUpForm() {
         "phone",
       ],
       1: [
-        "address.street",
+        "address.streetName",
+        "address.streetNumber",
         "address.city",
         "address.state",
-        "address.zip_code",
+        "address.zipCode",
         "address.country",
       ],
       2: ["company.name", "company.cnpj", "company.phone"],
       3: [
-        "company.address.street",
+        "company.address.streetName",
+        "company.address.streetNumber",
         "company.address.city",
         "company.address.state",
-        "company.address.zip_code",
+        "company.address.zipCode",
         "company.address.country",
       ],
     };

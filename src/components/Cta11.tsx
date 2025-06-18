@@ -114,15 +114,15 @@ const Cta11 = ({
             <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-white/80">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span>✅ 30 dias grátis garantidos</span>
+                <span>30 dias grátis garantidos</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span>✅ Setup em 24 horas</span>
+                <span>Setup em 24 horas</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                <span>✅ Suporte VIP</span>
+                <span>Suporte VIP</span>
               </div>
             </div>
 

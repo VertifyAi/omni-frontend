@@ -326,12 +326,12 @@ export default function CreateAgentStep1({
                   <FormLabel>Objetivo Principal</FormLabel>
                   <FormControl>
                     <Tabs
-                      defaultValue="triage"
+                      defaultValue="screening"
                       onValueChange={field.onChange}
                       className="w-full"
                     >
                       <TabsList className="w-full">
-                        <TabsTrigger value="triage">🚦 Triagem</TabsTrigger>
+                        <TabsTrigger value="screening">🚦 Triagem</TabsTrigger>
                         <TabsTrigger value="sales">💰 Vendas</TabsTrigger>
                         <TabsTrigger value="support">📞 Suporte</TabsTrigger>
                       </TabsList>

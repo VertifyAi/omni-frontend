@@ -36,11 +36,11 @@ export interface Ticket {
 
 export interface Message {
   id: number;
-  phone: string;
+  senderIdentifier: string;
   ticketId: number;
   message: string;
   senderName?: string;
-  sender: 'CUSTOMER' | 'AI' | 'USER';
+  senderType: 'CUSTOMER' | 'AI' | 'USER';
   createdAt: Date;
 }
 

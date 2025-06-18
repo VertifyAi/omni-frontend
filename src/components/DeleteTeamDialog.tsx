@@ -20,46 +20,24 @@ interface DeleteTeamDialogProps {
   team: Team | null;
   isOpen: boolean;
   onClose: () => void;
-<<<<<<< HEAD
   onSuccess: (deletedTeamId: number) => void;
 }
 
 export function DeleteTeamDialog({ team, isOpen, onClose, onSuccess }: DeleteTeamDialogProps) {
-=======
-  onSuccess?: (deletedTeamId: number) => void | undefined;
-}
-
-export function DeleteTeamDialog({
-  team,
-  isOpen,
-  onClose,
-  onSuccess,
-}: DeleteTeamDialogProps) {
->>>>>>> 61d60be (feat: :rocket:)
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
     if (!team) return;
-<<<<<<< HEAD
     
     setIsDeleting(true);
     
     try {
       const response = await fetchApi(`/api/teams/${team.id}`, {
         method: 'DELETE',
-=======
-
-    setIsDeleting(true);
-
-    try {
-      const response = await fetchApi(`/api/teams/${team.id}`, {
-        method: "DELETE",
->>>>>>> 61d60be (feat: :rocket:)
       });
 
       if (!response.ok) {
         const data = await response.json();
-<<<<<<< HEAD
         throw new Error(data.message || 'Erro ao excluir equipe');
       }
 
@@ -70,18 +48,6 @@ export function DeleteTeamDialog({
       console.error('Erro ao excluir equipe:', error);
       toast.error(
         error instanceof Error ? error.message : 'Erro ao excluir equipe'
-=======
-        throw new Error(data.message || "Erro ao excluir equipe");
-      }
-
-      toast.success("Equipe excluída com sucesso!");
-      onSuccess?.(team.id);
-      onClose();
-    } catch (error) {
-      console.error("Erro ao excluir equipe:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao excluir equipe"
->>>>>>> 61d60be (feat: :rocket:)
       );
     } finally {
       setIsDeleting(false);
@@ -105,7 +71,6 @@ export function DeleteTeamDialog({
           <AlertDialogDescription className="text-muted-foreground leading-relaxed">
             {team ? (
               <>
-<<<<<<< HEAD
                 Tem certeza que deseja excluir a equipe <span className="font-semibold text-foreground">&ldquo;{team.name}&rdquo;</span>?
                 <br /><br />
                 Esta ação não pode ser desfeita. Todos os dados relacionados à equipe serão permanentemente removidos.
@@ -118,26 +83,6 @@ export function DeleteTeamDialog({
         
         <AlertDialogFooter className="gap-2 sm:gap-2">
           <AlertDialogCancel 
-=======
-                Tem certeza que deseja excluir a equipe{" "}
-                <span className="font-semibold text-foreground">
-                  &ldquo;{team.name}&rdquo;
-                </span>
-                ?
-                <br />
-                <br />
-                Esta ação não pode ser desfeita. Todos os dados relacionados à
-                equipe serão permanentemente removidos.
-              </>
-            ) : (
-              "Carregando informações da equipe..."
-            )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter className="gap-2 sm:gap-2">
-          <AlertDialogCancel
->>>>>>> 61d60be (feat: :rocket:)
             onClick={onClose}
             disabled={isDeleting}
             className="hover:bg-white-soft"
@@ -165,8 +110,4 @@ export function DeleteTeamDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
-<<<<<<< HEAD
 } 
-=======
-}
->>>>>>> 61d60be (feat: :rocket:)

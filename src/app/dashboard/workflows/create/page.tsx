@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Bot, User, Plus, Save, Trash2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchApi } from '@/lib/fetchApi';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -66,6 +67,78 @@ interface UserNodeData {
   label: string;
   email: string;
   userId: number;
+}
+
+// Interface para o DTO
+interface CreateWorkflowDto {
+  name: string;
+  description: string;
+  flowData: string;
+  companyId: number;
+  workflowUserId?: number;
+  workflowAgentId?: number;
+  workflowTeamId?: number;
+  workflowChannels: {
+    channelId: number;
+    channelIdentifier: string;
+  }[];
+}
+
+// Interface para dados do workflow carregado da API
+interface WorkflowData {
+  id: number;
+  name: string;
+  description: string;
+  flowData: {
+    nodes: Array<{
+      id: string;
+      type: string;
+      position: { x: number; y: number };
+      data: Record<string, unknown>;
+    }>;
+    edges: Array<{
+      id: string;
+      source: string;
+      target: string;
+    }>;
+  } | string;
+  companyId: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  workflowChannels: Array<{
+    id: number;
+    workflowId: number;
+    integrationId: number;
+    channelIdentifier: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+  }>;
+  workflowUser: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  workflowAgent: {
+    id: number;
+    name: string;
+    tone: string;
+    objective: string;
+    segment: string;
+    description: string;
+    presentationExample: string;
+    llmAssistantId: string;
+    companyId: number;
+    workflowId: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+  } | null;
+  workflowTeam: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 // Componente customizado para nó de canal
@@ -194,6 +267,7 @@ function CreateWorkflowContent() {
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
   const isEditing = !!editId;
+  const { user } = useAuth();
 
   // Conectar nós (só permite conexão de agentes/usuários PARA canais)
   const onConnect = useCallback(
@@ -251,10 +325,56 @@ function CreateWorkflowContent() {
       }
 
       // Se estiver editando, carregar dados do workflow
-      if (isEditing) {
-        // Implementar carregamento do workflow quando a API estiver disponível
-        setWorkflowName('Workflow Exemplo');
-        setWorkflowDescription('Descrição do workflow exemplo');
+      if (isEditing && editId) {
+        try {
+          const workflowResponse = await fetchApi(`/api/workflows/${editId}`);
+          if (workflowResponse.ok) {
+            const workflowData: WorkflowData = await workflowResponse.json();
+            
+            // Definir nome e descrição
+            setWorkflowName(workflowData.name || '');
+            setWorkflowDescription(workflowData.description || '');
+            
+            // Carregar dados do fluxo se existirem
+            if (workflowData.flowData) {
+              try {
+                // flowData já vem como objeto, não precisa fazer parse
+                const flowData = typeof workflowData.flowData === 'string' 
+                  ? JSON.parse(workflowData.flowData) 
+                  : workflowData.flowData;
+                
+                // Recriar nodes
+                if (flowData.nodes && Array.isArray(flowData.nodes)) {
+                  setNodes(flowData.nodes.map((node: { id: string; type: string; position?: { x: number; y: number }; data?: Record<string, unknown> }) => ({
+                    id: node.id,
+                    type: node.type,
+                    position: node.position || { x: 0, y: 0 },
+                    data: node.data || {}
+                  })));
+                }
+                
+                // Recriar edges
+                if (flowData.edges && Array.isArray(flowData.edges)) {
+                  setEdges(flowData.edges.map((edge: { id?: string; source: string; target: string; type?: string }) => ({
+                    id: edge.id || `${edge.source}-${edge.target}`,
+                    source: edge.source,
+                    target: edge.target,
+                    type: edge.type || 'default'
+                  })));
+                }
+              } catch (parseError) {
+                console.error('Erro ao processar dados do fluxo:', parseError);
+                toast.error('Erro ao carregar estrutura do workflow');
+              }
+            }
+          } else {
+            throw new Error('Workflow não encontrado');
+          }
+        } catch (error) {
+          console.error('Erro ao carregar workflow:', error);
+          toast.error('Erro ao carregar workflow para edição');
+          router.push('/dashboard/workflows');
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
@@ -329,10 +449,69 @@ function CreateWorkflowContent() {
       return;
     }
 
+    // Identificar tipos de nós conectados (deve ser apenas um tipo: team OU user OU agent)
+    const connectedAgents = nodes.filter(node => 
+      node.type === 'agent' && 
+      edges.some(edge => edge.source === node.id)
+    );
+
+    const connectedUsers = nodes.filter(node => 
+      node.type === 'user' && 
+      edges.some(edge => edge.source === node.id)
+    );
+
+    // Por enquanto não temos nós de team no ReactFlow, mas deixando preparado
+    const connectedTeams = nodes.filter(node => 
+      node.type === 'team' && 
+      edges.some(edge => edge.source === node.id)
+    );
+
+    const connectedChannels = edges
+      .map(edge => {
+        const targetNode = nodes.find(n => n.id === edge.target && n.type === 'channel');
+        if (targetNode) {
+          return {
+            channelId: parseInt(targetNode.data.channelId),
+            channelIdentifier: targetNode.data.selectedPhone || targetNode.data.phoneNumbers[0]
+          };
+        }
+        return null;
+      })
+      .filter((channel): channel is { channelId: number; channelIdentifier: string } => channel !== null);
+
+    // Validações: deve ter pelo menos um canal e apenas um tipo de fonte (team OU user OU agent)
+    if (connectedChannels.length === 0) {
+      toast.error('É necessário conectar pelo menos um canal');
+      return;
+    }
+
+    const totalConnections = connectedAgents.length + connectedUsers.length + connectedTeams.length;
+    
+    if (totalConnections === 0) {
+      toast.error('É necessário conectar pelo menos um agente, usuário ou equipe aos canais');
+      return;
+    }
+
+    if (totalConnections > 1) {
+      toast.error('Conecte os canais a apenas UM agente OU usuário OU equipe por workflow');
+      return;
+    }
+
+    // Verificar se há múltiplos tipos conectados
+    const typesConnected = [
+      connectedAgents.length > 0,
+      connectedUsers.length > 0,
+      connectedTeams.length > 0
+    ].filter(Boolean).length;
+
+    if (typesConnected > 1) {
+      toast.error('Conecte os canais a apenas um tipo: agente OU usuário OU equipe');
+      return;
+    }
+
     try {
-      const workflow = {
-        name: workflowName,
-        description: workflowDescription,
+      // Preparar dados do fluxo para serialização
+      const flowData = {
         nodes: nodes.map(node => ({
           id: node.id,
           type: node.type,
@@ -346,13 +525,51 @@ function CreateWorkflowContent() {
         }))
       };
 
-      // Implementar quando a API estiver disponível
-      console.log('Salvando workflow:', workflow);
-      toast.success('Workflow salvo com sucesso!');
+      // Montar DTO conforme a nova especificação (campos opcionais)
+      const createWorkflowDto: CreateWorkflowDto = {
+        name: workflowName.trim(),
+        description: workflowDescription.trim() || workflowName.trim(),
+        flowData: JSON.stringify(flowData),
+        companyId: user?.companyId || 1,
+        workflowChannels: connectedChannels
+      };
+
+      // Adicionar apenas o campo correspondente ao tipo conectado
+      if (connectedAgents.length > 0) {
+        createWorkflowDto.workflowAgentId = connectedAgents[0].data.agentId;
+      } else if (connectedUsers.length > 0) {
+        createWorkflowDto.workflowUserId = connectedUsers[0].data.userId;
+      } else if (connectedTeams.length > 0) {
+        createWorkflowDto.workflowTeamId = connectedTeams[0].data.teamId;
+      }
+
+      console.log('Enviando workflow:', createWorkflowDto);
+
+      const response = await fetchApi(
+        isEditing ? `/api/workflows/${editId}` : '/api/workflows',
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(createWorkflowDto),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao salvar workflow');
+      }
+
+      const result = await response.json();
+      console.log('Workflow salvo:', result);
+      
+      toast.success(isEditing ? 'Workflow atualizado com sucesso!' : 'Workflow criado com sucesso!');
       router.push('/dashboard/workflows');
+      
     } catch (error) {
       console.error('Erro ao salvar workflow:', error);
-      toast.error('Erro ao salvar workflow');
+      toast.error(error instanceof Error ? error.message : 'Erro ao salvar workflow');
     }
   };
 

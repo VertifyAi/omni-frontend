@@ -15,10 +15,7 @@ import {
   Archive,
   Monitor,
   Bot,
-<<<<<<< HEAD
-=======
   Workflow,
->>>>>>> 61d60be (feat: :rocket:)
 } from "lucide-react";
 import {
   Tooltip,
@@ -68,15 +65,12 @@ const navigation = [
     icon: Bot,
     roles: [UserRole.ADMIN, UserRole.MANAGER],
   },
-<<<<<<< HEAD
-=======
   {
     name: "Fluxo de Atendimento",
-    href: "/dashboard/workflow",
+    href: "/dashboard/workflows",
     icon: Workflow,
     roles: [UserRole.ADMIN],
   },
->>>>>>> 61d60be (feat: :rocket:)
 ];
 
 const options = [

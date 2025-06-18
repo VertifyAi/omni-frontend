@@ -157,6 +157,7 @@ export function TicketList({
 
     return searchMatch;
   });
+
   return (
     <div className="flex flex-col h-full bg-white-soft">
       {/* Nível 1: Header com elementos principais */}
@@ -165,17 +166,6 @@ export function TicketList({
           <h1 className="text-2xl font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
             Atendimentos
           </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={loadTickets}
-            disabled={isLoading}
-            className="hover-brand-orange elevated-1"
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-            />
-          </Button>
         </div>
 
         <div className="flex justify-between items-center gap-4">
@@ -190,7 +180,7 @@ export function TicketList({
             size="icon"
             onClick={() => {}}
             disabled={isLoading}
-            className="hover-brand-orange elevated-1"
+            className="hover-brand-purple elevated-1"
           >
             <Filter className="h-4 w-4" />
           </Button>
@@ -219,21 +209,21 @@ export function TicketList({
             <TabsTrigger
               value={TicketStatus.IN_PROGRESS}
               onClick={() => setSelectedTab(TicketStatus.IN_PROGRESS)}
-              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-purple"
             >
               Abertos
             </TabsTrigger>
             <TabsTrigger
               value={TicketStatus.CLOSED}
               onClick={() => setSelectedTab(TicketStatus.CLOSED)}
-              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-purple"
             >
               Fechados
             </TabsTrigger>
             <TabsTrigger
               value={TicketStatus.AI}
               onClick={() => setSelectedTab(TicketStatus.AI)}
-              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-orange"
+              className="data-[state=active]:bg-white-soft data-[state=active]:text-primary data-[state=active]:shadow-white-soft hover-brand-purple"
             >
               IA <Sparkles className="h-4 w-4 ml-1" />
             </TabsTrigger>
@@ -255,7 +245,7 @@ export function TicketList({
                   ))
               ) : (
                 <div className="text-center py-8">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <p className="text-muted-foreground">Nenhum ticket IA</p>
@@ -282,7 +272,7 @@ export function TicketList({
                   ))
               ) : (
                 <div className="text-center py-8">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">
                     <RefreshCw className="w-6 h-6 text-white" />
                   </div>
                   <p className="text-muted-foreground">Nenhum ticket em andamento</p>
@@ -307,7 +297,7 @@ export function TicketList({
                   ))
               ) : (
                 <div className="text-center py-8">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>

@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 export const addressSchema = z.object({
-  street: z.string().min(1, "Rua é obrigatória"),
+  streetName: z.string().min(1, "Rua é obrigatória"),
+  streetNumber: z.string().min(1, "Número é obrigatório"),
   city: z.string().min(1, "Cidade é obrigatória"),
   state: z.string().length(2, "Estado deve ter 2 letras"),
-  zip_code: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
+  zipCode: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
   country: z.string().min(1, "País é obrigatório"),
   complement: z.string().optional(),
 });

@@ -406,8 +406,23 @@ export default function TeamsPage() {
           </Card>
         </div>
       ) : teams.length === 0 ? (
-        <div className="text-center py-8 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-          Nenhuma equipe encontrada.
+        <div className="text-center py-12">
+          <div className="mx-auto max-w-md">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Plus className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Nenhuma equipe criada</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Comece criando sua primeira equipe para automatizar o
+              atendimento.
+            </p>
+            <Button asChild className="mt-4">
+              <Link href="/dashboard/teams/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Criar Primeira Equipe
+              </Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

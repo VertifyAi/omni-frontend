@@ -126,8 +126,9 @@ const Navbar1 = ({
   }, []);
 
   return (
-    <section className="flex justify-center py-4 items-center w-full bg-white-soft/95 backdrop-blur-sm z-50 border-b border-white-warm shadow-white-soft">
-      <div className="container px-4">
+    <section className="fixed top-0 left-0 right-0 flex justify-center items-center w-full z-50 pt-4 px-4 mb-20">
+      <div className="py-3 px-8 bg-white-soft/95 backdrop-blur-lg border border-white-warm/60 rounded-2xl shadow-xl shadow-black/10 w-[90%]">
+        <div className="container mx-auto max-w-7xl w-full">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
@@ -154,7 +155,7 @@ const Navbar1 = ({
               <a href={auth.login.url}>{auth.login.text}</a>
             </Button>
             {auth.signup && (
-              <Button asChild size="sm" className="gradient-cool hover:opacity-90 elevated-1">
+              <Button asChild size="sm" className="gradient-brand hover:opacity-90 elevated-1">
                 <a href={auth.signup.url}>{auth.signup.text}</a>
               </Button>
             )}
@@ -221,6 +222,7 @@ const Navbar1 = ({
               </SheetContent>
             </Sheet>
           </div>
+        </div>
         </div>
       </div>
     </section>
@@ -301,3 +303,7 @@ const SubMenuLink = ({ item }: { item: MenuItem }) => {
 };
 
 export { Navbar1 };
+
+// Para usar este navbar, adicione a seguinte classe no container principal da sua página:
+// <main className="pt-24"> ou adicione margin-top: 6rem; no seu CSS
+// Isso garantirá que o conteúdo não fique atrás do navbar fixo

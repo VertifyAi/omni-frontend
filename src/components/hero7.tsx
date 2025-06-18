@@ -26,10 +26,10 @@ interface Hero7Props {
 }
 
 const Hero7 = ({
-  heading = "Acabe com Filas e Impulsione Vendas",
-  description = "Automatize e escale o seu atendimento de maneira inteligente com a Vera, a assistente virtual que gerencia conversas por 24h em múltiplos canais. Integre WhatsApp, Instagram, Messenger e muito mais, tudo em um só lugar.",
+  heading = "Transforme Conversas em Vendas com IA em 24h",
+  description = "Pare de perder clientes por demora no atendimento. A Vera responde instantaneamente no WhatsApp, Instagram e Messenger, qualifica tickets automaticamente e converte 3x mais vendas - mesmo enquanto você dorme.",
   button = {
-    text: "Teste grátis por 30 dias",
+    text: "Comece seu teste GRATUITO agora",
     url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
   },
   reviews = {
@@ -61,33 +61,47 @@ const Hero7 = ({
 }: Hero7Props) => {
   return (
     <>
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-b from-white-pure to-white-soft overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cool-blue-subtle via-transparent to-cool-teal-subtle opacity-30"></div>
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-cool-subtle rounded-full blur-3xl opacity-20"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-brand-subtle rounded-full blur-3xl opacity-15"></div>
-
-        <div className="container relative z-10 px-4">
-          <div className="text-center max-w-5xl mx-auto">
-            {/* Main heading */}
+      <section className="min-h-[100vh] flex items-center justify-center bg-gradient-to-b from-white-pure to-white-soft">
+        {/* <div className="container relative z-10 px-4"> */}
+          <div className="text-center max-w-5xl mt-12">
+            {/* Main heading - ATENÇÃO */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8 bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
               {heading}
             </h1>
 
-            {/* Description */}
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
+            {/* Description - INTERESSE + DESEJO */}
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
               {description}
             </p>
 
-            {/* CTA Button */}
-            <div className="mb-20">
+            {/* Benefícios específicos - DESEJO */}
+            {/* <div className="flex justify-center items-center gap-8 mb-12 text-sm md:text-base text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span>Resposta em segundos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span>Funciona 24/7</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span>Sem mensalidade nos primeiros 30 dias</span>
+              </div>
+            </div> */}
+
+            {/* CTA Button - AÇÃO */}
+            <div className="mb-8">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-primary to-cool-teal text-white hover:from-primary/90 hover:to-cool-teal/90 px-10 py-6 text-lg font-semibold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg border-0"
+                className="gradient-brand text-white hover:from-primary/90 hover:to-cool-teal/90 px-10 py-6 text-lg font-semibold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg border-0"
               >
                 <a href={button.url}>{button.text}</a>
               </Button>
+              <p className="text-sm text-muted-foreground mt-3">
+                🔒 Sem compromisso • Cancele quando quiser • Suporte em português
+              </p>
             </div>
 
             {/* Social proof */}
@@ -111,13 +125,13 @@ const Hero7 = ({
                     {reviews.rating?.toFixed(1)}
                   </span>
                 </div>
-                {/* <p className="text-left font-medium text-muted-foreground">
-                from {reviews.count}+ reviews
-              </p> */}
+                <p className="text-sm font-medium text-muted-foreground">
+                  Mais de {reviews.count}+ empresas já aumentaram suas vendas
+                </p>
               </div>
             </div>
           </div>
-        </div>
+        {/* </div> */}
       </section>
     </>
   );

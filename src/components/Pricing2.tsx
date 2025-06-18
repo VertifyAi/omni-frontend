@@ -72,13 +72,6 @@ const Pricing2 = ({
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
-  // Função para calcular economia anual
-  const calculateYearlyDiscount = (monthlyPrice: number, yearlyPrice: number) => {
-    const yearlyTotal = yearlyPrice * 12;
-    const monthlyTotal = monthlyPrice * 12;
-    return Math.round(((monthlyTotal - yearlyTotal) / monthlyTotal) * 100);
-  };
-
   // Função para lidar com a mudança do switch
   const handleSwitchChange = () => {
     setIsAnimating(true);
@@ -134,7 +127,6 @@ const Pricing2 = ({
   
   // Renderizar o conteúdo do card
   const renderPlanCard = (plan: PlanData) => {
-    const discount = calculateYearlyDiscount(plan.monthlyPrice, plan.yearlyPrice);
     const features = mapFeatures(plan.features);
     const currentPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
     const displayPrice = plan.id === 'empresarial' 
@@ -145,18 +137,10 @@ const Pricing2 = ({
       return (
         <div
           key={plan.id}
-          className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] p-[3px] rounded-2xl relative mt-6"
+          className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] p-[3px] rounded-2xl relative h-full"
         >
-          {/* Badge Popular */}
-          <div className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] p-[2px] rounded-xl w-36 absolute top-[-20px] left-1/2 transform -translate-x-1/2 z-10">
-            <div className="bg-white rounded-xl py-2 px-4 text-center">
-              <span className="text-sm font-bold text-transparent bg-gradient-to-r from-[#E97939] to-[#8A39DB] bg-clip-text">
-                {plan.badge}
-              </span>
-            </div>
-          </div>
-          <Card className="flex w-78 flex-col justify-between text-left bg-white-pure rounded-xl elevated-2">
-            <CardHeader>
+          <Card className="flex w-80 h-full flex-col justify-between text-left bg-white-pure rounded-xl elevated-2">
+            <CardHeader className="pt-5 pb-3 px-5 flex-shrink-0">
               <CardTitle>
                 <p>{plan.name}</p>
               </CardTitle>
@@ -238,14 +222,8 @@ const Pricing2 = ({
       return (
         <Card
           key={plan.id}
-          className="flex w-80 flex-col justify-between text-left bg-white-pure border-white-warm shadow-white-elevated hover:shadow-cool-teal transition-all duration-300"
+          className="flex w-80 h-full flex-col justify-between text-left bg-white-pure border-white-warm shadow-white-elevated hover:shadow-cool-teal transition-all duration-300 relative"
         >
-          {/* Badge de Desconto Anual */}
-          {isYearly && plan.id !== 'empresarial' && (
-            <div className="absolute top-4 right-4 z-10 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-              -{discount}%
-            </div>
-          )}
 
           <CardHeader className="pt-5 pb-3 px-5 flex-shrink-0">
             <CardTitle className="flex items-center justify-between mb-2">
@@ -263,7 +241,7 @@ const Pricing2 = ({
             {/* Preço com animação */}
             <div className="space-y-2 mb-3">
               <div className="flex items-baseline gap-2">
-                <span className={`${plan.id === 'empresarial' ? 'text-xl' : 'text-3xl'} font-bold transition-all duration-300 ${isAnimating ? 'scale-110 opacity-60' : 'scale-100 opacity-100'}`}>
+                <span className={`${plan.id === 'empresarial' ? 'text-2xl' : 'text-3xl'} font-bold transition-all duration-300 ${isAnimating ? 'scale-110 opacity-60' : 'scale-100 opacity-100'}`}>
                   {displayPrice}
                 </span>
                 {plan.id !== 'empresarial' && (
@@ -294,16 +272,19 @@ const Pricing2 = ({
               )}
             </div>
           </CardHeader>
-          <CardContent>
+          
+          <CardContent className="flex-1 px-5 py-0 overflow-hidden">
             <Separator className="mb-6" />
-            <ul className="space-y-4">
-              {plan.features.map((feature: string, index: number) => (
-                <li key={index} className="flex items-center gap-2">
-                  <CircleCheck className="size-4 text-primary" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="h-full overflow-y-auto">
+              <ul className="space-y-2">
+                {plan.features.map((feature: string, index: number) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <CircleCheck className="size-4 text-primary" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </CardContent>
           
           <CardFooter className="pt-4 pb-5 px-5 flex-shrink-0">
@@ -349,7 +330,7 @@ const Pricing2 = ({
     <section className="py-24 bg-gradient-to-b from-background to-white-soft flex justify-center">
       <div className="container px-4">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          {/* <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
             {heading}
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">{description}</p>
@@ -360,7 +341,7 @@ const Pricing2 = ({
               onCheckedChange={() => setIsYearly(!isYearly)}
             />
             Anual
-          </div>
+          </div> */}
 
           {/* INTEREST - Headlines persuasivos */}
           <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
@@ -451,7 +432,7 @@ const Pricing2 = ({
                 <CarouselContent className="-ml-2 md:-ml-4">
                   {orderedPlans.map((plan: PlanData) => (
                     <CarouselItem key={plan.id} className="pl-2 md:pl-4 flex justify-center">
-                      <div className="w-full flex justify-center mt-4">
+                      <div className="w-full flex justify-center">
                         {renderPlanCard(plan)}
                       </div>
                     </CarouselItem>
@@ -461,16 +442,16 @@ const Pricing2 = ({
                 <CarouselNext className="right-1" />
               </Carousel>
             </div>
-          ) : (
-            /* Layout com alinhamento perfeito para telas maiores */
-            <div className="flex flex-row items-end justify-center gap-8 w-full max-w-7xl mx-auto mt-12">
-              {orderedPlans.map((plan: PlanData) => (
-                <div key={plan.id} className={`flex justify-center ${plan.popular ? '' : 'mt-6'}`}>
-                  {renderPlanCard(plan)}
-                </div>
-              ))}
-            </div>
-          )}
+                      ) : (
+              /* Layout com alinhamento perfeito para telas maiores */
+              <div className="flex flex-row items-stretch justify-center gap-8 w-full max-w-7xl mx-auto mt-12 h-[650px]">
+                {orderedPlans.map((plan: PlanData) => (
+                  <div key={plan.id} className="flex flex-col justify-start h-full">
+                    {renderPlanCard(plan)}
+                  </div>
+                ))}
+              </div>
+            )}
 
           {/* Garantias Finais */}
           <div className="mt-16 text-center max-w-5xl mx-auto">

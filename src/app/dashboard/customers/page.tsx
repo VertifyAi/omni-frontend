@@ -65,10 +65,10 @@ export default function CustomersPage() {
     <div className="flex flex-col gap-8 p-8 ml-16">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Contatos</h1>
-          <p className="text-muted-foreground">
-            Gerencie seus contatos e leads
-          </p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Meus Contatos
+          </h1>
+          <p className="text-muted-foreground">Gerencie seus contatos</p>
         </div>
         <Button asChild>
           <Link href="/dashboard/customers/create">
@@ -81,6 +81,25 @@ export default function CustomersPage() {
       {isLoading ? (
         <div className="flex justify-center">
           <p>Carregando contatos...</p>
+        </div>
+      ) : customers.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="mx-auto max-w-md">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Plus className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Nenhum contato criado</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Comece criando seu primeiro contato para automatizar o
+              atendimento.
+            </p>
+            <Button asChild className="mt-4">
+              <Link href="/dashboard/customers/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Criar Primeiro Contato
+              </Link>
+            </Button>
+          </div>
         </div>
       ) : error ? (
         <div className="flex justify-center">

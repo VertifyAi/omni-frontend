@@ -179,13 +179,13 @@ const Feature108 = ({
                     </div>
                   </div>
                 </div>
-                <Image
+                {/* <Image
                   src={tab.content.imageSrc}
                   alt={tab.content.imageAlt}
                   width={500}
                   height={300}
                   className="rounded-lg shadow-white-elevated bg-white-pure"
-                />
+                /> */}
               </TabsContent>
             ))}
           </div>

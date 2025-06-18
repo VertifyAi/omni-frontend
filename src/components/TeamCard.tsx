@@ -183,7 +183,7 @@ export function TeamCard({
         team={team}
         isOpen={isDeleteDialogOpen}
         onClose={closeDeleteDialog}
-        onSuccess={onDeleteSuccess}
+        onSuccess={onDeleteSuccess ?? (() => {})}
       />
     </>
   );

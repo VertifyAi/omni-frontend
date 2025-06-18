@@ -72,8 +72,19 @@ class ChatService {
       this.unreadMessages.set(data.ticketId, currentCount + 1);
       this.notifyUnreadChange();
 
+      // Converter dados do WebSocket para o formato Message
+      const message: Message = {
+        id: data.id,
+        ticketId: data.ticketId,
+        message: data.message,
+        senderName: data.senderName,
+        senderType: data.sender,
+        senderIdentifier: data.phone,
+        createdAt: data.createdAt
+      };
+
       console.log(`ChatService: Notificando ${this.messageCallbacks.size} callbacks de mensagem`);
-      this.messageCallbacks.forEach((callback) => callback(data));
+      this.messageCallbacks.forEach((callback) => callback(message));
     });
 
     this.socket.on("new_ticket", (data: WebSocketEvents["new_ticket"]) => {

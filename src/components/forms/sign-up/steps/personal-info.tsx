@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { SignUpFormData } from "../schema";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const MaskedInput = dynamic(() => import("@/components/ui/masked-input").then(mod => mod.MaskedInput), {
   ssr: false
@@ -15,6 +16,9 @@ interface PersonalInfoProps {
 }
 
 export function PersonalInfo({ form }: PersonalInfoProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+
   // Observar mudanças nos campos de senha em tempo real
   const password = form.watch("password");
   const passwordConfirmation = form.watch("passwordConfirmation");
@@ -92,7 +96,16 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
             <div>
               <FormLabel>Senha</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} {...field} />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeIcon className="w-4 h-4 text-muted-foreground" /> : <EyeOffIcon className="w-4 h-4 text-muted-foreground" />}
+                  </button>
+                </div>
               </FormControl>
             </div>
             <div className="space-y-1">
@@ -116,13 +129,22 @@ export function PersonalInfo({ form }: PersonalInfoProps) {
             <div>
               <FormLabel>Confirmar Senha</FormLabel>
               <FormControl>
-                <Input 
-                  type="password" 
+                <div className="relative">
+                  <Input 
+                    type={showPasswordConfirmation ? "text" : "password"} 
                   className={cn(
                     passwordConfirmation && password !== passwordConfirmation && "border-red-500 focus-visible:ring-red-500"
                   )}
-                  {...field} 
-                />
+                    {...field} 
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                  >
+                    {showPasswordConfirmation ? <EyeIcon className="w-4 h-4 text-muted-foreground" /> : <EyeOffIcon className="w-4 h-4 text-muted-foreground" />}
+                  </button>
+                </div>
               </FormControl>
             </div>
             <FormMessage />
