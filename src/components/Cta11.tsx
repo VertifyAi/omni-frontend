@@ -31,10 +31,10 @@ const Cta11 = ({
   },
 }: Cta11Props) => {
   return (
-    <section className="pt-32 flex justify-center items-center">
+    <section className="pt-20 sm:pt-24 md:pt-32 flex justify-center items-center px-4 sm:px-6">
       <div className="container">
         <div
-          className="relative flex flex-col items-center rounded-3xl p-12 text-center md:rounded-3xl lg:p-20 overflow-hidden"
+          className="relative flex flex-col items-center rounded-3xl p-6 sm:p-8 md:p-12 lg:p-20 text-center overflow-hidden"
           style={{
             backgroundImage: `url('https://vertify-public-assets.s3.us-east-2.amazonaws.com/website-assets/DALL%C2%B7E+2025-03-11+10.13.42+-+A+futuristic+sports+car+racing+at+high+speed+on+a+modern+track%2C+featuring+vibrant+neon+lights+in+shades+of+orange+(%23E67E22)+and+purple+(%238E44AD).+The+.webp')`,
             backgroundSize: "cover",
@@ -46,54 +46,54 @@ const Cta11 = ({
 
           <div className="relative z-10 max-w-4xl mx-auto">
             {/* Urgência Sutil */}
-            <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-300 rounded-full px-4 py-2 mb-6">
-              <span className="text-sm font-medium text-blue-800">
+            <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-300 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6">
+              <span className="text-xs sm:text-sm font-medium text-blue-800 text-center">
                 ✨ Atendimento personalizado para os primeiros a se inscreverem!
               </span>
             </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
               {heading}
             </h2>
 
-            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
               {description}
             </p>
 
             {/* Benefícios em destaque */}
-            <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-3" />
-                <div className="text-white font-bold text-lg">+340%</div>
-                <div className="text-white/80 text-sm">Aumento em vendas</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12 max-w-3xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
+                <TrendingUp className="w-6 sm:w-8 h-6 sm:h-8 text-green-400 mx-auto mb-2 sm:mb-3" />
+                <div className="text-white font-bold text-base sm:text-lg">+340%</div>
+                <div className="text-white/80 text-xs sm:text-sm">Aumento em vendas</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <Zap className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-                <div className="text-white font-bold text-lg">24/7</div>
-                <div className="text-white/80 text-sm">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
+                <Zap className="w-6 sm:w-8 h-6 sm:h-8 text-blue-400 mx-auto mb-2 sm:mb-3" />
+                <div className="text-white font-bold text-base sm:text-lg">24/7</div>
+                <div className="text-white/80 text-xs sm:text-sm">
                   Nunca para de vender
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <Users className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                <div className="text-white font-bold text-lg">Feito por</div>
-                <div className="text-white/80 text-sm">Especialistas em IA</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
+                <Users className="w-6 sm:w-8 h-6 sm:h-8 text-purple-400 mx-auto mb-2 sm:mb-3" />
+                <div className="text-white font-bold text-base sm:text-lg">Feito por</div>
+                <div className="text-white/80 text-xs sm:text-sm">Especialistas em IA</div>
               </div>
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8">
               {buttons.primary && (
                 <Button
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] hover:from-[#E97939]/90 hover:to-[#8A39DB]/90 text-white px-12 py-8 text-xl font-bold rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-0"
+                  className="bg-gradient-to-r from-[#E97939] to-[#8A39DB] hover:from-[#E97939]/90 hover:to-[#8A39DB]/90 text-white px-8 sm:px-12 py-4 sm:py-8 text-base sm:text-xl font-bold rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-0 w-full sm:w-auto"
                 >
                   <a
                     href={buttons.primary.url}
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                   >
-                    {buttons.primary.text}
-                    <ArrowRight className="w-5 h-5" />
+                    <span className="text-center">{buttons.primary.text}</span>
+                    <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
                   </a>
                 </Button>
               )}
@@ -103,7 +103,7 @@ const Cta11 = ({
                   asChild
                   variant="outline"
                   size="lg"
-                  className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-8 py-8 text-lg font-semibold rounded-2xl"
+                  className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 px-6 sm:px-8 py-4 sm:py-8 text-base sm:text-lg font-semibold rounded-2xl w-full sm:w-auto"
                 >
                   <a href={buttons.secondary.url}>{buttons.secondary.text}</a>
                 </Button>
@@ -111,17 +111,17 @@ const Cta11 = ({
             </div>
 
             {/* Garantias e Social Proof */}
-            <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-white/80">
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/80">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-green-400 rounded-full"></div>
                 <span>30 dias grátis garantidos</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-purple-400 rounded-full"></div>
                 <span>Setup em 24 horas</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-orange-400 rounded-full"></div>
                 <span>Suporte VIP</span>
               </div>
             </div>

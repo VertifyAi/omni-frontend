@@ -126,8 +126,8 @@ const Navbar1 = ({
   }, []);
 
   return (
-    <section className="fixed top-0 left-0 right-0 flex justify-center items-center w-full z-50 pt-4 px-4 mb-20">
-      <div className="py-3 px-8 bg-white-soft/95 backdrop-blur-lg border border-white-warm/60 rounded-2xl shadow-xl shadow-black/10 w-[90%]">
+    <section className="fixed top-0 left-0 right-0 flex justify-center items-center w-full z-50 pt-2 sm:pt-4 px-2 sm:px-4 mb-20">
+      <div className="py-2 sm:py-3 px-4 sm:px-8 bg-white-soft/95 backdrop-blur-lg border border-white-warm/60 rounded-2xl shadow-xl shadow-black/10 w-[95%] sm:w-[90%]">
         <div className="container mx-auto max-w-7xl w-full">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
@@ -170,13 +170,13 @@ const Navbar1 = ({
                 alt={logo.alt}
                 width={72}
                 height={32}
-                className="w-18"
+                className="w-14 sm:w-18"
               />
             </a>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="hover-cool-blue">
-                  <Menu className="size-4" />
+                <Button variant="outline" size="icon" className="hover-cool-blue h-8 w-8 sm:h-10 sm:w-10">
+                  <Menu className="size-3 sm:size-4" />
                 </Button>
               </SheetTrigger>
               <SheetContent className="overflow-y-auto bg-white-pure/95 backdrop-blur-md">

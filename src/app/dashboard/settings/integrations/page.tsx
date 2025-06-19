@@ -98,7 +98,7 @@ export default function IntegrationsPage() {
   const handleDeactivate = async (type: string) => {
     try {
       setIsDeactivating(true);
-      const response = await fetchApi(`/${type}/desactivate`, {
+      const response = await fetchApi(`/api/integrations/${type}/desactivate`, {
         method: 'POST',
       });
       

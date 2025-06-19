@@ -36,6 +36,20 @@ interface Channel {
   phoneNumbers: string[];
 }
 
+// Interface para a resposta da Meta API
+interface MetaPhoneNumber {
+  verified_name: string;
+  code_verification_status: string;
+  display_phone_number: string;
+  quality_rating: string;
+  platform_type: string;
+  id: string;
+}
+
+interface MetaPhoneNumbersResponse {
+  data: MetaPhoneNumber[];
+}
+
 interface Agent {
   id: number;
   name: string;
@@ -295,17 +309,40 @@ function CreateWorkflowContent() {
     [setEdges, nodes]
   );
 
+  // Função para buscar números de telefone da Meta API
+  const fetchWhatsAppNumbers = async (): Promise<string[]> => {
+    try {
+      // Fazer chamada para sua API backend que irá chamar a Meta API
+      const response = await fetchApi('/api/whatsapp/phone-numbers');
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar números do WhatsApp');
+      }
+      
+      const data: MetaPhoneNumbersResponse = await response.json();
+      
+      // Extrair os números do response da Meta API
+      return data.data?.map((phone: MetaPhoneNumber) => phone.display_phone_number) || [];
+    } catch (error) {
+      console.error('Erro ao buscar números do WhatsApp:', error);
+      // Fallback para números de exemplo em caso de erro
+      return ['+55 11 99999-9999'];
+    }
+  };
+
   // Carregar dados
   const loadData = useCallback(async () => {
     try {
-      // Simular canais (por enquanto só WhatsApp)
+      // Buscar números reais do WhatsApp da Meta API
+      const phoneNumbers = await fetchWhatsAppNumbers();
+      
       setChannels([
         { 
           id: '1', 
           name: 'WhatsApp Business', 
           type: 'whatsapp', 
-          status: 'connected',
-          phoneNumbers: ['+55 11 99999-9999', '+55 11 88888-8888', '+55 21 77777-7777']
+          status: phoneNumbers.length > 0 ? 'connected' : 'disconnected',
+          phoneNumbers: phoneNumbers
         }
       ]);
 

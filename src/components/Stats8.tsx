@@ -45,25 +45,25 @@ const Stats8 = ({
   ],
 }: Stats8Props) => {
   return (
-    <section className="py-24 bg-gradient-to-b from-white-soft to-white-warm flex justify-center">
-      <div className="container px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-b from-white-soft to-white-warm flex justify-center">
+      <div className="container px-4 sm:px-6">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent px-2 sm:px-0">
             {heading}
           </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">{description}</p>
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed px-2 sm:px-0">{description}</p>
         </div>
         
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
             <div 
               key={stat.id} 
-              className="elevated-1 p-8 rounded-2xl text-center hover:elevated-2 transition-all duration-300 group"
+              className="elevated-1 p-6 sm:p-8 rounded-2xl text-center hover:elevated-2 transition-all duration-300 group"
             >
-              <div className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-cool-teal bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-cool-teal bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
                 {stat.value}
               </div>
-              <p className="text-muted-foreground leading-relaxed">{stat.label}</p>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{stat.label}</p>
             </div>
           ))}
         </div>

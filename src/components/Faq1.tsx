@@ -66,23 +66,23 @@ import {
     ],
   }: Faq1Props) => {
     return (
-      <section className="py-24 bg-gradient-to-b from-background to-white-soft flex justify-center">
-        <div className="container max-w-4xl px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+      <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background to-white-soft flex justify-center">
+        <div className="container max-w-4xl px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent px-2 sm:px-0">
               {heading}
             </h2>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {items.map((item, index) => (
               <div key={index} className="elevated-1 rounded-2xl overflow-hidden">
                 <Accordion type="single" collapsible>
                   <AccordionItem value={`item-${index}`} className="border-0">
-                    <AccordionTrigger className="hover:text-primary hover:no-underline px-8 py-6 text-left font-semibold text-lg">
+                    <AccordionTrigger className="hover:text-primary hover:no-underline px-4 sm:px-6 md:px-8 py-4 sm:py-6 text-left font-semibold text-base sm:text-lg">
                       {item.question}
                     </AccordionTrigger>
-                    <AccordionContent className="px-8 pb-6 text-muted-foreground leading-relaxed">
+                    <AccordionContent className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 text-muted-foreground leading-relaxed text-sm sm:text-base">
                       {item.answer}
                     </AccordionContent>
                   </AccordionItem>

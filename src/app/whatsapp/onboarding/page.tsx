@@ -49,6 +49,7 @@ export default function WhatsAppOnboarding() {
 
   const configureWebhook = async (accessToken: string, wabaIds: string[]) => {
     try {
+      console.log(wabaIds, "wabaIds");
       // Configurar webhook usando a Graph API do Meta
       const webhookUrl = "https://api.vertify.com.br/webhook";
 
@@ -65,7 +66,7 @@ export default function WhatsAppOnboarding() {
             body: JSON.stringify({
               override_callback_uri: webhookUrl,
               subscribed_fields: ["messages"],
-              verify_token: "vertify_webhook_token",
+              verify_token: process.env.NEXT_PUBLIC_META_VERIFY_TOKEN,
             }),
           }
         );
@@ -75,8 +76,6 @@ export default function WhatsAppOnboarding() {
         if (!response.ok) {
           throw new Error(`Erro ao configurar webhook: ${response.statusText}`);
         }
-
-        return true;
       }
     } catch (error) {
       console.error("Erro na configuração do webhook:", error);
@@ -109,19 +108,6 @@ export default function WhatsAppOnboarding() {
         // Passo 1: Configurar integração
         updateStep("token", { loading: true });
 
-        await fetchApi("/api/integrations/whatsapp", {
-          method: "POST",
-          body: JSON.stringify({
-            access_token: token,
-            data_access_expiration_time: dataAccessExpirationTime,
-            expires_in: expiresIn,
-          }),
-          headers: {
-            Authorization: `Bearer ${vertifyToken}`,
-            "Content-Type": "application/json",
-          },
-        });
-
         // Buscar o wabaId usando a Graph API do Facebook
         const graphResponse = await fetch(
           `https://graph.facebook.com/v23.0/debug_token?input_token=${token}`,
@@ -144,6 +130,20 @@ export default function WhatsAppOnboarding() {
         if (!wabaIds) {
           throw new Error("Nenhuma conta de WhatsApp Business encontrada");
         }
+
+        await fetchApi("/api/integrations/whatsapp", {
+          method: "POST",
+          body: JSON.stringify({
+            access_token: token,
+            data_access_expiration_time: dataAccessExpirationTime,
+            expires_in: expiresIn,
+            waba_ids: wabaIds,
+          }),
+          headers: {
+            Authorization: `Bearer ${vertifyToken}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         updateStep("token", { loading: false, completed: true });
 

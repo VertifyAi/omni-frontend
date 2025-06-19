@@ -122,34 +122,34 @@ import Image from 'next/image';
   }: Footer2Props) => {
     return (
       <section className="bg-gradient-to-b from-white-soft to-white-warm border-t border-white-warm">
-        <div className="px-4">
-          <footer className="pt-20 pb-12">
-            <div className="grid grid-cols-2 gap-12 lg:grid-cols-6 mb-16">
-              <div className="col-span-2 mb-8 lg:mb-0">
-                <div className="flex items-center gap-2 lg:justify-start mb-6">
+        <div className="px-4 sm:px-6">
+          <footer className="pt-16 sm:pt-20 pb-8 sm:pb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-12 mb-12 sm:mb-16">
+              <div className="col-span-1 sm:col-span-2 mb-6 sm:mb-8 lg:mb-0">
+                <div className="flex items-center gap-2 justify-center sm:justify-start lg:justify-start mb-4 sm:mb-6">
                   <a href="https://shadcnblocks.com">
                     <Image
                       src={logo.src}
                       alt={logo.alt}
                       width={150}
                       height={50}
-                      className="h-10 w-auto"
+                      className="h-8 sm:h-10 w-auto"
                     />
                   </a>
                 </div>
-                <p className="text-muted-foreground leading-relaxed max-w-sm">{tagline}</p>
+                <p className="text-muted-foreground leading-relaxed max-w-sm text-center sm:text-left text-sm sm:text-base">{tagline}</p>
               </div>
               
               {menuItems.map((section, sectionIdx) => (
-                <div key={sectionIdx}>
-                  <h3 className="mb-6 font-bold text-foreground">{section.title}</h3>
-                  <ul className="space-y-4">
+                <div key={sectionIdx} className="text-center sm:text-left">
+                  <h3 className="mb-4 sm:mb-6 font-bold text-foreground text-base sm:text-lg">{section.title}</h3>
+                  <ul className="space-y-2 sm:space-y-4">
                     {section.items.map((item, itemIdx) => (
                       <li key={itemIdx}>
                         <a 
                           href={item.url} 
                           target="_blank"
-                          className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                          className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium text-sm sm:text-base"
                         >
                           {item.title}
                         </a>
@@ -160,9 +160,9 @@ import Image from 'next/image';
               ))}
             </div>
             
-            <div className="flex flex-col justify-between gap-6 border-t border-white-warm pt-8 text-sm md:flex-row md:items-center">
-              <p className="text-muted-foreground">{copyright}</p>
-              <ul className="flex gap-6">
+            <div className="flex flex-col justify-between gap-4 sm:gap-6 border-t border-white-warm pt-6 sm:pt-8 text-xs sm:text-sm md:flex-row md:items-center">
+              <p className="text-muted-foreground text-center md:text-left">{copyright}</p>
+              <ul className="flex gap-4 sm:gap-6 justify-center md:justify-end">
                 {bottomLinks.map((link, linkIdx) => (
                   <li key={linkIdx}>
                     <a 
