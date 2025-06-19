@@ -21,6 +21,11 @@ export function formatPhoneNumber(phone: string | number): string {
 }
 
 export function formatWhatsAppNumber(value: string): string {
+  // Se não começar com +55, retorna o número como veio
+  if (!value.startsWith('+55')) {
+    return value;
+  }
+  
   // Remove tudo que não for número
   const numbers = value.replace(/\D/g, '');
   

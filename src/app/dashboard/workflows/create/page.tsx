@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState, useEffect, Suspense } from 'react';
+import React, { useCallback, useState, useEffect, Suspense } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -15,24 +15,33 @@ import ReactFlow, {
   Panel,
   Handle,
   Position,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Bot, User, Plus, Save, Trash2, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
-import { fetchApi } from '@/lib/fetchApi';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  MessageCircle,
+  Bot,
+  User,
+  Plus,
+  Save,
+  Trash2,
+  ArrowLeft,
+} from "lucide-react";
+import { toast } from "sonner";
+import { fetchApi } from "@/lib/fetchApi";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { formatWhatsAppNumber } from "@/lib/utils";
 
 // Tipos para os dados
 interface Channel {
   id: string;
   name: string;
-  type: 'whatsapp';
-  status: 'connected' | 'disconnected';
+  type: "whatsapp";
+  status: "connected" | "disconnected";
   phoneNumbers: string[];
 }
 
@@ -46,9 +55,9 @@ interface MetaPhoneNumber {
   id: string;
 }
 
-interface MetaPhoneNumbersResponse {
-  data: MetaPhoneNumber[];
-}
+// interface MetaPhoneNumbersResponse {
+//   data: MetaPhoneNumber[];
+// }
 
 interface Agent {
   id: number;
@@ -65,7 +74,7 @@ interface TeamMember {
 // Tipos para dados dos nós
 interface ChannelNodeData {
   label: string;
-  status: 'connected' | 'disconnected';
+  status: "connected" | "disconnected";
   channelId: string;
   phoneNumbers: string[];
   selectedPhone?: string;
@@ -103,19 +112,21 @@ interface WorkflowData {
   id: number;
   name: string;
   description: string;
-  flowData: {
-    nodes: Array<{
-      id: string;
-      type: string;
-      position: { x: number; y: number };
-      data: Record<string, unknown>;
-    }>;
-    edges: Array<{
-      id: string;
-      source: string;
-      target: string;
-    }>;
-  } | string;
+  flowData:
+    | {
+        nodes: Array<{
+          id: string;
+          type: string;
+          position: { x: number; y: number };
+          data: Record<string, unknown>;
+        }>;
+        edges: Array<{
+          id: string;
+          source: string;
+          target: string;
+        }>;
+      }
+    | string;
   companyId: number;
   createdAt: string;
   updatedAt: string;
@@ -157,8 +168,10 @@ interface WorkflowData {
 
 // Componente customizado para nó de canal
 const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
-  const [selectedPhone, setSelectedPhone] = useState(data.selectedPhone || data.phoneNumbers[0]);
-  
+  const [selectedPhone, setSelectedPhone] = useState(
+    data.selectedPhone || data.phoneNumbers[0]
+  );
+
   return (
     <div className="relative">
       <Handle
@@ -176,17 +189,19 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
-          <Badge 
-            variant={data.status === 'connected' ? 'default' : 'secondary'} 
+          <Badge
+            variant={data.status === "connected" ? "default" : "secondary"}
             className="text-xs"
           >
-            {data.status === 'connected' ? '🟢 Conectado' : '🔴 Desconectado'}
+            {data.status === "connected" ? "🟢 Conectado" : "🔴 Desconectado"}
           </Badge>
-          
+
           {data.phoneNumbers.length > 0 && (
             <div>
-              <label className="text-xs font-medium text-gray-600">Número:</label>
-              <select 
+              <label className="text-xs font-medium text-gray-600">
+                Número:
+              </label>
+              <select
                 className="w-full mt-1 px-2 py-1 text-xs border rounded-md bg-white"
                 value={selectedPhone}
                 onChange={(e) => setSelectedPhone(e.target.value)}
@@ -223,7 +238,10 @@ const AgentNode = ({ data }: { data: AgentNodeData }) => (
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <Badge variant="outline" className="text-xs border-blue-300 text-blue-700">
+        <Badge
+          variant="outline"
+          className="text-xs border-blue-300 text-blue-700"
+        >
           🤖 {data.objective}
         </Badge>
       </CardContent>
@@ -274,12 +292,12 @@ function CreateWorkflowContent() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [showAddPanel, setShowAddPanel] = useState(false);
-  const [workflowName, setWorkflowName] = useState('');
-  const [workflowDescription, setWorkflowDescription] = useState('');
-  
+  const [workflowName, setWorkflowName] = useState("");
+  const [workflowDescription, setWorkflowDescription] = useState("");
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams.get('edit');
+  const editId = searchParams.get("edit");
   const isEditing = !!editId;
   const { user } = useAuth();
 
@@ -287,23 +305,25 @@ function CreateWorkflowContent() {
   const onConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) return;
-      
+
       // Verificar se a conexão é válida (agente/usuário -> canal)
-      const sourceNode = nodes.find(n => n.id === params.source);
-      const targetNode = nodes.find(n => n.id === params.target);
-      
+      const sourceNode = nodes.find((n) => n.id === params.source);
+      const targetNode = nodes.find((n) => n.id === params.target);
+
       if (!sourceNode || !targetNode) return;
-      
+
       // Só permite conexão de agentes/usuários PARA canais
-      const isValidConnection = 
-        (sourceNode.type === 'agent' || sourceNode.type === 'user') && 
-        targetNode.type === 'channel';
-      
+      const isValidConnection =
+        (sourceNode.type === "agent" || sourceNode.type === "user") &&
+        targetNode.type === "channel";
+
       if (!isValidConnection) {
-        toast.error('Conecte apenas agentes ou usuários AOS canais de atendimento');
+        toast.error(
+          "Conecte apenas agentes ou usuários AOS canais de atendimento"
+        );
         return;
       }
-      
+
       setEdges((eds) => addEdge(params, eds));
     },
     [setEdges, nodes]
@@ -313,21 +333,34 @@ function CreateWorkflowContent() {
   const fetchWhatsAppNumbers = async (): Promise<string[]> => {
     try {
       // Fazer chamada para sua API backend que irá chamar a Meta API
-      const response = await fetchApi('/api/whatsapp/phone-numbers');
-      
+      const response = await fetchApi(
+        "/api/integrations/whatsapp/phone-numbers"
+      );
+
       if (!response.ok) {
-        throw new Error('Erro ao buscar números do WhatsApp');
+        throw new Error("Erro ao buscar números do WhatsApp");
       }
-      
-      const data: MetaPhoneNumbersResponse = await response.json();
-      
+
+      const data: MetaPhoneNumber[] = await response.json();
+
       // Extrair os números do response da Meta API
-      return data.data?.map((phone: MetaPhoneNumber) => phone.display_phone_number) || [];
+      return (
+        data.map((phone: MetaPhoneNumber) =>
+          formatWhatsAppNumber(phone.display_phone_number)
+        ) || []
+      );
     } catch (error) {
-      console.error('Erro ao buscar números do WhatsApp:', error);
-      // Fallback para números de exemplo em caso de erro
-      return ['+55 11 99999-9999'];
+      console.error("Erro ao buscar números do WhatsApp:", error);
+      return [];
     }
+  };
+
+  const fetchChannels = async (): Promise<Channel[]> => {
+    const response = await fetchApi("/api/integrations");
+    if (!response.ok) {
+      throw new Error("Erro ao buscar canais");
+    }
+    return response.json();
   };
 
   // Carregar dados
@@ -335,29 +368,33 @@ function CreateWorkflowContent() {
     try {
       // Buscar números reais do WhatsApp da Meta API
       const phoneNumbers = await fetchWhatsAppNumbers();
-      
+      const channels = await fetchChannels();
+      console.log(channels, "channels");
+      console.log(phoneNumbers, "phoneNumbers");
       setChannels([
-        { 
-          id: '1', 
-          name: 'WhatsApp Business', 
-          type: 'whatsapp', 
-          status: phoneNumbers.length > 0 ? 'connected' : 'disconnected',
-          phoneNumbers: phoneNumbers
-        }
+        {
+          id: "1",
+          name: "WhatsApp Business",
+          type: "whatsapp",
+          status: phoneNumbers.length > 0 ? "connected" : "disconnected",
+          phoneNumbers: phoneNumbers,
+        },
       ]);
 
       // Carregar agentes
-      const agentsResponse = await fetchApi('/api/agents');
+      const agentsResponse = await fetchApi("/api/agents");
       if (agentsResponse.ok) {
         const agentsData = await agentsResponse.json();
         setAgents(agentsData);
       }
 
       // Carregar membros da equipe
-      const teamsResponse = await fetchApi('/api/teams');
+      const teamsResponse = await fetchApi("/api/teams");
       if (teamsResponse.ok) {
         const teamsData = await teamsResponse.json();
-        const allMembers = teamsData.flatMap((team: { members: TeamMember[] }) => team.members);
+        const allMembers = teamsData.flatMap(
+          (team: { members: TeamMember[] }) => team.members
+        );
         setTeamMembers(allMembers);
       }
 
@@ -367,55 +404,74 @@ function CreateWorkflowContent() {
           const workflowResponse = await fetchApi(`/api/workflows/${editId}`);
           if (workflowResponse.ok) {
             const workflowData: WorkflowData = await workflowResponse.json();
-            
+
             // Definir nome e descrição
-            setWorkflowName(workflowData.name || '');
-            setWorkflowDescription(workflowData.description || '');
-            
+            setWorkflowName(workflowData.name || "");
+            setWorkflowDescription(workflowData.description || "");
+
             // Carregar dados do fluxo se existirem
             if (workflowData.flowData) {
               try {
                 // flowData já vem como objeto, não precisa fazer parse
-                const flowData = typeof workflowData.flowData === 'string' 
-                  ? JSON.parse(workflowData.flowData) 
-                  : workflowData.flowData;
-                
+                const flowData =
+                  typeof workflowData.flowData === "string"
+                    ? JSON.parse(workflowData.flowData)
+                    : workflowData.flowData;
+
                 // Recriar nodes
                 if (flowData.nodes && Array.isArray(flowData.nodes)) {
-                  setNodes(flowData.nodes.map((node: { id: string; type: string; position?: { x: number; y: number }; data?: Record<string, unknown> }) => ({
-                    id: node.id,
-                    type: node.type,
-                    position: node.position || { x: 0, y: 0 },
-                    data: node.data || {}
-                  })));
+                  setNodes(
+                    flowData.nodes.map(
+                      (node: {
+                        id: string;
+                        type: string;
+                        position?: { x: number; y: number };
+                        data?: Record<string, unknown>;
+                      }) => ({
+                        id: node.id,
+                        type: node.type,
+                        position: node.position || { x: 0, y: 0 },
+                        data: node.data || {},
+                      })
+                    )
+                  );
                 }
-                
+
                 // Recriar edges
                 if (flowData.edges && Array.isArray(flowData.edges)) {
-                  setEdges(flowData.edges.map((edge: { id?: string; source: string; target: string; type?: string }) => ({
-                    id: edge.id || `${edge.source}-${edge.target}`,
-                    source: edge.source,
-                    target: edge.target,
-                    type: edge.type || 'default'
-                  })));
+                  setEdges(
+                    flowData.edges.map(
+                      (edge: {
+                        id?: string;
+                        source: string;
+                        target: string;
+                        type?: string;
+                      }) => ({
+                        id: edge.id || `${edge.source}-${edge.target}`,
+                        source: edge.source,
+                        target: edge.target,
+                        type: edge.type || "default",
+                      })
+                    )
+                  );
                 }
               } catch (parseError) {
-                console.error('Erro ao processar dados do fluxo:', parseError);
-                toast.error('Erro ao carregar estrutura do workflow');
+                console.error("Erro ao processar dados do fluxo:", parseError);
+                toast.error("Erro ao carregar estrutura do workflow");
               }
             }
           } else {
-            throw new Error('Workflow não encontrado');
+            throw new Error("Workflow não encontrado");
           }
         } catch (error) {
-          console.error('Erro ao carregar workflow:', error);
-          toast.error('Erro ao carregar workflow para edição');
-          router.push('/dashboard/workflows');
+          console.error("Erro ao carregar workflow:", error);
+          toast.error("Erro ao carregar workflow para edição");
+          router.push("/dashboard/workflows");
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      toast.error('Erro ao carregar dados');
+      console.error("Erro ao carregar dados:", error);
+      toast.error("Erro ao carregar dados");
     }
   }, [isEditing]);
 
@@ -425,17 +481,17 @@ function CreateWorkflowContent() {
 
   // Adicionar nó de canal (lado direito - destino)
   const addChannelNode = (channel: Channel) => {
-    const channelNodes = nodes.filter(n => n.type === 'channel');
+    const channelNodes = nodes.filter((n) => n.type === "channel");
     const newNode: Node = {
       id: `channel-${channel.id}`,
-      type: 'channel',
+      type: "channel",
       position: { x: 600, y: 100 + channelNodes.length * 200 },
-      data: { 
-        label: channel.name, 
+      data: {
+        label: channel.name,
         status: channel.status,
         channelId: channel.id,
         phoneNumbers: channel.phoneNumbers,
-        selectedPhone: channel.phoneNumbers[0]
+        selectedPhone: channel.phoneNumbers[0],
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -443,15 +499,15 @@ function CreateWorkflowContent() {
 
   // Adicionar nó de agente (lado esquerdo - origem)
   const addAgentNode = (agent: Agent) => {
-    const agentNodes = nodes.filter(n => n.type === 'agent');
+    const agentNodes = nodes.filter((n) => n.type === "agent");
     const newNode: Node = {
       id: `agent-${agent.id}`,
-      type: 'agent',
+      type: "agent",
       position: { x: 100, y: 100 + agentNodes.length * 200 },
-      data: { 
-        label: agent.name, 
+      data: {
+        label: agent.name,
         objective: agent.objective,
-        agentId: agent.id 
+        agentId: agent.id,
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -459,15 +515,15 @@ function CreateWorkflowContent() {
 
   // Adicionar nó de usuário (lado esquerdo - origem)
   const addUserNode = (user: TeamMember) => {
-    const userNodes = nodes.filter(n => n.type === 'user');
+    const userNodes = nodes.filter((n) => n.type === "user");
     const newNode: Node = {
       id: `user-${user.id}`,
-      type: 'user',
+      type: "user",
       position: { x: 100, y: 400 + userNodes.length * 200 },
-      data: { 
-        label: user.name, 
+      data: {
+        label: user.name,
         email: user.email,
-        userId: user.id 
+        userId: user.id,
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -482,55 +538,68 @@ function CreateWorkflowContent() {
   // Salvar workflow
   const saveWorkflow = async () => {
     if (!workflowName.trim()) {
-      toast.error('Nome do workflow é obrigatório');
+      toast.error("Nome do workflow é obrigatório");
       return;
     }
 
     // Identificar tipos de nós conectados (deve ser apenas um tipo: team OU user OU agent)
-    const connectedAgents = nodes.filter(node => 
-      node.type === 'agent' && 
-      edges.some(edge => edge.source === node.id)
+    const connectedAgents = nodes.filter(
+      (node) =>
+        node.type === "agent" && edges.some((edge) => edge.source === node.id)
     );
 
-    const connectedUsers = nodes.filter(node => 
-      node.type === 'user' && 
-      edges.some(edge => edge.source === node.id)
+    const connectedUsers = nodes.filter(
+      (node) =>
+        node.type === "user" && edges.some((edge) => edge.source === node.id)
     );
 
     // Por enquanto não temos nós de team no ReactFlow, mas deixando preparado
-    const connectedTeams = nodes.filter(node => 
-      node.type === 'team' && 
-      edges.some(edge => edge.source === node.id)
+    const connectedTeams = nodes.filter(
+      (node) =>
+        node.type === "team" && edges.some((edge) => edge.source === node.id)
     );
 
     const connectedChannels = edges
-      .map(edge => {
-        const targetNode = nodes.find(n => n.id === edge.target && n.type === 'channel');
+      .map((edge) => {
+        const targetNode = nodes.find(
+          (n) => n.id === edge.target && n.type === "channel"
+        );
         if (targetNode) {
           return {
             channelId: parseInt(targetNode.data.channelId),
-            channelIdentifier: targetNode.data.selectedPhone || targetNode.data.phoneNumbers[0]
+            channelIdentifier:
+              targetNode.data.selectedPhone || targetNode.data.phoneNumbers[0],
           };
         }
         return null;
       })
-      .filter((channel): channel is { channelId: number; channelIdentifier: string } => channel !== null);
+      .filter(
+        (
+          channel
+        ): channel is { channelId: number; channelIdentifier: string } =>
+          channel !== null
+      );
 
     // Validações: deve ter pelo menos um canal e apenas um tipo de fonte (team OU user OU agent)
     if (connectedChannels.length === 0) {
-      toast.error('É necessário conectar pelo menos um canal');
+      toast.error("É necessário conectar pelo menos um canal");
       return;
     }
 
-    const totalConnections = connectedAgents.length + connectedUsers.length + connectedTeams.length;
-    
+    const totalConnections =
+      connectedAgents.length + connectedUsers.length + connectedTeams.length;
+
     if (totalConnections === 0) {
-      toast.error('É necessário conectar pelo menos um agente, usuário ou equipe aos canais');
+      toast.error(
+        "É necessário conectar pelo menos um agente, usuário ou equipe aos canais"
+      );
       return;
     }
 
     if (totalConnections > 1) {
-      toast.error('Conecte os canais a apenas UM agente OU usuário OU equipe por workflow');
+      toast.error(
+        "Conecte os canais a apenas UM agente OU usuário OU equipe por workflow"
+      );
       return;
     }
 
@@ -538,28 +607,30 @@ function CreateWorkflowContent() {
     const typesConnected = [
       connectedAgents.length > 0,
       connectedUsers.length > 0,
-      connectedTeams.length > 0
+      connectedTeams.length > 0,
     ].filter(Boolean).length;
 
     if (typesConnected > 1) {
-      toast.error('Conecte os canais a apenas um tipo: agente OU usuário OU equipe');
+      toast.error(
+        "Conecte os canais a apenas um tipo: agente OU usuário OU equipe"
+      );
       return;
     }
 
     try {
       // Preparar dados do fluxo para serialização
       const flowData = {
-        nodes: nodes.map(node => ({
+        nodes: nodes.map((node) => ({
           id: node.id,
           type: node.type,
           position: node.position,
-          data: node.data
+          data: node.data,
         })),
-        edges: edges.map(edge => ({
+        edges: edges.map((edge) => ({
           id: edge.id,
           source: edge.source,
-          target: edge.target
-        }))
+          target: edge.target,
+        })),
       };
 
       // Montar DTO conforme a nova especificação (campos opcionais)
@@ -568,7 +639,7 @@ function CreateWorkflowContent() {
         description: workflowDescription.trim() || workflowName.trim(),
         flowData: JSON.stringify(flowData),
         companyId: user?.companyId || 1,
-        workflowChannels: connectedChannels
+        workflowChannels: connectedChannels,
       };
 
       // Adicionar apenas o campo correspondente ao tipo conectado
@@ -580,14 +651,14 @@ function CreateWorkflowContent() {
         createWorkflowDto.workflowTeamId = connectedTeams[0].data.teamId;
       }
 
-      console.log('Enviando workflow:', createWorkflowDto);
+      console.log("Enviando workflow:", createWorkflowDto);
 
       const response = await fetchApi(
-        isEditing ? `/api/workflows/${editId}` : '/api/workflows',
+        isEditing ? `/api/workflows/${editId}` : "/api/workflows",
         {
-          method: isEditing ? 'PUT' : 'POST',
+          method: isEditing ? "PUT" : "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(createWorkflowDto),
         }
@@ -595,18 +666,23 @@ function CreateWorkflowContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao salvar workflow');
+        throw new Error(errorData.message || "Erro ao salvar workflow");
       }
 
       const result = await response.json();
-      console.log('Workflow salvo:', result);
-      
-      toast.success(isEditing ? 'Workflow atualizado com sucesso!' : 'Workflow criado com sucesso!');
-      router.push('/dashboard/workflows');
-      
+      console.log("Workflow salvo:", result);
+
+      toast.success(
+        isEditing
+          ? "Workflow atualizado com sucesso!"
+          : "Workflow criado com sucesso!"
+      );
+      router.push("/dashboard/workflows");
     } catch (error) {
-      console.error('Erro ao salvar workflow:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao salvar workflow');
+      console.error("Erro ao salvar workflow:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao salvar workflow"
+      );
     }
   };
 
@@ -623,7 +699,7 @@ function CreateWorkflowContent() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                {isEditing ? 'Editar Workflow' : 'Criar Novo Fluxo'}
+                {isEditing ? "Editar Workflow" : "Criar Novo Fluxo"}
               </h1>
               <p className="text-muted-foreground">
                 Configure quais agentes e usuários irão atender cada canal
@@ -638,10 +714,7 @@ function CreateWorkflowContent() {
               <Plus className="w-4 h-4 mr-2" />
               Adicionar
             </Button>
-            <Button
-              variant="outline"
-              onClick={removeSelectedNodes}
-            >
+            <Button variant="outline" onClick={removeSelectedNodes}>
               <Trash2 className="w-4 h-4 mr-2" />
               Remover
             </Button>
@@ -651,7 +724,7 @@ function CreateWorkflowContent() {
             </Button>
           </div>
         </div>
-        
+
         {/* Campos de nome e descrição */}
         <div className="mt-4 flex gap-4">
           <div className="flex-1">
@@ -690,12 +763,15 @@ function CreateWorkflowContent() {
           <Background />
           <Controls />
           <MiniMap />
-          
+
           {/* Panel para adicionar elementos */}
           {showAddPanel && (
-            <Panel position="top-right" className="bg-white border rounded-lg shadow-lg p-4 w-80">
+            <Panel
+              position="top-right"
+              className="bg-white border rounded-lg shadow-lg p-4 w-80"
+            >
               <h3 className="font-semibold mb-4">Adicionar ao Fluxo</h3>
-              
+
               {/* Canais */}
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -712,11 +788,17 @@ function CreateWorkflowContent() {
                       onClick={() => addChannelNode(channel)}
                     >
                       {channel.name}
-                      <Badge 
-                        variant={channel.status === 'connected' ? 'default' : 'secondary'}
+                      <Badge
+                        variant={
+                          channel.status === "connected"
+                            ? "default"
+                            : "secondary"
+                        }
                         className="ml-auto text-xs"
                       >
-                        {channel.status === 'connected' ? 'Conectado' : 'Desconectado'}
+                        {channel.status === "connected"
+                          ? "Conectado"
+                          : "Desconectado"}
                       </Badge>
                     </Button>
                   ))}
@@ -774,12 +856,18 @@ function CreateWorkflowContent() {
           )}
 
           {/* Instruções */}
-          <Panel position="bottom-left" className="bg-white/90 border rounded-lg p-3">
+          <Panel
+            position="bottom-left"
+            className="bg-white/90 border rounded-lg p-3"
+          >
             <div className="text-sm text-muted-foreground space-y-1">
               <p>• Arraste os elementos do painel para o canvas</p>
               <p>• Conecte agentes/usuários AOS canais arrastando das bordas</p>
               <p>• Um agente pode atender múltiplos canais</p>
-              <p>• Selecione elementos e clique em &quot;Remover&quot; para excluir</p>
+              <p>
+                • Selecione elementos e clique em &quot;Remover&quot; para
+                excluir
+              </p>
             </div>
           </Panel>
         </ReactFlow>

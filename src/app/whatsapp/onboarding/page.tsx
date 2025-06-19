@@ -51,7 +51,7 @@ export default function WhatsAppOnboarding() {
     try {
       console.log(wabaIds, "wabaIds");
       // Configurar webhook usando a Graph API do Meta
-      const webhookUrl = "https://api.vertify.com.br/webhook";
+      const webhookUrl = process.env.NEXT_PUBLIC_API_URL + "webhook";
 
       for (const wabaId of wabaIds) {
         // Primeiro, vamos configurar o webhook via Graph API

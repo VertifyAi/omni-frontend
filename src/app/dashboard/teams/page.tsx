@@ -463,7 +463,9 @@ export default function TeamsPage() {
                         variant="ghost"
                         size="icon"
                         className="cursor-pointer"
-                        onClick={() => router.push(`/dashboard/teams/2`)}
+                        onClick={() =>
+                          router.push(`/dashboard/teams/${team.id}`)
+                        }
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
