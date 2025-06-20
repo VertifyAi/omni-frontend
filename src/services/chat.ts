@@ -74,12 +74,12 @@ class ChatService {
 
       // Converter dados do WebSocket para o formato Message
       const message: Message = {
-        id: data.id,
+        // id: data.id,
         ticketId: data.ticketId,
         message: data.message,
         senderName: data.senderName,
-        senderType: data.sender,
-        senderIdentifier: data.phone,
+        senderType: data.senderType,
+        senderIdentifier: data.senderIdentifier,
         createdAt: data.createdAt
       };
 
@@ -150,7 +150,7 @@ class ChatService {
   }
 
   onNewMessage(callback: MessageCallback): () => void {
-    console.log("ChatService: Registrando callback para novas mensagens");
+    console.log("ChatService: Registrando callback para novas mensagens", callback);
     this.messageCallbacks.add(callback);
     return () => {
       console.log("ChatService: Removendo callback de novas mensagens");

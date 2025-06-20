@@ -35,7 +35,7 @@ export interface Ticket {
 }
 
 export interface Message {
-  id: number;
+  id?: number;
   senderIdentifier: string;
   ticketId: number;
   message: string;
@@ -46,11 +46,11 @@ export interface Message {
 
 export interface WebSocketEvents {
   new_message: {
-    id: number;
+    id?: number;
     ticketId: number;
     message: string;
-    sender: 'CUSTOMER' | 'AI' | 'USER'
-    phone: string;
+    senderType: 'CUSTOMER' | 'AI' | 'USER'
+    senderIdentifier: string;
     senderName?: string;
     createdAt: Date
   };

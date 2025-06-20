@@ -48,3 +48,7 @@ export function formatWhatsAppNumber(value: string): string {
   
   return `+${cleanNumber.slice(0, 2)} (${cleanNumber.slice(2, 4)}) ${cleanNumber.slice(4, 9)}-${cleanNumber.slice(9)}`;
 }
+
+export function removeAllNonNumeric(value: string): string {
+  return value.replace(/\D/g, '');
+}

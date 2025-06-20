@@ -34,15 +34,15 @@ import { fetchApi } from "@/lib/fetchApi";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { formatWhatsAppNumber } from "@/lib/utils";
+import { removeAllNonNumeric } from "@/lib/utils";
 
 // Tipos para os dados
 interface Channel {
-  id: string;
+  id: number; // ID da integração
   name: string;
-  type: "whatsapp";
-  status: "connected" | "disconnected";
-  phoneNumbers: string[];
+  type: "WHATSAPP";
+  active: boolean;
+  phoneNumbers: MetaPhoneNumber[]; // Array completo dos números da Meta API
 }
 
 // Interface para a resposta da Meta API
@@ -52,7 +52,7 @@ interface MetaPhoneNumber {
   display_phone_number: string;
   quality_rating: string;
   platform_type: string;
-  id: string;
+  id: string; // ID único do número na Meta API
 }
 
 // interface MetaPhoneNumbersResponse {
@@ -74,10 +74,10 @@ interface TeamMember {
 // Tipos para dados dos nós
 interface ChannelNodeData {
   label: string;
-  status: "connected" | "disconnected";
-  channelId: string;
-  phoneNumbers: string[];
-  selectedPhone?: string;
+  active: boolean;
+  channelId: number; // ID da integração
+  phoneNumbers: MetaPhoneNumber[];
+  selectedPhone?: string; // ID do número selecionado da Meta API
 }
 
 interface AgentNodeData {
@@ -102,8 +102,8 @@ interface CreateWorkflowDto {
   workflowAgentId?: number;
   workflowTeamId?: number;
   workflowChannels: {
-    channelId: number;
-    channelIdentifier: string;
+    channelId: number; // ID da integração
+    channelIdentifier: string; // ID do número do WhatsApp da Meta API
   }[];
 }
 
@@ -166,11 +166,20 @@ interface WorkflowData {
   } | null;
 }
 
+// Interface para resposta da API de integrações
+interface Integration {
+  id: number;
+  type: string;
+  active: boolean;
+}
+
 // Componente customizado para nó de canal
 const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
   const [selectedPhone, setSelectedPhone] = useState(
-    data.selectedPhone || data.phoneNumbers[0]
+    removeAllNonNumeric(data.phoneNumbers[0]?.display_phone_number || "")
   );
+
+  console.log(selectedPhone, "selectedPhone");
 
   return (
     <div className="relative">
@@ -190,10 +199,10 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
           <Badge
-            variant={data.status === "connected" ? "default" : "secondary"}
+            variant={data.active ? "default" : "secondary"}
             className="text-xs"
           >
-            {data.status === "connected" ? "🟢 Conectado" : "🔴 Desconectado"}
+            {data.active ? "🟢 Ativo" : "🔴 Inativo"}
           </Badge>
 
           {data.phoneNumbers.length > 0 && (
@@ -207,8 +216,11 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
                 onChange={(e) => setSelectedPhone(e.target.value)}
               >
                 {data.phoneNumbers.map((phone) => (
-                  <option key={phone} value={phone}>
-                    {phone}
+                  <option
+                    key={phone.id}
+                    value={removeAllNonNumeric(phone.display_phone_number)}
+                  >
+                    {phone.display_phone_number} ({phone.verified_name})
                   </option>
                 ))}
               </select>
@@ -330,7 +342,7 @@ function CreateWorkflowContent() {
   );
 
   // Função para buscar números de telefone da Meta API
-  const fetchWhatsAppNumbers = async (): Promise<string[]> => {
+  const fetchWhatsAppNumbers = async (): Promise<MetaPhoneNumber[]> => {
     try {
       // Fazer chamada para sua API backend que irá chamar a Meta API
       const response = await fetchApi(
@@ -342,13 +354,7 @@ function CreateWorkflowContent() {
       }
 
       const data: MetaPhoneNumber[] = await response.json();
-
-      // Extrair os números do response da Meta API
-      return (
-        data.map((phone: MetaPhoneNumber) =>
-          formatWhatsAppNumber(phone.display_phone_number)
-        ) || []
-      );
+      return data || [];
     } catch (error) {
       console.error("Erro ao buscar números do WhatsApp:", error);
       return [];
@@ -360,7 +366,16 @@ function CreateWorkflowContent() {
     if (!response.ok) {
       throw new Error("Erro ao buscar canais");
     }
-    return response.json();
+    const integrations: Integration[] = await response.json();
+
+    // Mapear integrações para o formato Channel
+    return integrations.map((integration) => ({
+      id: integration.id,
+      name: `WhatsApp Business - ${integration.id}`,
+      type: integration.type as "WHATSAPP",
+      active: integration.active,
+      phoneNumbers: [], // Será preenchido depois
+    }));
   };
 
   // Carregar dados
@@ -371,15 +386,14 @@ function CreateWorkflowContent() {
       const channels = await fetchChannels();
       console.log(channels, "channels");
       console.log(phoneNumbers, "phoneNumbers");
-      setChannels([
-        {
-          id: "1",
-          name: "WhatsApp Business",
-          type: "whatsapp",
-          status: phoneNumbers.length > 0 ? "connected" : "disconnected",
+
+      // Mapear os números para os canais (assumindo que todos os números estão disponíveis para todas as integrações)
+      setChannels(
+        channels.map((channel) => ({
+          ...channel,
           phoneNumbers: phoneNumbers,
-        },
-      ]);
+        }))
+      );
 
       // Carregar agentes
       const agentsResponse = await fetchApi("/api/agents");
@@ -488,10 +502,10 @@ function CreateWorkflowContent() {
       position: { x: 600, y: 100 + channelNodes.length * 200 },
       data: {
         label: channel.name,
-        status: channel.status,
+        active: channel.active,
         channelId: channel.id,
         phoneNumbers: channel.phoneNumbers,
-        selectedPhone: channel.phoneNumbers[0],
+        selectedPhone: channel.phoneNumbers[0]?.display_phone_number || "",
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -542,6 +556,8 @@ function CreateWorkflowContent() {
       return;
     }
 
+    console.log(nodes, "nodes");
+
     // Identificar tipos de nós conectados (deve ser apenas um tipo: team OU user OU agent)
     const connectedAgents = nodes.filter(
       (node) =>
@@ -566,9 +582,8 @@ function CreateWorkflowContent() {
         );
         if (targetNode) {
           return {
-            channelId: parseInt(targetNode.data.channelId),
-            channelIdentifier:
-              targetNode.data.selectedPhone || targetNode.data.phoneNumbers[0],
+            channelId: targetNode.data.channelId,
+            channelIdentifier: targetNode.data.selectedPhone,
           };
         }
         return null;
@@ -789,16 +804,10 @@ function CreateWorkflowContent() {
                     >
                       {channel.name}
                       <Badge
-                        variant={
-                          channel.status === "connected"
-                            ? "default"
-                            : "secondary"
-                        }
+                        variant={channel.active ? "default" : "secondary"}
                         className="ml-auto text-xs"
                       >
-                        {channel.status === "connected"
-                          ? "Conectado"
-                          : "Desconectado"}
+                        {channel.active ? "Ativo" : "Inativo"}
                       </Badge>
                     </Button>
                   ))}

@@ -137,6 +137,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
 
     // Configurar listener para novas mensagens
     const unsubscribe = chatService.onNewMessage((message) => {
+      console.log("Chat: Nova mensagem recebida:", message);
       if (message.ticketId === ticket.id) {
         setMessages((prev) => [...prev, message]);
       }
@@ -381,13 +382,13 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
               <div className="flex gap-3">
                 <Button 
                   onClick={handleChangeStatus}
-                  className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 elevated-1"
+                  className="bg-primary"
                 >
                   Atender Cliente
                 </Button>
                 <Button 
                   variant="destructive"
-                  className="elevated-1"
+                  className="bg-red-500"
                 >
                   Finalizar Atendimento
                 </Button>
