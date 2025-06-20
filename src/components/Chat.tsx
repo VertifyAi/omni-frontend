@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { Message, Ticket } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Send, Bot, User, Plus, Smile, Paperclip, Image as ImageIcon, Video, X } from "lucide-react";
 import { fetchApi } from "@/lib/fetchApi";
@@ -395,9 +394,9 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
               </div>
             </div>
           ) : (
-            <div className="flex w-full gap-2">
+            <div className="flex w-full gap-2 items-end">
               {/* Botão de opções */}
-              <div className="relative options-menu">
+              <div className="relative options-menu flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -502,17 +501,39 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                 )}
               </div>
 
-              <Input
+              <textarea
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  // Ajustar altura automaticamente
+                  const textarea = e.target as HTMLTextAreaElement;
+                  textarea.style.height = 'auto';
+                  const newHeight = Math.min(textarea.scrollHeight, 150);
+                  textarea.style.height = newHeight + 'px';
+                  
+                  // Ajustar overflow baseado na altura
+                  if (newHeight >= 150) {
+                    textarea.style.overflowY = 'auto';
+                  } else {
+                    textarea.style.overflowY = 'hidden';
+                  }
+                }}
                 placeholder="Digite sua mensagem..."
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage(e)}
-                className="bg-white-soft border-white-warm focus:border-primary"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage(e);
+                  }
+                }}
+                className="bg-white-soft border-white-warm focus:border-primary resize-none min-h-[40px] max-h-[150px] w-full rounded-md border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ overflowY: 'hidden' }}
+                rows={1}
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={isSendingMessage || !newMessage.trim()}
-                className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 elevated-1"
+                className="bg-primary text-white"
+                size="icon"
               >
                 {isSendingMessage ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

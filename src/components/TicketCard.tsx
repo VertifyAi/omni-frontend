@@ -103,9 +103,9 @@ export function TicketCard({
             }
             className={`capitalize text-xs font-medium ${
               ticket.status === TicketStatus.AI 
-                ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:opacity-90"
+                ? "bg-primary text-white hover:opacity-90"
                 : ticket.status === TicketStatus.IN_PROGRESS
-                ? "bg-gradient-to-r from-primary to-secondary text-white"
+                ? "bg-primary text-white"
                 : "bg-gray-100 text-gray-700"
             }`}
           >
