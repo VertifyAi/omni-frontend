@@ -77,7 +77,8 @@ interface ChannelNodeData {
   active: boolean;
   channelId: number; // ID da integração
   phoneNumbers: MetaPhoneNumber[];
-  selectedPhone?: string; // ID do número selecionado da Meta API
+  selectedPhone?: string; // Número limpo do telefone selecionado (ex: 5511999999999)
+  updateSelectedPhone?: (phoneNumber: string) => void; // Callback para atualizar
 }
 
 interface AgentNodeData {
@@ -175,16 +176,31 @@ interface Integration {
 
 // Componente customizado para nó de canal
 const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
-  const [selectedPhone, setSelectedPhone] = useState(
-    removeAllNonNumeric(data.phoneNumbers[0]?.display_phone_number || "")
-  );
+  // Usar diretamente o valor do data, ou o primeiro número limpo como padrão
+  const selectedPhone = data.selectedPhone || removeAllNonNumeric(data.phoneNumbers[0]?.display_phone_number || "");
 
-  console.log(selectedPhone, "selectedPhone");
+  // Função para atualizar o nó quando o telefone é alterado
+  const updateNodeData = (selectedPhoneId: string) => {
+    // Encontrar o telefone selecionado pelo ID para obter o número limpo
+    const selectedPhoneData = data.phoneNumbers.find(phone => phone.id === selectedPhoneId);
+    const cleanPhoneNumber = selectedPhoneData ? removeAllNonNumeric(selectedPhoneData.display_phone_number) : "";
+    
+    console.log(`Telefone selecionado:`, {
+      phoneId: selectedPhoneId,
+      phoneData: selectedPhoneData,
+      cleanNumber: cleanPhoneNumber
+    });
+    
+    // Chamar callback se existir
+    if (data.updateSelectedPhone) {
+      data.updateSelectedPhone(cleanPhoneNumber);
+    }
+  };
 
   return (
     <div className="relative">
       <Handle
-        type="target"
+        type="source"
         position={Position.Right}
         className="w-3 h-3 bg-green-500 border-2 border-white"
       />
@@ -212,13 +228,13 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
               </label>
               <select
                 className="w-full mt-1 px-2 py-1 text-xs border rounded-md bg-white"
-                value={selectedPhone}
-                onChange={(e) => setSelectedPhone(e.target.value)}
+                value={data.phoneNumbers.find(phone => removeAllNonNumeric(phone.display_phone_number) === selectedPhone)?.id || ""}
+                onChange={(e) => updateNodeData(e.target.value)}
               >
                 {data.phoneNumbers.map((phone) => (
                   <option
                     key={phone.id}
-                    value={removeAllNonNumeric(phone.display_phone_number)}
+                    value={phone.id}
                   >
                     {phone.display_phone_number} ({phone.verified_name})
                   </option>
@@ -236,7 +252,7 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
 const AgentNode = ({ data }: { data: AgentNodeData }) => (
   <div className="relative">
     <Handle
-      type="source"
+      type="target"
       position={Position.Left}
       className="w-3 h-3 bg-blue-500 border-2 border-white"
     />
@@ -265,7 +281,7 @@ const AgentNode = ({ data }: { data: AgentNodeData }) => (
 const UserNode = ({ data }: { data: UserNodeData }) => (
   <div className="relative">
     <Handle
-      type="source"
+      type="target"
       position={Position.Left}
       className="w-3 h-3 bg-purple-500 border-2 border-white"
     />
@@ -313,32 +329,66 @@ function CreateWorkflowContent() {
   const isEditing = !!editId;
   const { user } = useAuth();
 
-  // Conectar nós (só permite conexão de agentes/usuários PARA canais)
+  // Conectar nós (só permite conexão de canais PARA agentes/usuários)
   const onConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) return;
 
-      // Verificar se a conexão é válida (agente/usuário -> canal)
+      // Verificar se a conexão é válida (canal -> agente/usuário)
       const sourceNode = nodes.find((n) => n.id === params.source);
       const targetNode = nodes.find((n) => n.id === params.target);
 
       if (!sourceNode || !targetNode) return;
 
-      // Só permite conexão de agentes/usuários PARA canais
+      // Só permite conexão de canais PARA agentes/usuários
       const isValidConnection =
-        (sourceNode.type === "agent" || sourceNode.type === "user") &&
-        targetNode.type === "channel";
+        sourceNode.type === "channel" &&
+        (targetNode.type === "agent" || targetNode.type === "user");
 
       if (!isValidConnection) {
         toast.error(
-          "Conecte apenas agentes ou usuários AOS canais de atendimento"
+          "Conecte apenas canais DE atendimento PARA agentes ou usuários"
+        );
+        return;
+      }
+
+      // Verificar se já existe uma conexão para um agente/usuário (só pode ter 1)
+      const existingTargetConnections = edges.filter(
+        (edge) => edge.target === params.target
+      );
+
+      if (existingTargetConnections.length > 0) {
+        toast.error(
+          "Este agente ou usuário já está conectado. Remova a conexão existente primeiro."
+        );
+        return;
+      }
+
+      // Verificar se já existe outro tipo de conexão (agente OU usuário, não ambos)
+      const connectedAgents = edges.filter((edge) => {
+        const target = nodes.find((n) => n.id === edge.target);
+        return target?.type === "agent";
+      });
+
+      const connectedUsers = edges.filter((edge) => {
+        const target = nodes.find((n) => n.id === edge.target);
+        return target?.type === "user";
+      });
+
+      // Se já existe uma conexão com agente e estamos tentando conectar um usuário (ou vice-versa)
+      if (
+        (connectedAgents.length > 0 && targetNode.type === "user") ||
+        (connectedUsers.length > 0 && targetNode.type === "agent")
+      ) {
+        toast.error(
+          "Você só pode conectar canais a UM tipo: agentes OU usuários, não ambos"
         );
         return;
       }
 
       setEdges((eds) => addEdge(params, eds));
     },
-    [setEdges, nodes]
+    [setEdges, nodes, edges]
   );
 
   // Função para buscar números de telefone da Meta API
@@ -386,6 +436,15 @@ function CreateWorkflowContent() {
       const channels = await fetchChannels();
       console.log(channels, "channels");
       console.log(phoneNumbers, "phoneNumbers");
+
+      // Verificar estrutura dos números de telefone
+      phoneNumbers.forEach((phone, index) => {
+        console.log(`Phone ${index}:`, {
+          id: phone.id,
+          display_phone_number: phone.display_phone_number,
+          verified_name: phone.verified_name
+        });
+      });
 
       // Mapear os números para os canais (assumindo que todos os números estão disponíveis para todas as integrações)
       setChannels(
@@ -487,37 +546,68 @@ function CreateWorkflowContent() {
       console.error("Erro ao carregar dados:", error);
       toast.error("Erro ao carregar dados");
     }
-  }, [isEditing]);
+  }, [isEditing, editId, router, setNodes, setEdges]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Adicionar nó de canal (lado direito - destino)
+  // Adicionar nó de canal (lado esquerdo - origem)
   const addChannelNode = (channel: Channel) => {
     const channelNodes = nodes.filter((n) => n.type === "channel");
+    const defaultPhoneNumber = channel.phoneNumbers[0] ? removeAllNonNumeric(channel.phoneNumbers[0].display_phone_number) : "";
+    
     const newNode: Node = {
       id: `channel-${channel.id}`,
       type: "channel",
-      position: { x: 600, y: 100 + channelNodes.length * 200 },
+      position: { x: 100, y: 100 + channelNodes.length * 200 },
       data: {
         label: channel.name,
         active: channel.active,
         channelId: channel.id,
         phoneNumbers: channel.phoneNumbers,
-        selectedPhone: channel.phoneNumbers[0]?.display_phone_number || "",
+        selectedPhone: defaultPhoneNumber,
+        updateSelectedPhone: (phoneNumber: string) => {
+          console.log(`Atualizando selectedPhone para channel-${channel.id}:`, phoneNumber);
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === `channel-${channel.id}`
+                ? {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      selectedPhone: phoneNumber,
+                    },
+                  }
+                : node
+            )
+          );
+        },
       },
     };
     setNodes((nds) => [...nds, newNode]);
   };
 
-  // Adicionar nó de agente (lado esquerdo - origem)
+  // Adicionar nó de agente (lado direito - destino)
   const addAgentNode = (agent: Agent) => {
-    const agentNodes = nodes.filter((n) => n.type === "agent");
+    // Verificar se já existe um agente ou usuário no workflow
+    const existingAgents = nodes.filter((n) => n.type === "agent");
+    const existingUsers = nodes.filter((n) => n.type === "user");
+
+    if (existingAgents.length > 0) {
+      toast.error("Só é permitido um agente por workflow");
+      return;
+    }
+
+    if (existingUsers.length > 0) {
+      toast.error("Você já tem um usuário. Só é permitido um agente OU um usuário por workflow");
+      return;
+    }
+
     const newNode: Node = {
       id: `agent-${agent.id}`,
       type: "agent",
-      position: { x: 100, y: 100 + agentNodes.length * 200 },
+      position: { x: 600, y: 200 },
       data: {
         label: agent.name,
         objective: agent.objective,
@@ -527,13 +617,26 @@ function CreateWorkflowContent() {
     setNodes((nds) => [...nds, newNode]);
   };
 
-  // Adicionar nó de usuário (lado esquerdo - origem)
+  // Adicionar nó de usuário (lado direito - destino)
   const addUserNode = (user: TeamMember) => {
-    const userNodes = nodes.filter((n) => n.type === "user");
+    // Verificar se já existe um agente ou usuário no workflow
+    const existingAgents = nodes.filter((n) => n.type === "agent");
+    const existingUsers = nodes.filter((n) => n.type === "user");
+
+    if (existingUsers.length > 0) {
+      toast.error("Só é permitido um usuário por workflow");
+      return;
+    }
+
+    if (existingAgents.length > 0) {
+      toast.error("Você já tem um agente. Só é permitido um agente OU um usuário por workflow");
+      return;
+    }
+
     const newNode: Node = {
       id: `user-${user.id}`,
       type: "user",
-      position: { x: 100, y: 400 + userNodes.length * 200 },
+      position: { x: 600, y: 200 },
       data: {
         label: user.name,
         email: user.email,
@@ -561,29 +664,34 @@ function CreateWorkflowContent() {
     // Identificar tipos de nós conectados (deve ser apenas um tipo: team OU user OU agent)
     const connectedAgents = nodes.filter(
       (node) =>
-        node.type === "agent" && edges.some((edge) => edge.source === node.id)
+        node.type === "agent" && edges.some((edge) => edge.target === node.id)
     );
 
     const connectedUsers = nodes.filter(
       (node) =>
-        node.type === "user" && edges.some((edge) => edge.source === node.id)
+        node.type === "user" && edges.some((edge) => edge.target === node.id)
     );
 
     // Por enquanto não temos nós de team no ReactFlow, mas deixando preparado
     const connectedTeams = nodes.filter(
       (node) =>
-        node.type === "team" && edges.some((edge) => edge.source === node.id)
+        node.type === "team" && edges.some((edge) => edge.target === node.id)
     );
 
     const connectedChannels = edges
       .map((edge) => {
-        const targetNode = nodes.find(
-          (n) => n.id === edge.target && n.type === "channel"
+        const sourceNode = nodes.find(
+          (n) => n.id === edge.source && n.type === "channel"
         );
-        if (targetNode) {
+        if (sourceNode) {
+          console.log(`Canal conectado:`, {
+            channelId: sourceNode.data.channelId,
+            selectedPhone: sourceNode.data.selectedPhone,
+            nodeData: sourceNode.data
+          });
           return {
-            channelId: targetNode.data.channelId,
-            channelIdentifier: targetNode.data.selectedPhone,
+            channelId: sourceNode.data.channelId,
+            channelIdentifier: sourceNode.data.selectedPhone,
           };
         }
         return null;
@@ -594,6 +702,8 @@ function CreateWorkflowContent() {
         ): channel is { channelId: number; channelIdentifier: string } =>
           channel !== null
       );
+
+    console.log("Connected channels para enviar:", connectedChannels);
 
     // Validações: deve ter pelo menos um canal e apenas um tipo de fonte (team OU user OU agent)
     if (connectedChannels.length === 0) {
@@ -871,8 +981,9 @@ function CreateWorkflowContent() {
           >
             <div className="text-sm text-muted-foreground space-y-1">
               <p>• Arraste os elementos do painel para o canvas</p>
-              <p>• Conecte agentes/usuários AOS canais arrastando das bordas</p>
-              <p>• Um agente pode atender múltiplos canais</p>
+              <p>• Conecte canais PARA agentes/usuários arrastando das bordas</p>
+              <p>• Múltiplos canais podem conectar ao mesmo agente/usuário</p>
+              <p>• Apenas um agente OU usuário por workflow</p>
               <p>
                 • Selecione elementos e clique em &quot;Remover&quot; para
                 excluir

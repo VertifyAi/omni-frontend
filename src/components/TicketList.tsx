@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Ticket, TicketStatus } from "@/types/chat";
+import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/chat";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { fetchApi } from "@/lib/fetchApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { chatService } from "@/services/chat";
-import { TicketCard } from "./TicketCard";
+import { TicketCard, TicketCardSkeleton } from "./TicketCard";
 import "../app/globals.css";
 
 interface TicketListProps {
@@ -32,6 +32,38 @@ export function TicketList({
     null
   );
 
+  const getPriorityOrder = (priority: TicketPriorityLevel): number => {
+    switch (priority) {
+      case TicketPriorityLevel.CRITICAL:
+        return 1;
+      case TicketPriorityLevel.HIGH:
+        return 2;
+      case TicketPriorityLevel.MEDIUM:
+        return 3;
+      case TicketPriorityLevel.LOW:
+        return 4;
+      default:
+        return 3; // Default to MEDIUM
+    }
+  };
+
+  const sortTicketsByPriority = (tickets: Ticket[]): Ticket[] => {
+    return tickets.sort((a: Ticket, b: Ticket) => {
+      // Primeiro, ordenar por prioridade
+      const priorityDiff = getPriorityOrder(a.priorityLevel) - getPriorityOrder(b.priorityLevel);
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // Se a prioridade for igual, ordenar por data da última mensagem
+      const dateA = new Date(
+        a.ticketMessages.at(-1)?.createdAt || 0
+      ).getTime();
+      const dateB = new Date(
+        b.ticketMessages.at(-1)?.createdAt || 0
+      ).getTime();
+      return dateB - dateA;
+    });
+  };
+
   const loadTickets = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -40,15 +72,7 @@ export function TicketList({
       const result = await fetchApi("/api/tickets");
       let ticket = await result.json();
 
-      ticket = ticket.sort((a: Ticket, b: Ticket) => {
-        const dateA = new Date(
-          a.ticketMessages.at(-1)?.createdAt || 0
-        ).getTime();
-        const dateB = new Date(
-          b.ticketMessages.at(-1)?.createdAt || 0
-        ).getTime();
-        return dateB - dateA;
-      });
+      ticket = sortTicketsByPriority(ticket);
 
       setTickets(ticket);
 
@@ -120,15 +144,7 @@ export function TicketList({
         }
         
         const updatedTickets = [newTicket, ...prevTickets];
-        const sortedTickets = updatedTickets.sort((a, b) => {
-          const dateA = new Date(
-            a.ticketMessages.at(-1)?.createdAt || 0
-          ).getTime();
-          const dateB = new Date(
-            b.ticketMessages.at(-1)?.createdAt || 0
-          ).getTime();
-          return dateB - dateA;
-        });
+        const sortedTickets = sortTicketsByPriority(updatedTickets);
         console.log("TicketList: Tickets após adicionar novo:", sortedTickets.length);
         return sortedTickets;
       });
@@ -157,6 +173,36 @@ export function TicketList({
 
     return searchMatch;
   });
+
+  const groupTicketsByPriority = (tickets: Ticket[]) => {
+    const groups: Record<TicketPriorityLevel, Ticket[]> = {
+      [TicketPriorityLevel.CRITICAL]: [],
+      [TicketPriorityLevel.HIGH]: [],
+      [TicketPriorityLevel.MEDIUM]: [],
+      [TicketPriorityLevel.LOW]: [],
+    };
+
+    tickets.forEach((ticket) => {
+      groups[ticket.priorityLevel]?.push(ticket);
+    });
+
+    return groups;
+  };
+
+  const getPriorityLabel = (priority: TicketPriorityLevel): string => {
+    switch (priority) {
+      case TicketPriorityLevel.CRITICAL:
+        return "🔴 Crítica";
+      case TicketPriorityLevel.HIGH:
+        return "🟠 Alta";
+      case TicketPriorityLevel.MEDIUM:
+        return "🟡 Média";
+      case TicketPriorityLevel.LOW:
+        return "🟢 Baixa";
+      default:
+        return "Média";
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-white-soft">
@@ -231,18 +277,46 @@ export function TicketList({
           
           <TabsContent value={TicketStatus.AI} className="mt-4">
             <div className="flex flex-col gap-3 w-full px-2">
-              {filteredTickets.length > 0 ? (
-                filteredTickets
-                  .filter((ticket) => ticket.status === TicketStatus.AI)
-                  .map((ticket) => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      selected={selectedTicket?.id === ticket.id}
-                      highlighted={highlightedTicketId === ticket.id}
-                      onSelect={onTicketSelect}
-                    />
-                  ))
+              {isLoading && tickets.length === 0 ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <TicketCardSkeleton key={`ai-skeleton-${index}`} />
+                ))
+              ) : filteredTickets.length > 0 ? (
+                (() => {
+                  const aiTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.AI);
+                  const groupedTickets = groupTicketsByPriority(aiTickets);
+                  
+                  return (
+                    <div className="space-y-6">
+                      {Object.entries(groupedTickets).map(([priority, tickets]) => {
+                        if (tickets.length === 0) return null;
+                        
+                        return (
+                          <div key={priority} className="space-y-3">
+                            <div className="flex items-center gap-2 px-2">
+                              <h3 className="text-sm font-semibold text-muted-foreground">
+                                {getPriorityLabel(priority as TicketPriorityLevel)}
+                              </h3>
+                              <div className="flex-1 h-px bg-white-warm"></div>
+                              <span className="text-xs text-muted-foreground">
+                                {tickets.length} ticket{tickets.length > 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {tickets.map((ticket) => (
+                              <TicketCard
+                                key={ticket.id}
+                                ticket={ticket}
+                                selected={selectedTicket?.id === ticket.id}
+                                highlighted={highlightedTicketId === ticket.id}
+                                onSelect={onTicketSelect}
+                              />
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="text-center py-8">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">
@@ -256,20 +330,46 @@ export function TicketList({
           
           <TabsContent value={TicketStatus.IN_PROGRESS} className="mt-4">
             <div className="flex flex-col gap-3 w-full px-2">
-              {filteredTickets.length > 0 ? (
-                filteredTickets
-                  .filter(
-                    (ticket) => ticket.status === TicketStatus.IN_PROGRESS
-                  )
-                  .map((ticket) => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      selected={selectedTicket?.id === ticket.id}
-                      highlighted={highlightedTicketId === ticket.id}
-                      onSelect={onTicketSelect}
-                    />
-                  ))
+              {isLoading && tickets.length === 0 ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <TicketCardSkeleton key={`progress-skeleton-${index}`} />
+                ))
+              ) : filteredTickets.length > 0 ? (
+                (() => {
+                  const progressTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.IN_PROGRESS);
+                  const groupedTickets = groupTicketsByPriority(progressTickets);
+                  
+                  return (
+                    <div className="space-y-6">
+                      {Object.entries(groupedTickets).map(([priority, tickets]) => {
+                        if (tickets.length === 0) return null;
+                        
+                        return (
+                          <div key={priority} className="space-y-3">
+                            <div className="flex items-center gap-2 px-2">
+                              <h3 className="text-sm font-semibold text-muted-foreground">
+                                {getPriorityLabel(priority as TicketPriorityLevel)}
+                              </h3>
+                              <div className="flex-1 h-px bg-white-warm"></div>
+                              <span className="text-xs text-muted-foreground">
+                                {tickets.length} ticket{tickets.length > 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {tickets.map((ticket) => (
+                              <TicketCard
+                                key={ticket.id}
+                                ticket={ticket}
+                                selected={selectedTicket?.id === ticket.id}
+                                highlighted={highlightedTicketId === ticket.id}
+                                onSelect={onTicketSelect}
+                              />
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="text-center py-8">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">
@@ -283,18 +383,46 @@ export function TicketList({
           
           <TabsContent value={TicketStatus.CLOSED} className="mt-4">
             <div className="flex flex-col gap-3 w-full px-2">
-              {filteredTickets.length > 0 ? (
-                filteredTickets
-                  .filter((ticket) => ticket.status === TicketStatus.CLOSED)
-                  .map((ticket) => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      selected={selectedTicket?.id === ticket.id}
-                      highlighted={highlightedTicketId === ticket.id}
-                      onSelect={onTicketSelect}
-                    />
-                  ))
+              {isLoading && tickets.length === 0 ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <TicketCardSkeleton key={`closed-skeleton-${index}`} />
+                ))
+              ) : filteredTickets.length > 0 ? (
+                (() => {
+                  const closedTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.CLOSED);
+                  const groupedTickets = groupTicketsByPriority(closedTickets);
+                  
+                  return (
+                    <div className="space-y-6">
+                      {Object.entries(groupedTickets).map(([priority, tickets]) => {
+                        if (tickets.length === 0) return null;
+                        
+                        return (
+                          <div key={priority} className="space-y-3">
+                            <div className="flex items-center gap-2 px-2">
+                              <h3 className="text-sm font-semibold text-muted-foreground">
+                                {getPriorityLabel(priority as TicketPriorityLevel)}
+                              </h3>
+                              <div className="flex-1 h-px bg-white-warm"></div>
+                              <span className="text-xs text-muted-foreground">
+                                {tickets.length} ticket{tickets.length > 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {tickets.map((ticket) => (
+                              <TicketCard
+                                key={ticket.id}
+                                ticket={ticket}
+                                selected={selectedTicket?.id === ticket.id}
+                                highlighted={highlightedTicketId === ticket.id}
+                                onSelect={onTicketSelect}
+                              />
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="text-center py-8">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary flex items-center justify-center">

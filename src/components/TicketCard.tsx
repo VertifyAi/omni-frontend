@@ -5,9 +5,10 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumber } from "@/lib/utils";
 import { Bot } from "lucide-react";
-import { Ticket, TicketStatus } from "@/types/chat";
+import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import "../app/globals.css";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const socialIcons: Record<string, string> = {
   facebook:
@@ -36,6 +37,38 @@ export function TicketCard({
   onSelect,
 }: TicketCardProps) {
   const lastMessage = ticket.ticketMessages.at(0);
+
+  const getPriorityConfig = (priority: TicketPriorityLevel) => {
+    switch (priority) {
+      case TicketPriorityLevel.CRITICAL:
+        return {
+          text: "Crítica",
+          className: "bg-red-500 text-white border-red-600",
+        };
+      case TicketPriorityLevel.HIGH:
+        return {
+          text: "Alta",
+          className: "bg-orange-500 text-white border-orange-600",
+        };
+      case TicketPriorityLevel.MEDIUM:
+        return {
+          text: "Média",
+          className: "bg-yellow-500 text-white border-yellow-600",
+        };
+      case TicketPriorityLevel.LOW:
+        return {
+          text: "Baixa",
+          className: "bg-green-500 text-white border-green-600",
+        };
+      default:
+        return {
+          text: "Média",
+          className: "bg-yellow-500 text-white border-yellow-600",
+        };
+    }
+  };
+
+  const priorityConfig = getPriorityConfig(ticket.priorityLevel);
 
   return (
     <motion.div
@@ -69,7 +102,7 @@ export function TicketCard({
               height={40}
               className="rounded-full border-2 border-white-warm"
             />
-            <div className="absolute -bottom-1 -right-1 rounded-full bg-white-pure p-1 shadow-white-soft border border-white-warm">
+            <div className="absolute -bottom-1 -right-1 rounded-full bg-white-pure p-0.5">
               <Image
                 src={socialIcons[ticket.channel]}
                 alt={ticket.channel}
@@ -79,7 +112,12 @@ export function TicketCard({
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground">{ticket.customer.name}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-foreground">{ticket.customer.name}</h3>
+              <Badge className={`text-xs px-2 py-0.5 ${priorityConfig.className}`}>
+                {priorityConfig.text}
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">
               {formatPhoneNumber(ticket.customer.phone)}
             </p>
@@ -136,5 +174,38 @@ export function TicketCard({
         )}
       </div>
     </motion.div>
+  );
+}
+
+export function TicketCardSkeleton() {
+  return (
+    <div className="w-full min-h-[100px] p-4 rounded-xl border bg-white-pure border-white-warm elevated-1">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <div className="absolute -bottom-1 -right-1 rounded-full bg-white-pure p-0.5">
+              <Skeleton className="w-[14px] h-[14px] rounded-full" />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-4 w-12 rounded-full" />
+            </div>
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+        <div className="text-sm text-muted-foreground flex flex-col gap-2 items-end">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -17,7 +17,7 @@ interface Hero7Props {
   };
   reviews?: {
     count: number;
-    rating?: number;
+    rating?: string;
     avatars: {
       src: string;
       alt: string;
@@ -26,15 +26,15 @@ interface Hero7Props {
 }
 
 const Hero7 = ({
-  heading = "Transforme Conversas em Vendas com IA em 24h",
-  description = "Pare de perder clientes por demora no atendimento. A Vera responde instantaneamente no WhatsApp, Instagram e Messenger, qualifica tickets automaticamente e converte 3x mais vendas - mesmo enquanto você dorme.",
+  heading = "Clientes insatisfeitos, equipe sobrecarregada e atendimento descentralizado?",
+  description = "Ofereça respostas rápidas 24h com IA que entende pessoas!\nUnifique todos os canais enquanto sua equipe foca no que realmente importa:\nrelacionamentos que convertem e fidelizam.",
   button = {
-    text: "Comece seu teste GRATUITO agora",
+    text: "Veja na prática gratuitamente →",
     url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
   },
   reviews = {
     count: 2000,
-    rating: 4.9,
+    rating: "4.9/5",
     avatars: [
       {
         src: "https://vertify-public-assets.s3.us-east-2.amazonaws.com/social-media/Ativo+20.svg",
@@ -63,15 +63,20 @@ const Hero7 = ({
     <>
       <section className="min-h-[100vh] flex items-center justify-center bg-gradient-to-b from-white-pure to-white-soft px-4 sm:px-6">
         {/* <div className="container relative z-10 px-4"> */}
-          <div className="text-center max-w-5xl mt-16 sm:mt-24 md:mt-32">
+          <div className="text-center max-w-5xl mt-16 sm:mt-20 md:mt-24">
             {/* Main heading - ATENÇÃO */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 sm:mb-8 bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent leading-tight px-2 sm:px-0">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 sm:mb-8 bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent leading-tight px-2 sm:px-0">
               {heading}
             </h1>
 
             {/* Description - INTERESSE + DESEJO */}
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 sm:px-0">
-              {description}
+              {description.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index < description.split('\n').length - 1 && <br />}
+                </React.Fragment>
+              ))}
             </p>
 
             {/* Benefícios específicos - DESEJO */}
@@ -100,7 +105,7 @@ const Hero7 = ({
                 <a href={button.url}>{button.text}</a>
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground mt-3 px-2 sm:px-0">
-                🔒 Sem compromisso • Cancele quando quiser • Suporte em português
+                🔒 Teste sem compromisso • Cancele a qualquer momento • Suporte em português
               </p>
             </div>
 
@@ -122,11 +127,11 @@ const Hero7 = ({
                     />
                   ))}
                   <span className="mr-1 font-semibold text-sm sm:text-base">
-                    {reviews.rating?.toFixed(1)}
+                    {reviews.rating}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground text-center">
-                  Mais de {reviews.count}+ empresas já aumentaram suas vendas
+                  ✨ {reviews.rating} - Mais de {reviews.count} empresas escalaram atendimento
                 </p>
               </div>
             </div>

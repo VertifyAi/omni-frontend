@@ -5,11 +5,28 @@ import { Message, Ticket } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User, Plus, Smile, Paperclip, Image as ImageIcon, Video, X } from "lucide-react";
+import {
+  Loader2,
+  Send,
+  Bot,
+  User,
+  Plus,
+  Smile,
+  Paperclip,
+  Image as ImageIcon,
+  Video,
+  X,
+  Mic,
+  Square,
+  Trash2,
+} from "lucide-react";
 import { fetchApi } from "@/lib/fetchApi";
 import { formatPhoneNumber } from "@/lib/utils";
 import Image from "next/image";
 import "../app/globals.css";
+import { CustomerDetailsPanel } from "./CustomerDetailsPanel";
+import { AudioWaveform } from "./AudioWaveform";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ChatProps {
   ticket: Ticket;
@@ -23,7 +40,15 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [activeEmojiCategory, setActiveEmojiCategory] = useState<keyof typeof emojiCategories>('faces');
+  const [activeEmojiCategory, setActiveEmojiCategory] =
+    useState<keyof typeof emojiCategories>("faces");
+  const [isCustomerPanelOpen, setIsCustomerPanelOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isSendingAudio, setIsSendingAudio] = useState(false);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,83 +59,407 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   // Emojis organizados por categorias
   const emojiCategories = {
     faces: {
-      name: 'Rostos',
-      icon: '😀',
+      name: "Rostos",
+      icon: "😀",
       emojis: [
-        "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇",
-        "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚",
-        "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🤩",
-        "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣",
-        "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬",
-        "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓", "🤗"
-      ]
+        "😀",
+        "😃",
+        "😄",
+        "😁",
+        "😆",
+        "😅",
+        "😂",
+        "🤣",
+        "😊",
+        "😇",
+        "🙂",
+        "🙃",
+        "😉",
+        "😌",
+        "😍",
+        "🥰",
+        "😘",
+        "😗",
+        "😙",
+        "😚",
+        "😋",
+        "😛",
+        "😝",
+        "😜",
+        "🤪",
+        "🤨",
+        "🧐",
+        "🤓",
+        "😎",
+        "🤩",
+        "🥳",
+        "😏",
+        "😒",
+        "😞",
+        "😔",
+        "😟",
+        "😕",
+        "🙁",
+        "☹️",
+        "😣",
+        "😖",
+        "😫",
+        "😩",
+        "🥺",
+        "😢",
+        "😭",
+        "😤",
+        "😠",
+        "😡",
+        "🤬",
+        "🤯",
+        "😳",
+        "🥵",
+        "🥶",
+        "😱",
+        "😨",
+        "😰",
+        "😥",
+        "😓",
+        "🤗",
+      ],
     },
     gestures: {
-      name: 'Gestos',
-      icon: '👍',
+      name: "Gestos",
+      icon: "👍",
       emojis: [
-        "👍", "👎", "👌", "🤌", "🤏", "✌️", "🤞", "🤟", "🤘", "🤙",
-        "👈", "👉", "👆", "🖕", "👇", "☝️", "👋", "🤚", "🖐️", "✋",
-        "🖖", "👏", "🙌", "🤝", "🙏", "✍️", "💪", "🦾", "🦿", "🦵",
-        "🦶", "👂", "🦻", "👃", "🧠", "🫀", "🫁", "🦷", "🦴", "👀",
-        "👁️", "👅", "👄", "💋", "🩸", "👶", "🧒", "👦", "👧", "🧑"
-      ]
+        "👍",
+        "👎",
+        "👌",
+        "🤌",
+        "🤏",
+        "✌️",
+        "🤞",
+        "🤟",
+        "🤘",
+        "🤙",
+        "👈",
+        "👉",
+        "👆",
+        "🖕",
+        "👇",
+        "☝️",
+        "👋",
+        "🤚",
+        "🖐️",
+        "✋",
+        "🖖",
+        "👏",
+        "🙌",
+        "🤝",
+        "🙏",
+        "✍️",
+        "💪",
+        "🦾",
+        "🦿",
+        "🦵",
+        "🦶",
+        "👂",
+        "🦻",
+        "👃",
+        "🧠",
+        "🫀",
+        "🫁",
+        "🦷",
+        "🦴",
+        "👀",
+        "👁️",
+        "👅",
+        "👄",
+        "💋",
+        "🩸",
+        "👶",
+        "🧒",
+        "👦",
+        "👧",
+        "🧑",
+      ],
     },
     animals: {
-      name: 'Animais',
-      icon: '🐶',
+      name: "Animais",
+      icon: "🐶",
       emojis: [
-        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯",
-        "🦁", "🐮", "🐷", "🐽", "🐸", "🐵", "🙈", "🙉", "🙊", "🐒",
-        "🐔", "🐧", "🐦", "🐤", "🐣", "🐥", "🦆", "🦅", "🦉", "🦇",
-        "🐺", "🐗", "🐴", "🦄", "🐝", "🐛", "🦋", "🐌", "🐞", "🐜",
-        "🦟", "🦗", "🕷️", "🦂", "🐢", "🐍", "🦎", "🦖", "🦕", "🐙"
-      ]
+        "🐶",
+        "🐱",
+        "🐭",
+        "🐹",
+        "🐰",
+        "🦊",
+        "🐻",
+        "🐼",
+        "🐨",
+        "🐯",
+        "🦁",
+        "🐮",
+        "🐷",
+        "🐽",
+        "🐸",
+        "🐵",
+        "🙈",
+        "🙉",
+        "🙊",
+        "🐒",
+        "🐔",
+        "🐧",
+        "🐦",
+        "🐤",
+        "🐣",
+        "🐥",
+        "🦆",
+        "🦅",
+        "🦉",
+        "🦇",
+        "🐺",
+        "🐗",
+        "🐴",
+        "🦄",
+        "🐝",
+        "🐛",
+        "🦋",
+        "🐌",
+        "🐞",
+        "🐜",
+        "🦟",
+        "🦗",
+        "🕷️",
+        "🦂",
+        "🐢",
+        "🐍",
+        "🦎",
+        "🦖",
+        "🦕",
+        "🐙",
+      ],
     },
     food: {
-      name: 'Comida',
-      icon: '🍕',
+      name: "Comida",
+      icon: "🍕",
       emojis: [
-        "🍎", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒",
-        "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬",
-        "🥒", "🌶️", "🫑", "🌽", "🥕", "🫒", "🧄", "🧅", "🥔", "🍠",
-        "🥐", "🍞", "🥖", "🥨", "🧀", "🥚", "🍳", "🧈", "🥞", "🧇",
-        "🥓", "🥩", "🍗", "🍖", "🦴", "🌭", "🍔", "🍟", "🍕", "🥪"
-      ]
+        "🍎",
+        "🍊",
+        "🍋",
+        "🍌",
+        "🍉",
+        "🍇",
+        "🍓",
+        "🫐",
+        "🍈",
+        "🍒",
+        "🍑",
+        "🥭",
+        "🍍",
+        "🥥",
+        "🥝",
+        "🍅",
+        "🍆",
+        "🥑",
+        "🥦",
+        "🥬",
+        "🥒",
+        "🌶️",
+        "🫑",
+        "🌽",
+        "🥕",
+        "🫒",
+        "🧄",
+        "🧅",
+        "🥔",
+        "🍠",
+        "🥐",
+        "🍞",
+        "🥖",
+        "🥨",
+        "🧀",
+        "🥚",
+        "🍳",
+        "🧈",
+        "🥞",
+        "🧇",
+        "🥓",
+        "🥩",
+        "🍗",
+        "🍖",
+        "🦴",
+        "🌭",
+        "🍔",
+        "🍟",
+        "🍕",
+        "🥪",
+      ],
     },
     activities: {
-      name: 'Atividades',
-      icon: '⚽',
+      name: "Atividades",
+      icon: "⚽",
       emojis: [
-        "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱",
-        "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳",
-        "🪁", "🏹", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛷", "⛸️",
-        "🥌", "🎿", "⛷️", "🏂", "🪂", "🏋️", "🤼", "🤸", "⛹️", "🤺",
-        "🏇", "🧘", "🏄", "🏊", "🤽", "🚣", "🧗", "🚵", "🚴", "🏆"
-      ]
+        "⚽",
+        "🏀",
+        "🏈",
+        "⚾",
+        "🥎",
+        "🎾",
+        "🏐",
+        "🏉",
+        "🥏",
+        "🎱",
+        "🪀",
+        "🏓",
+        "🏸",
+        "🏒",
+        "🏑",
+        "🥍",
+        "🏏",
+        "🪃",
+        "🥅",
+        "⛳",
+        "🪁",
+        "🏹",
+        "🎣",
+        "🤿",
+        "🥊",
+        "🥋",
+        "🎽",
+        "🛹",
+        "🛷",
+        "⛸️",
+        "🥌",
+        "🎿",
+        "⛷️",
+        "🏂",
+        "🪂",
+        "🏋️",
+        "🤼",
+        "🤸",
+        "⛹️",
+        "🤺",
+        "🏇",
+        "🧘",
+        "🏄",
+        "🏊",
+        "🤽",
+        "🚣",
+        "🧗",
+        "🚵",
+        "🚴",
+        "🏆",
+      ],
     },
     objects: {
-      name: 'Objetos',
-      icon: '💎',
+      name: "Objetos",
+      icon: "💎",
       emojis: [
-        "⌚", "📱", "📲", "💻", "⌨️", "🖥️", "🖨️", "🖱️", "🖲️", "🕹️",
-        "🗜️", "💽", "💾", "💿", "📀", "📼", "📷", "📸", "📹", "🎥",
-        "📽️", "🎞️", "📞", "☎️", "📟", "📠", "📺", "📻", "🎙️", "🎚️",
-        "🎛️", "🧭", "⏱️", "⏲️", "⏰", "🕰️", "⌛", "⏳", "📡", "🔋",
-        "🪫", "🔌", "💡", "🔦", "🕯️", "🪔", "🧯", "🛢️", "💸", "💵"
-      ]
+        "⌚",
+        "📱",
+        "📲",
+        "💻",
+        "⌨️",
+        "🖥️",
+        "🖨️",
+        "🖱️",
+        "🖲️",
+        "🕹️",
+        "🗜️",
+        "💽",
+        "💾",
+        "💿",
+        "📀",
+        "📼",
+        "📷",
+        "📸",
+        "📹",
+        "🎥",
+        "📽️",
+        "🎞️",
+        "📞",
+        "☎️",
+        "📟",
+        "📠",
+        "📺",
+        "📻",
+        "🎙️",
+        "🎚️",
+        "🎛️",
+        "🧭",
+        "⏱️",
+        "⏲️",
+        "⏰",
+        "🕰️",
+        "⌛",
+        "⏳",
+        "📡",
+        "🔋",
+        "🪫",
+        "🔌",
+        "💡",
+        "🔦",
+        "🕯️",
+        "🪔",
+        "🧯",
+        "🛢️",
+        "💸",
+        "💵",
+      ],
     },
     symbols: {
-      name: 'Símbolos',
-      icon: '❤️',
+      name: "Símbolos",
+      icon: "❤️",
       emojis: [
-        "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
-        "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "☮️",
-        "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐",
-        "⭐", "🌟", "✨", "⚡", "☄️", "💫", "🔥", "💯", "✅", "❌",
-        "❎", "➕", "➖", "➗", "✖️", "🟰", "💲", "💱", "™️", "©️"
-      ]
-    }
+        "❤️",
+        "🧡",
+        "💛",
+        "💚",
+        "💙",
+        "💜",
+        "🖤",
+        "🤍",
+        "🤎",
+        "💔",
+        "❣️",
+        "💕",
+        "💞",
+        "💓",
+        "💗",
+        "💖",
+        "💘",
+        "💝",
+        "💟",
+        "☮️",
+        "✝️",
+        "☪️",
+        "🕉️",
+        "☸️",
+        "✡️",
+        "🔯",
+        "🕎",
+        "☯️",
+        "☦️",
+        "🛐",
+        "⭐",
+        "🌟",
+        "✨",
+        "⚡",
+        "☄️",
+        "💫",
+        "🔥",
+        "💯",
+        "✅",
+        "❌",
+        "❎",
+        "➕",
+        "➖",
+        "➗",
+        "✖️",
+        "🟰",
+        "💲",
+        "💱",
+        "™️",
+        "©️",
+      ],
+    },
   };
 
   useEffect(() => {
@@ -157,15 +506,15 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (!target.closest('.options-menu')) {
+      if (!target.closest(".options-menu")) {
         setShowOptions(false);
         setShowEmojiPicker(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -210,36 +559,199 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   };
 
   const handleEmojiClick = (emoji: string) => {
-    setNewMessage(prev => prev + emoji);
+    setNewMessage((prev) => prev + emoji);
     setShowEmojiPicker(false);
   };
 
-  const handleFileUpload = (type: 'file' | 'image' | 'video') => {
+  const handleFileUpload = (type: "file" | "image" | "video") => {
     setShowOptions(false);
-    if (type === 'file' && fileInputRef.current) {
+    if (type === "file" && fileInputRef.current) {
       fileInputRef.current.click();
-    } else if (type === 'image' && imageInputRef.current) {
+    } else if (type === "image" && imageInputRef.current) {
       imageInputRef.current.click();
-    } else if (type === 'video' && videoInputRef.current) {
+    } else if (type === "video" && videoInputRef.current) {
       videoInputRef.current.click();
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       // Aqui você pode implementar a lógica de upload do arquivo
       console.log(`Uploading ${type}:`, file.name);
       // Por enquanto, vamos apenas mostrar o nome do arquivo na mensagem
-      setNewMessage(prev => prev + `📎 ${file.name}`);
+      setNewMessage((prev) => prev + `📎 ${file.name}`);
     }
+  };
+
+  const openCustomerPanel = () => {
+    setIsCustomerPanelOpen(true);
+  };
+
+  const closeCustomerPanel = () => {
+    setIsCustomerPanelOpen(false);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (event) => {
+        chunks.push(event.data);
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+      setAudioStream(stream);
+
+      // Timer para o tempo de gravação
+      const timer = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      recorder.onstop = () => {
+        clearInterval(timer);
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+    } catch (error) {
+      console.error('Erro ao acessar microfone:', error);
+      setError('Não foi possível acessar o microfone. Verifique as permissões.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+      if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        setAudioStream(null);
+      }
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+      setAudioBlob(null);
+      setRecordingTime(0);
+      if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+        setAudioStream(null);
+      }
+    }
+  };
+
+  const sendAudio = async () => {
+    if (!audioBlob) return;
+
+    try {
+      setIsSendingAudio(true);
+      setError(null);
+
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'audio.webm');
+
+      const response = await fetchApi(`/api/tickets/${ticket.id}/messages/upload-audio`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const newMessageData = await response.json();
+      setMessages((prev) => [...prev, newMessageData]);
+      chatService.sendMessage(ticket.id, newMessageData);
+      chatService.markAsRead(ticket.id);
+      
+      // Limpar estado de gravação
+      setAudioBlob(null);
+      setRecordingTime(0);
+    } catch (error) {
+      console.error('Erro ao enviar áudio:', error);
+      setError('Não foi possível enviar o áudio. Tente novamente.');
+    } finally {
+      setIsSendingAudio(false);
+    }
+  };
+
+  const formatRecordingTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const MessageSkeleton = ({ isFromUser, variant = "medium" }: { isFromUser: boolean; variant?: "short" | "medium" | "long" }) => {
+    const getTextLines = () => {
+      switch (variant) {
+        case "short":
+          return [
+            <Skeleton key="1" className="h-3.5 w-24" />
+          ];
+        case "long":
+          return [
+            <Skeleton key="1" className="h-3.5 w-56 mb-1" />,
+            <Skeleton key="2" className="h-3.5 w-48 mb-1" />,
+            <Skeleton key="3" className="h-3.5 w-40 mb-1" />,
+            <Skeleton key="4" className="h-3.5 w-32" />
+          ];
+        default: // medium
+          return [
+            <Skeleton key="1" className="h-3.5 w-48 mb-1" />,
+            <Skeleton key="2" className="h-3.5 w-32" />
+          ];
+      }
+    };
+
+    return (
+      <div className={`flex ${isFromUser ? "justify-end" : "justify-start"}`}>
+        <div
+          className={`flex items-end gap-2 max-w-[70%] ${
+            isFromUser ? "flex-row-reverse" : "flex-row"
+          }`}
+        >
+          {/* Avatar skeleton */}
+          <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
+          
+          {/* Message skeleton */}
+          <div className={`rounded-2xl p-4 elevated-1 bg-white-pure border border-white-warm`}>
+            {/* Texto da mensagem - tamanho similar ao text-sm */}
+            <div className="space-y-1">
+              {getTextLines()}
+            </div>
+            {/* Data/hora - tamanho similar ao text-xs */}
+            <Skeleton className="h-3 w-20 mt-2" />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="flex flex-col h-full bg-white-warm">
       {/* Nível 1: Header */}
-      <div className="flex border-b border-white-warm pl-4 bg-white-pure shadow-white-soft">
-        <div className="flex items-center gap-3 p-4">
+      <div className="flex border-b border-white-warm px-4 bg-white-pure shadow-white-soft justify-between items-center">
+        <div
+          className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white-soft transition-colors rounded-lg"
+          onClick={openCustomerPanel}
+        >
           <div className="relative">
             <Image
               src={ticket.customer.avatar || "/default-avatar.svg"}
@@ -248,7 +760,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
               height={40}
               className="rounded-full border-2 border-white-warm"
             />
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white-pure"></div>
+            {/* <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white-pure"></div> */}
           </div>
           <div>
             <h2 className="text-lg font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
@@ -259,9 +771,12 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
             </p>
           </div>
         </div>
+        <Button variant="destructive" className="bg-red-500">
+          Finalizar Atendimento
+        </Button>
         {chatService.getUnreadCount(ticket.id) > 0 && (
           <div className="ml-auto p-4 flex items-center">
-            <span className="bg-gradient-to-r from-primary to-secondary text-white rounded-full px-3 py-1 text-xs font-medium elevated-1">
+            <span className="bg-primary text-white rounded-full px-3 py-1 text-xs font-medium elevated-1">
               {chatService.getUnreadCount(ticket.id)} nova(s)
             </span>
           </div>
@@ -284,11 +799,13 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
         )}
 
         {isLoadingInitial ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-cool-teal flex items-center justify-center mb-4">
-              <Loader2 className="h-8 w-8 animate-spin text-white" />
-            </div>
-            <p className="text-muted-foreground">Carregando mensagens...</p>
+          <div className="space-y-4">
+            <MessageSkeleton isFromUser={false} variant="medium" />
+            <MessageSkeleton isFromUser={true} variant="short" />
+            <MessageSkeleton isFromUser={false} variant="long" />
+            <MessageSkeleton isFromUser={true} variant="medium" />
+            <MessageSkeleton isFromUser={false} variant="short" />
+            <MessageSkeleton isFromUser={true} variant="long" />
           </div>
         ) : (
           <div className="space-y-4">
@@ -302,19 +819,23 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     : "justify-start"
                 }`}
               >
-                <div className={`flex items-end gap-2 max-w-[70%] ${
-                  message.senderType === "AI" || message.senderType === "USER"
-                    ? "flex-row-reverse"
-                    : "flex-row"
-                }`}>
+                <div
+                  className={`flex items-end gap-2 max-w-[70%] ${
+                    message.senderType === "AI" || message.senderType === "USER"
+                      ? "flex-row-reverse"
+                      : "flex-row"
+                  }`}
+                >
                   {/* Avatar do remetente */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
-                    message.senderType === "AI" 
-                      ? "bg-gradient-to-r from-purple-500 to-purple-600" 
-                      : message.senderType === "USER"
-                      ? "bg-gradient-to-r from-primary to-secondary"
-                      : "bg-gradient-to-r from-gray-400 to-gray-500"
-                  }`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
+                      message.senderType === "AI"
+                        ? "bg-gradient-to-r from-purple-500 to-purple-600"
+                        : message.senderType === "USER"
+                        ? "bg-gradient-to-r from-primary to-secondary"
+                        : "bg-gradient-to-r from-gray-400 to-gray-500"
+                    }`}
+                  >
                     {message.senderType === "AI" ? (
                       <Bot className="w-4 h-4" />
                     ) : message.senderType === "USER" ? (
@@ -323,7 +844,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                       ticket.customer.name.charAt(0).toUpperCase()
                     )}
                   </div>
-                  
+
                   {/* Mensagem */}
                   <div
                     className={`break-words whitespace-pre-wrap rounded-2xl p-4 elevated-1 ${
@@ -335,11 +856,14 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     }`}
                   >
                     <p className="text-sm leading-relaxed">{message.message}</p>
-                    <p className={`text-xs mt-2 ${
-                      message.senderType === "AI" || message.senderType === "USER"
-                        ? "text-white/70"
-                        : "text-muted-foreground"
-                    }`}>
+                    <p
+                      className={`text-xs mt-2 ${
+                        message.senderType === "AI" ||
+                        message.senderType === "USER"
+                          ? "text-white/70"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       {formatDate(message.createdAt)}
                     </p>
                   </div>
@@ -357,38 +881,34 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
           ref={fileInputRef}
           type="file"
           className="hidden"
-          onChange={(e) => handleFileChange(e, 'file')}
+          onChange={(e) => handleFileChange(e, "file")}
         />
         <input
           ref={imageInputRef}
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => handleFileChange(e, 'image')}
+          onChange={(e) => handleFileChange(e, "image")}
         />
         <input
           ref={videoInputRef}
           type="file"
           accept="video/*"
           className="hidden"
-          onChange={(e) => handleFileChange(e, 'video')}
+          onChange={(e) => handleFileChange(e, "video")}
         />
 
         <div className="flex gap-3">
           {ticket.status === "AI" ? (
             <div className="flex w-full items-center justify-center gap-6">
-              <p className="text-muted-foreground font-medium">Atualizar status:</p>
+              <p className="text-muted-foreground font-medium">
+                Atualizar status:
+              </p>
               <div className="flex gap-3">
-                <Button 
-                  onClick={handleChangeStatus}
-                  className="bg-primary"
-                >
+                <Button onClick={handleChangeStatus} className="bg-primary">
                   Atender Cliente
                 </Button>
-                <Button 
-                  variant="destructive"
-                  className="bg-red-500"
-                >
+                <Button variant="destructive" className="bg-red-500">
                   Finalizar Atendimento
                 </Button>
               </div>
@@ -396,16 +916,17 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
           ) : (
             <div className="flex w-full gap-2 items-end">
               {/* Botão de opções */}
-              <div className="relative options-menu flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowOptions(!showOptions)}
-                  className="hover-brand-orange elevated-1"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-                
+              {!isRecording && !audioBlob && (
+                <div className="relative options-menu flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowOptions(!showOptions)}
+                    className="hover-brand-orange elevated-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+
                 {/* Menu de opções */}
                 {showOptions && (
                   <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-2 min-w-[200px] elevated-2">
@@ -421,7 +942,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleFileUpload('file')}
+                      onClick={() => handleFileUpload("file")}
                       className="w-full justify-start gap-2 hover-brand-orange"
                     >
                       <Paperclip className="h-4 w-4" />
@@ -430,7 +951,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleFileUpload('image')}
+                      onClick={() => handleFileUpload("image")}
                       className="w-full justify-start gap-2 hover-brand-orange"
                     >
                       <ImageIcon className="h-4 w-4" />
@@ -439,7 +960,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleFileUpload('video')}
+                      onClick={() => handleFileUpload("video")}
                       className="w-full justify-start gap-2 hover-brand-orange"
                     >
                       <Video className="h-4 w-4" />
@@ -452,7 +973,9 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                 {showEmojiPicker && (
                   <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-3 elevated-2">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-sm font-medium text-foreground">Emojis</span>
+                      <span className="text-sm font-medium text-foreground">
+                        Emojis
+                      </span>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -462,89 +985,186 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
-                    
+
                     {/* Navegação por categorias */}
                     <div className="flex gap-1 mb-3 overflow-x-auto">
-                      {Object.entries(emojiCategories).map(([key, category]) => (
-                        <button
-                          key={key}
-                          onClick={() => setActiveEmojiCategory(key as keyof typeof emojiCategories)}
-                          className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
-                            activeEmojiCategory === key
-                              ? 'bg-primary text-white'
-                              : 'hover:bg-white-soft'
-                          }`}
-                          title={category.name}
-                        >
-                          {category.icon}
-                        </button>
-                      ))}
+                      {Object.entries(emojiCategories).map(
+                        ([key, category]) => (
+                          <button
+                            key={key}
+                            onClick={() =>
+                              setActiveEmojiCategory(
+                                key as keyof typeof emojiCategories
+                              )
+                            }
+                            className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                              activeEmojiCategory === key
+                                ? "bg-primary text-white"
+                                : "hover:bg-white-soft"
+                            }`}
+                            title={category.name}
+                          >
+                            {category.icon}
+                          </button>
+                        )
+                      )}
                     </div>
-                    
+
                     {/* Nome da categoria ativa */}
                     <div className="text-xs text-muted-foreground mb-2 font-medium">
                       {emojiCategories[activeEmojiCategory].name}
                     </div>
-                    
+
                     <div className="grid grid-cols-10 gap-1 w-[350px] max-h-[200px] overflow-y-auto">
-                      {emojiCategories[activeEmojiCategory].emojis.map((emoji: string, index: number) => (
-                        <button
-                          key={index}
-                          onClick={() => handleEmojiClick(emoji)}
-                          className="w-7 h-7 flex items-center justify-center hover:bg-white-soft rounded-md transition-colors text-lg"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
+                      {emojiCategories[activeEmojiCategory].emojis.map(
+                        (emoji: string, index: number) => (
+                          <button
+                            key={index}
+                            onClick={() => handleEmojiClick(emoji)}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-white-soft rounded-md transition-colors text-lg"
+                          >
+                            {emoji}
+                          </button>
+                        )
+                      )}
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
 
-              <textarea
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  // Ajustar altura automaticamente
-                  const textarea = e.target as HTMLTextAreaElement;
-                  textarea.style.height = 'auto';
-                  const newHeight = Math.min(textarea.scrollHeight, 150);
-                  textarea.style.height = newHeight + 'px';
+              {/* Interface de gravação */}
+              {isRecording && (
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg flex-1">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xs font-medium text-red-700">Gravando</span>
+                    <span className="text-xs text-red-600 font-mono">
+                      {formatRecordingTime(recordingTime)}
+                    </span>
+                  </div>
                   
-                  // Ajustar overflow baseado na altura
-                  if (newHeight >= 150) {
-                    textarea.style.overflowY = 'auto';
-                  } else {
-                    textarea.style.overflowY = 'hidden';
-                  }
-                }}
-                placeholder="Digite sua mensagem..."
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e);
-                  }
-                }}
-                className="bg-white-soft border-white-warm focus:border-primary resize-none min-h-[40px] max-h-[150px] w-full rounded-md border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ overflowY: 'hidden' }}
-                rows={1}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={isSendingMessage || !newMessage.trim()}
-                className="bg-primary text-white"
-                size="icon"
-              >
-                {isSendingMessage ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
+                  <div className="flex-1 flex justify-center">
+                    <AudioWaveform 
+                      isRecording={isRecording}
+                      stream={audioStream}
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={cancelRecording}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-100"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={stopRecording}
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                      size="sm"
+                    >
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Interface de áudio gravado */}
+              {audioBlob && !isRecording && (
+                <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-green-700">Áudio gravado</span>
+                  </div>
+                  <div className="flex-1 text-center">
+                    <span className="text-sm text-green-600 font-mono">
+                      {formatRecordingTime(recordingTime)}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setAudioBlob(null);
+                      setRecordingTime(0);
+                    }}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={sendAudio}
+                    disabled={isSendingAudio}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                    size="sm"
+                  >
+                    {isSendingAudio ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {!isRecording && !audioBlob && (
+                <>
+                  <textarea
+                    value={newMessage}
+                    onChange={(e) => {
+                      setNewMessage(e.target.value);
+                      // Ajustar altura automaticamente
+                      const textarea = e.target as HTMLTextAreaElement;
+                      textarea.style.height = "auto";
+                      const newHeight = Math.min(textarea.scrollHeight, 150);
+                      textarea.style.height = newHeight + "px";
+
+                      // Ajustar overflow baseado na altura
+                      if (newHeight >= 150) {
+                        textarea.style.overflowY = "auto";
+                      } else {
+                        textarea.style.overflowY = "hidden";
+                      }
+                    }}
+                    placeholder="Digite sua mensagem..."
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage(e);
+                      }
+                    }}
+                    className="bg-white-soft border-white-warm focus:border-primary resize-none min-h-[40px] max-h-[150px] w-full rounded-md border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    style={{ overflowY: "hidden" }}
+                    rows={1}
+                  />
+                  <Button
+                    onClick={newMessage.trim() ? handleSendMessage : startRecording}
+                    disabled={isSendingMessage}
+                    className="bg-primary text-white"
+                    size="icon"
+                  >
+                    {isSendingMessage ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : newMessage.trim() ? (
+                      <Send className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Customer Details Panel */}
+      <CustomerDetailsPanel
+        customerId={ticket.customer.id}
+        isOpen={isCustomerPanelOpen}
+        onClose={closeCustomerPanel}
+      />
     </div>
   );
 }

@@ -6,6 +6,13 @@ export enum TicketStatus {
   CLOSED = 'CLOSED',
 }
 
+export enum TicketPriorityLevel {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  CRITICAL = 'CRITICAL',
+}
+
 export interface Customer {
   id: number;
   city: string;
@@ -24,6 +31,7 @@ export interface Customer {
 export interface Ticket {
   id: number;
   status: TicketStatus;
+  priorityLevel: TicketPriorityLevel;
   areaId: number;
   closedAt: string;
   company: Company;

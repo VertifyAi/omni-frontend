@@ -1,13 +1,24 @@
 "use client";
 
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Plus, Workflow, Edit, Trash2, Calendar } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { fetchApi } from "@/lib/fetchApi";
+import { Plus, Workflow, Edit, Trash2, Calendar, Eye, GitBranch, Bot, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { fetchApi } from "@/lib/fetchApi";
+import { useRouter } from "next/navigation";
+import { WorkflowDetailsPanel } from "@/components/WorkflowDetailsPanel";
+import { DeleteWorkflowDialog } from "@/components/DeleteWorkflowDialog";
 
 interface WorkflowChannel {
   id: number;
@@ -67,6 +78,15 @@ interface WorkflowData {
 export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState<WorkflowData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowData | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [workflowToDelete, setWorkflowToDelete] = useState<WorkflowData | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const router = useRouter();
+
+  const handleDeleteSuccess = (deletedWorkflowId: number) => {
+    setWorkflows(workflows.filter((workflow) => workflow.id !== deletedWorkflowId));
+  };
 
   useEffect(() => {
     fetchWorkflows();
@@ -89,34 +109,25 @@ export default function WorkflowsPage() {
     }
   };
 
-  const handleDeleteWorkflow = async (workflowId: number) => {
-    try {
-      // Implementar quando a API estiver disponível
-      // const response = await fetchApi(`/api/workflows/${workflowId}`, {
-      //   method: 'DELETE'
-      // });
-      // if (!response.ok) {
-      //   throw new Error("Erro ao excluir workflow");
-      // }
-      
-      setWorkflows(prev => prev.filter(w => w.id !== workflowId));
-      toast.success("Workflow excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir workflow:", error);
-      toast.error("Erro ao excluir workflow");
-    }
+  const openWorkflowPanel = (workflow: WorkflowData) => {
+    setSelectedWorkflow(workflow);
+    setIsPanelOpen(true);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando workflows...</p>
-        </div>
-      </div>
-    );
-  }
+  const closeWorkflowPanel = () => {
+    setIsPanelOpen(false);
+    setSelectedWorkflow(null);
+  };
+
+  const openDeleteDialog = (workflow: WorkflowData) => {
+    setWorkflowToDelete(workflow);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setWorkflowToDelete(null);
+  };
 
   return (
     <div className="flex flex-col gap-8 p-8 ml-16">
@@ -138,8 +149,84 @@ export default function WorkflowsPage() {
         </Button>
       </div>
 
-      {/* Workflows Grid */}
-      {workflows.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((index) => (
+            <Card key={index} className="hover:border-primary/50 transition-colors">
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Avatar className="h-12 w-12">
+                  <Skeleton className="h-12 w-12" />
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>
+                        <Skeleton className="h-4 w-24" />
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-1 mt-1">
+                        <Badge variant="secondary" className="text-xs">
+                          <Skeleton className="h-3 w-12" />
+                        </Badge>
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500"
+                        disabled
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-3 min-h-12 flex flex-col gap-1">
+                  <span className="font-bold">Descrição:</span>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-32" />
+                </p>
+                
+                <div className="mb-3 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <Skeleton className="h-3 w-16 mt-1" />
+                </div>
+                
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-3 w-8" />
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-3 w-10" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : workflows.length === 0 ? (
         <div className="text-center py-12">
           <div className="mx-auto max-w-md">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
@@ -160,7 +247,7 @@ export default function WorkflowsPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {workflows.map((workflow) => {
             const isActive = workflow.deletedAt === null && workflow.workflowChannels.length > 0;
             const nodesCount = workflow.flowData?.nodes?.length || 0;
@@ -169,66 +256,93 @@ export default function WorkflowsPage() {
             
             return (
               <Card key={workflow.id} className="hover:border-primary/50 transition-colors">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Workflow className="h-4 w-4 text-blue-600" />
-                    </div>
+                <CardHeader className="flex flex-row items-center gap-4">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src="" />
+                    <AvatarFallback>
+                      <Workflow className="h-6 w-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg">{workflow.name}</CardTitle>
+                        <CardTitle>{workflow.name}</CardTitle>
+                        <CardDescription className="flex items-center gap-1 mt-1">
                       <Badge 
                         variant={isActive ? 'default' : 'secondary'}
-                        className="text-xs mt-1"
+                            className="text-xs"
                       >
                         {isActive ? '🟢 Ativo' : '🔴 Inativo'}
                       </Badge>
+                        </CardDescription>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="cursor-pointer"
+                          onClick={() => openWorkflowPanel(workflow)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
-                      asChild
-                    >
-                      <Link href={`/dashboard/workflows/create?edit=${workflow.id}`}>
+                          className="cursor-pointer"
+                          onClick={() =>
+                            router.push(`/dashboard/workflows/create?edit=${workflow.id}`)
+                          }
+                        >
                         <Edit className="h-4 w-4" />
-                      </Link>
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteWorkflow(workflow.id)}
+                          className="cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => openDeleteDialog(workflow)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                      </div>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="line-clamp-2 mb-4">
-                    {workflow.description || "Nenhuma descrição disponível."}
-                  </CardDescription>
+                  <p className="text-sm text-muted-foreground mb-3 min-h-12 flex flex-col gap-1">
+                    <span className="font-bold">Descrição:</span>
+                    {workflow.description && workflow.description.length > 60
+                      ? `${workflow.description.substring(0, 60)}...`
+                      : workflow.description || "Nenhuma descrição disponível."}
+                  </p>
                   
-                  {/* Informações do Agente */}
+                  {/* Agent Info */}
                   {workflow.workflowAgent && (
                     <div className="mb-3 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <Bot className="h-3 w-3 text-emerald-500" />
                         <span className="text-sm font-medium text-emerald-700">
                           {workflow.workflowAgent.name}
                         </span>
                       </div>
                       <p className="text-xs text-emerald-600 mt-1">
-                        Objetivo: {workflow.workflowAgent.objective === 'screening' ? 'Triagem' : workflow.workflowAgent.objective}
+                        {workflow.workflowAgent.objective === 'screening' ? 'Triagem' : 
+                         workflow.workflowAgent.objective === 'sales' ? 'Vendas' :
+                         workflow.workflowAgent.objective === 'support' ? 'Suporte' : 
+                         workflow.workflowAgent.objective}
                       </p>
                     </div>
                   )}
                   
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <GitBranch className="h-3 w-3" />
                       <span>{nodesCount} nós</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <LinkIcon className="h-3 w-3" />
                       <span>{connectionsCount} conexões</span>
+                      </div>
                       <span>{channelsCount} {channelsCount === 1 ? 'canal' : 'canais'}</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -242,6 +356,21 @@ export default function WorkflowsPage() {
           })}
         </div>
       )}
+
+      {/* Workflow Details Panel */}
+      <WorkflowDetailsPanel
+        workflow={selectedWorkflow}
+        isOpen={isPanelOpen}
+        onClose={closeWorkflowPanel}
+      />
+
+      {/* Delete Workflow Dialog */}
+      <DeleteWorkflowDialog
+        workflow={workflowToDelete}
+        isOpen={isDeleteDialogOpen}
+        onClose={closeDeleteDialog}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 }

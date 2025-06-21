@@ -44,8 +44,8 @@ const createUserSchema = z.object({
   role: z.enum([UserRole.MANAGER, UserRole.USER], {
     required_error: "Tipo de usuário é obrigatório",
   }),
-  street_name: z.string().min(1, "Nome da rua é obrigatório"),
-  street_number: z.string().min(1, "Número da rua é obrigatório"),
+  streetName: z.string().min(1, "Nome da rua é obrigatório"),
+  streetNumber: z.string().min(1, "Número da rua é obrigatório"),
   city: z.string().min(1, "Cidade é obrigatório"),
   state: z.string().min(1, "Estado é obrigatório"),
   phone: z.string().min(1, "Telefone é obrigatório"),
@@ -68,8 +68,8 @@ export function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
       email: "",
       password: "",
       role: UserRole.USER,
-      street_name: "",
-      street_number: "",
+      streetName: "",
+      streetNumber: "",
       city: "",
       state: "",
       phone: "",
@@ -196,7 +196,7 @@ export function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
 
             <FormField
               control={form.control}
-              name="street_name"
+              name="streetName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome da Rua</FormLabel>
@@ -210,7 +210,7 @@ export function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
 
             <FormField
               control={form.control}
-              name="street_number"
+              name="streetNumber"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Número da Rua</FormLabel>
