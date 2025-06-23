@@ -16,6 +16,7 @@ interface TicketListProps {
   selectedTicket: Ticket | null;
   setSelectedTab: (tab: TicketStatus) => void;
   selectedTab: TicketStatus;
+  refreshTrigger?: number;
 }
 
 export function TicketList({
@@ -23,6 +24,7 @@ export function TicketList({
   selectedTicket,
   setSelectedTab,
   selectedTab,
+  refreshTrigger,
 }: TicketListProps) {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +66,14 @@ export function TicketList({
     });
   };
 
+  const sortTicketsByCreationDate = (tickets: Ticket[]): Ticket[] => {
+    return tickets.sort((a: Ticket, b: Ticket) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA; // Mais recente primeiro
+    });
+  };
+
   const loadTickets = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -90,6 +100,12 @@ export function TicketList({
   useEffect(() => {
     loadTickets();
   }, [loadTickets]);
+
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      loadTickets();
+    }
+  }, [refreshTrigger, loadTickets]);
 
   useEffect(() => {
     const unsubscribe = chatService.onNewMessage((message) => {
@@ -183,7 +199,9 @@ export function TicketList({
     };
 
     tickets.forEach((ticket) => {
-      groups[ticket.priorityLevel]?.push(ticket);
+      // Se o ticket não tem priorityLevel definido, coloca no grupo LOW
+      const priority = ticket.priorityLevel || TicketPriorityLevel.MEDIUM;
+      groups[priority]?.push(ticket);
     });
 
     return groups;
@@ -284,36 +302,19 @@ export function TicketList({
               ) : filteredTickets.length > 0 ? (
                 (() => {
                   const aiTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.AI);
-                  const groupedTickets = groupTicketsByPriority(aiTickets);
+                  const sortedTickets = sortTicketsByCreationDate(aiTickets);
                   
                   return (
-                    <div className="space-y-6">
-                      {Object.entries(groupedTickets).map(([priority, tickets]) => {
-                        if (tickets.length === 0) return null;
-                        
-                        return (
-                          <div key={priority} className="space-y-3">
-                            <div className="flex items-center gap-2 px-2">
-                              <h3 className="text-sm font-semibold text-muted-foreground">
-                                {getPriorityLabel(priority as TicketPriorityLevel)}
-                              </h3>
-                              <div className="flex-1 h-px bg-white-warm"></div>
-                              <span className="text-xs text-muted-foreground">
-                                {tickets.length} ticket{tickets.length > 1 ? 's' : ''}
-                              </span>
-                            </div>
-                            {tickets.map((ticket) => (
-                              <TicketCard
-                                key={ticket.id}
-                                ticket={ticket}
-                                selected={selectedTicket?.id === ticket.id}
-                                highlighted={highlightedTicketId === ticket.id}
-                                onSelect={onTicketSelect}
-                              />
-                            ))}
-                          </div>
-                        );
-                      })}
+                    <div className="space-y-3">
+                      {sortedTickets.map((ticket) => (
+                        <TicketCard
+                          key={ticket.id}
+                          ticket={ticket}
+                          selected={selectedTicket?.id === ticket.id}
+                          highlighted={highlightedTicketId === ticket.id}
+                          onSelect={onTicketSelect}
+                        />
+                      ))}
                     </div>
                   );
                 })()
@@ -390,36 +391,19 @@ export function TicketList({
               ) : filteredTickets.length > 0 ? (
                 (() => {
                   const closedTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.CLOSED);
-                  const groupedTickets = groupTicketsByPriority(closedTickets);
+                  const sortedTickets = sortTicketsByCreationDate(closedTickets);
                   
                   return (
-                    <div className="space-y-6">
-                      {Object.entries(groupedTickets).map(([priority, tickets]) => {
-                        if (tickets.length === 0) return null;
-                        
-                        return (
-                          <div key={priority} className="space-y-3">
-                            <div className="flex items-center gap-2 px-2">
-                              <h3 className="text-sm font-semibold text-muted-foreground">
-                                {getPriorityLabel(priority as TicketPriorityLevel)}
-                              </h3>
-                              <div className="flex-1 h-px bg-white-warm"></div>
-                              <span className="text-xs text-muted-foreground">
-                                {tickets.length} ticket{tickets.length > 1 ? 's' : ''}
-                              </span>
-                            </div>
-                            {tickets.map((ticket) => (
-                              <TicketCard
-                                key={ticket.id}
-                                ticket={ticket}
-                                selected={selectedTicket?.id === ticket.id}
-                                highlighted={highlightedTicketId === ticket.id}
-                                onSelect={onTicketSelect}
-                              />
-                            ))}
-                          </div>
-                        );
-                      })}
+                    <div className="space-y-3">
+                      {sortedTickets.map((ticket) => (
+                        <TicketCard
+                          key={ticket.id}
+                          ticket={ticket}
+                          selected={selectedTicket?.id === ticket.id}
+                          highlighted={highlightedTicketId === ticket.id}
+                          onSelect={onTicketSelect}
+                        />
+                      ))}
                     </div>
                   );
                 })()

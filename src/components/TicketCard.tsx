@@ -78,7 +78,9 @@ export function TicketCard({
         opacity: 1,
         y: 0,
         scale: highlighted ? 1.02 : 1,
-        backgroundColor: highlighted ? "oklch(0.998 0.001 250)" : "oklch(1 0 0)",
+        backgroundColor: highlighted
+          ? "oklch(0.998 0.001 250)"
+          : "oklch(1 0 0)",
       }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className={`w-full min-h-[100px] p-4 rounded-xl border cursor-pointer transition-all duration-200 elevated-1 hover:elevated-2 ${
@@ -113,10 +115,17 @@ export function TicketCard({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground">{ticket.customer.name}</h3>
-              <Badge className={`text-xs px-2 py-0.5 ${priorityConfig.className}`}>
-                {priorityConfig.text}
-              </Badge>
+              <h3 className="font-semibold text-foreground">
+                {ticket.customer.name}
+              </h3>
+              {ticket.status === TicketStatus.IN_PROGRESS &&
+                ticket.priorityLevel && (
+                  <Badge
+                    className={`text-xs px-2 py-0.5 ${priorityConfig.className}`}
+                  >
+                    {priorityConfig.text}
+                  </Badge>
+                )}
             </div>
             <p className="text-sm text-muted-foreground">
               {formatPhoneNumber(ticket.customer.phone)}
@@ -140,7 +149,7 @@ export function TicketCard({
               ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
             }
             className={`capitalize text-xs font-medium ${
-              ticket.status === TicketStatus.AI 
+              ticket.status === TicketStatus.AI
                 ? "bg-primary text-white hover:opacity-90"
                 : ticket.status === TicketStatus.IN_PROGRESS
                 ? "bg-primary text-white"
@@ -163,7 +172,9 @@ export function TicketCard({
       <div className="mt-3 flex items-center justify-between gap-4">
         {lastMessage && (
           <p className="text-muted-foreground truncate flex-1 text-sm">
-            <span className="font-medium text-foreground">{lastMessage.senderName}:</span>{" "}
+            <span className="font-medium text-foreground">
+              {lastMessage.senderName}:
+            </span>{" "}
             {lastMessage.message}
           </p>
         )}

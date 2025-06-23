@@ -3,35 +3,48 @@
 import { useState } from "react";
 import { TicketList } from "@/components/TicketList";
 import { Chat } from "@/components/Chat";
-import { Ticket, TicketStatus } from "@/types/chat";
+import { Ticket, TicketPriorityLevel, TicketStatus } from "@/types/chat";
+import { ChangeTicketStatusDto } from "@/types/ChangeTicketStatusDto";
 import { fetchApi } from "@/lib/fetchApi";
+import { useAuth } from "@/contexts/AuthContext";
 import "../../globals.css";
 
 export default function TicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [selectedTab, setSelectedTab] = useState<TicketStatus>(TicketStatus.IN_PROGRESS);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { user } = useAuth();
 
-  const handleChangeStatus = async () => {
+  const handleChangeStatus = async (status: TicketStatus) => {
     try {
+      const payload: ChangeTicketStatusDto = {
+        status: status,
+      };
+
+      if (status === TicketStatus.IN_PROGRESS && user?.id) {
+        payload.userId = user.id;
+        payload.priorityLevel = TicketPriorityLevel.MEDIUM;
+      }
+
       await fetchApi(`/api/tickets/status/${selectedTicket?.id}`, {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          status: TicketStatus.IN_PROGRESS,
-        }),
+        body: JSON.stringify(payload),
       });
 
       setSelectedTicket((prev) => {
         if (!prev) return null;
         return {
           ...prev,
-          status: TicketStatus.IN_PROGRESS,
+          status: status,
+          userId: payload.userId,
+          priorityLevel: payload.priorityLevel || TicketPriorityLevel.MEDIUM,
         };
       });
 
-      setSelectedTab(TicketStatus.IN_PROGRESS);
+      setSelectedTab(status);
     } catch (error) {
       console.log(error);
     }
@@ -46,6 +59,7 @@ export default function TicketsPage() {
           selectedTicket={selectedTicket}
           setSelectedTab={setSelectedTab}
           selectedTab={selectedTab}
+          refreshTrigger={refreshTrigger}
         />
       </div>
       
@@ -55,6 +69,10 @@ export default function TicketsPage() {
           <Chat
             ticket={selectedTicket}
             handleChangeStatus={handleChangeStatus}
+            onTicketUpdated={() => {
+              setRefreshTrigger(prev => prev + 1);
+              setSelectedTicket(null); // Desselecionar o ticket transferido
+            }}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-white-warm">

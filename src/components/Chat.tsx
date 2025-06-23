@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Message, Ticket } from "@/types/chat";
+import { Message, Ticket, TicketStatus } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,13 +27,19 @@ import "../app/globals.css";
 import { CustomerDetailsPanel } from "./CustomerDetailsPanel";
 import { AudioWaveform } from "./AudioWaveform";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TransferTicketModal } from "./TransferTicketModal";
 
 interface ChatProps {
   ticket: Ticket;
-  handleChangeStatus: () => Promise<void>;
+  handleChangeStatus: (status: TicketStatus) => Promise<void>;
+  onTicketUpdated?: () => void;
 }
 
-export function Chat({ ticket, handleChangeStatus }: ChatProps) {
+export function Chat({
+  ticket,
+  handleChangeStatus,
+  onTicketUpdated,
+}: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
@@ -45,10 +51,13 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   const [isCustomerPanelOpen, setIsCustomerPanelOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSendingAudio, setIsSendingAudio] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -606,9 +615,9 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
         setAudioBlob(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
 
       recorder.start();
@@ -619,19 +628,20 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
 
       // Timer para o tempo de gravação
       const timer = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
 
       recorder.onstop = () => {
         clearInterval(timer);
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
         setAudioBlob(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
-
     } catch (error) {
-      console.error('Erro ao acessar microfone:', error);
-      setError('Não foi possível acessar o microfone. Verifique as permissões.');
+      console.error("Erro ao acessar microfone:", error);
+      setError(
+        "Não foi possível acessar o microfone. Verifique as permissões."
+      );
     }
   };
 
@@ -641,7 +651,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
       setIsRecording(false);
       setMediaRecorder(null);
       if (audioStream) {
-        audioStream.getTracks().forEach(track => track.stop());
+        audioStream.getTracks().forEach((track) => track.stop());
         setAudioStream(null);
       }
     }
@@ -655,7 +665,7 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
       setAudioBlob(null);
       setRecordingTime(0);
       if (audioStream) {
-        audioStream.getTracks().forEach(track => track.stop());
+        audioStream.getTracks().forEach((track) => track.stop());
         setAudioStream(null);
       }
     }
@@ -669,24 +679,27 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
       setError(null);
 
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio.webm');
+      formData.append("audio", audioBlob, "audio.webm");
 
-      const response = await fetchApi(`/api/tickets/${ticket.id}/messages/upload-audio`, {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetchApi(
+        `/api/tickets/${ticket.id}/messages/upload-audio`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const newMessageData = await response.json();
       setMessages((prev) => [...prev, newMessageData]);
       chatService.sendMessage(ticket.id, newMessageData);
       chatService.markAsRead(ticket.id);
-      
+
       // Limpar estado de gravação
       setAudioBlob(null);
       setRecordingTime(0);
     } catch (error) {
-      console.error('Erro ao enviar áudio:', error);
-      setError('Não foi possível enviar o áudio. Tente novamente.');
+      console.error("Erro ao enviar áudio:", error);
+      setError("Não foi possível enviar o áudio. Tente novamente.");
     } finally {
       setIsSendingAudio(false);
     }
@@ -695,27 +708,31 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
   const formatRecordingTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const MessageSkeleton = ({ isFromUser, variant = "medium" }: { isFromUser: boolean; variant?: "short" | "medium" | "long" }) => {
+  const MessageSkeleton = ({
+    isFromUser,
+    variant = "medium",
+  }: {
+    isFromUser: boolean;
+    variant?: "short" | "medium" | "long";
+  }) => {
     const getTextLines = () => {
       switch (variant) {
         case "short":
-          return [
-            <Skeleton key="1" className="h-3.5 w-24" />
-          ];
+          return [<Skeleton key="1" className="h-3.5 w-24" />];
         case "long":
           return [
             <Skeleton key="1" className="h-3.5 w-56 mb-1" />,
             <Skeleton key="2" className="h-3.5 w-48 mb-1" />,
             <Skeleton key="3" className="h-3.5 w-40 mb-1" />,
-            <Skeleton key="4" className="h-3.5 w-32" />
+            <Skeleton key="4" className="h-3.5 w-32" />,
           ];
         default: // medium
           return [
             <Skeleton key="1" className="h-3.5 w-48 mb-1" />,
-            <Skeleton key="2" className="h-3.5 w-32" />
+            <Skeleton key="2" className="h-3.5 w-32" />,
           ];
       }
     };
@@ -729,13 +746,13 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
         >
           {/* Avatar skeleton */}
           <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
-          
+
           {/* Message skeleton */}
-          <div className={`rounded-2xl p-4 elevated-1 bg-white-pure border border-white-warm`}>
+          <div
+            className={`rounded-2xl p-4 elevated-1 bg-white-pure border border-white-warm`}
+          >
             {/* Texto da mensagem - tamanho similar ao text-sm */}
-            <div className="space-y-1">
-              {getTextLines()}
-            </div>
+            <div className="space-y-1">{getTextLines()}</div>
             {/* Data/hora - tamanho similar ao text-xs */}
             <Skeleton className="h-3 w-20 mt-2" />
           </div>
@@ -771,9 +788,34 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
             </p>
           </div>
         </div>
-        <Button variant="destructive" className="bg-red-500">
-          Finalizar Atendimento
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setIsTransferModalOpen(true)}
+            variant="outline"
+          >
+            Transferir Atendimento
+          </Button>
+          {ticket.status === TicketStatus.IN_PROGRESS && (
+            <Button
+              onClick={() => handleChangeStatus(TicketStatus.CLOSED)}
+              variant="destructive"
+              className="bg-red-500"
+            >
+              Finalizar Atendimento
+            </Button>
+          )}
+        </div>
+        {ticket.status === TicketStatus.CLOSED && (
+          <div className="">
+            <Button
+              onClick={() => handleChangeStatus(TicketStatus.IN_PROGRESS)}
+              className="bg-primary"
+            >
+              Abrir Atendimento
+            </Button>
+          </div>
+        )}
+
         {chatService.getUnreadCount(ticket.id) > 0 && (
           <div className="ml-auto p-4 flex items-center">
             <span className="bg-primary text-white rounded-full px-3 py-1 text-xs font-medium elevated-1">
@@ -904,11 +946,18 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
               <p className="text-muted-foreground font-medium">
                 Atualizar status:
               </p>
-              <div className="flex gap-3">
-                <Button onClick={handleChangeStatus} className="bg-primary">
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleChangeStatus(TicketStatus.IN_PROGRESS)}
+                  className="bg-primary"
+                >
                   Atender Cliente
                 </Button>
-                <Button variant="destructive" className="bg-red-500">
+                <Button
+                  onClick={() => handleChangeStatus(TicketStatus.CLOSED)}
+                  variant="destructive"
+                  className="bg-red-500"
+                >
                   Finalizar Atendimento
                 </Button>
               </div>
@@ -927,109 +976,109 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     <Plus className="h-4 w-4" />
                   </Button>
 
-                {/* Menu de opções */}
-                {showOptions && (
-                  <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-2 min-w-[200px] elevated-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="w-full justify-start gap-2 hover-brand-orange"
-                    >
-                      <Smile className="h-4 w-4" />
-                      Emoji
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload("file")}
-                      className="w-full justify-start gap-2 hover-brand-orange"
-                    >
-                      <Paperclip className="h-4 w-4" />
-                      Arquivo
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload("image")}
-                      className="w-full justify-start gap-2 hover-brand-orange"
-                    >
-                      <ImageIcon className="h-4 w-4" />
-                      Imagem
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload("video")}
-                      className="w-full justify-start gap-2 hover-brand-orange"
-                    >
-                      <Video className="h-4 w-4" />
-                      Vídeo
-                    </Button>
-                  </div>
-                )}
-
-                {/* Picker de emoji */}
-                {showEmojiPicker && (
-                  <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-3 elevated-2">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-sm font-medium text-foreground">
-                        Emojis
-                      </span>
+                  {/* Menu de opções */}
+                  {showOptions && (
+                    <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-2 min-w-[200px] elevated-2">
                       <Button
                         variant="ghost"
-                        size="icon"
-                        onClick={() => setShowEmojiPicker(false)}
-                        className="h-6 w-6"
+                        size="sm"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="w-full justify-start gap-2 hover-brand-orange"
                       >
-                        <X className="h-3 w-3" />
+                        <Smile className="h-4 w-4" />
+                        Emoji
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFileUpload("file")}
+                        className="w-full justify-start gap-2 hover-brand-orange"
+                      >
+                        <Paperclip className="h-4 w-4" />
+                        Arquivo
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFileUpload("image")}
+                        className="w-full justify-start gap-2 hover-brand-orange"
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                        Imagem
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFileUpload("video")}
+                        className="w-full justify-start gap-2 hover-brand-orange"
+                      >
+                        <Video className="h-4 w-4" />
+                        Vídeo
                       </Button>
                     </div>
+                  )}
 
-                    {/* Navegação por categorias */}
-                    <div className="flex gap-1 mb-3 overflow-x-auto">
-                      {Object.entries(emojiCategories).map(
-                        ([key, category]) => (
-                          <button
-                            key={key}
-                            onClick={() =>
-                              setActiveEmojiCategory(
-                                key as keyof typeof emojiCategories
-                              )
-                            }
-                            className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
-                              activeEmojiCategory === key
-                                ? "bg-primary text-white"
-                                : "hover:bg-white-soft"
-                            }`}
-                            title={category.name}
-                          >
-                            {category.icon}
-                          </button>
-                        )
-                      )}
-                    </div>
+                  {/* Picker de emoji */}
+                  {showEmojiPicker && (
+                    <div className="absolute bottom-full left-0 mb-2 bg-white-pure border border-white-warm rounded-lg shadow-white-soft p-3 elevated-2">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm font-medium text-foreground">
+                          Emojis
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowEmojiPicker(false)}
+                          className="h-6 w-6"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
 
-                    {/* Nome da categoria ativa */}
-                    <div className="text-xs text-muted-foreground mb-2 font-medium">
-                      {emojiCategories[activeEmojiCategory].name}
-                    </div>
+                      {/* Navegação por categorias */}
+                      <div className="flex gap-1 mb-3 overflow-x-auto">
+                        {Object.entries(emojiCategories).map(
+                          ([key, category]) => (
+                            <button
+                              key={key}
+                              onClick={() =>
+                                setActiveEmojiCategory(
+                                  key as keyof typeof emojiCategories
+                                )
+                              }
+                              className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                                activeEmojiCategory === key
+                                  ? "bg-primary text-white"
+                                  : "hover:bg-white-soft"
+                              }`}
+                              title={category.name}
+                            >
+                              {category.icon}
+                            </button>
+                          )
+                        )}
+                      </div>
 
-                    <div className="grid grid-cols-10 gap-1 w-[350px] max-h-[200px] overflow-y-auto">
-                      {emojiCategories[activeEmojiCategory].emojis.map(
-                        (emoji: string, index: number) => (
-                          <button
-                            key={index}
-                            onClick={() => handleEmojiClick(emoji)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-white-soft rounded-md transition-colors text-lg"
-                          >
-                            {emoji}
-                          </button>
-                        )
-                      )}
+                      {/* Nome da categoria ativa */}
+                      <div className="text-xs text-muted-foreground mb-2 font-medium">
+                        {emojiCategories[activeEmojiCategory].name}
+                      </div>
+
+                      <div className="grid grid-cols-10 gap-1 w-[350px] max-h-[200px] overflow-y-auto">
+                        {emojiCategories[activeEmojiCategory].emojis.map(
+                          (emoji: string, index: number) => (
+                            <button
+                              key={index}
+                              onClick={() => handleEmojiClick(emoji)}
+                              className="w-7 h-7 flex items-center justify-center hover:bg-white-soft rounded-md transition-colors text-lg"
+                            >
+                              {emoji}
+                            </button>
+                          )
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 </div>
               )}
 
@@ -1037,19 +1086,21 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
               {isRecording && (
                 <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg flex-1">
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-medium text-red-700">Gravando</span>
+                    <span className="text-xs font-medium text-red-700">
+                      Gravando
+                    </span>
                     <span className="text-xs text-red-600 font-mono">
                       {formatRecordingTime(recordingTime)}
                     </span>
                   </div>
-                  
+
                   <div className="flex-1 flex justify-center">
-                    <AudioWaveform 
+                    <AudioWaveform
                       isRecording={isRecording}
                       stream={audioStream}
                     />
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
@@ -1075,7 +1126,9 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                 <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg flex-1">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-700">Áudio gravado</span>
+                    <span className="text-sm font-medium text-green-700">
+                      Áudio gravado
+                    </span>
                   </div>
                   <div className="flex-1 text-center">
                     <span className="text-sm text-green-600 font-mono">
@@ -1139,9 +1192,11 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
                     rows={1}
                   />
                   <Button
-                    onClick={newMessage.trim() ? handleSendMessage : startRecording}
+                    onClick={
+                      newMessage.trim() ? handleSendMessage : startRecording
+                    }
                     disabled={isSendingMessage}
-                    className="bg-primary text-white"
+                    className="gradient-brand text-white"
                     size="icon"
                   >
                     {isSendingMessage ? (
@@ -1164,6 +1219,17 @@ export function Chat({ ticket, handleChangeStatus }: ChatProps) {
         customerId={ticket.customer.id}
         isOpen={isCustomerPanelOpen}
         onClose={closeCustomerPanel}
+      />
+
+      {/* Transfer Ticket Modal */}
+      <TransferTicketModal
+        ticketId={ticket.id}
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        onTransferSuccess={() => {
+          // Atualizar a lista de tickets para refletir a transferência
+          onTicketUpdated?.();
+        }}
       />
     </div>
   );
