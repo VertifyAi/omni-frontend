@@ -77,7 +77,7 @@ const Stats8 = ({
                 size="lg"
                 className="gradient-brand text-white hover:from-primary/90 hover:to-cool-teal/90 px-6 sm:px-10 py-4 sm:py-6 text-base sm:text-lg font-semibold rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg border-0 w-full sm:w-auto"
               >
-                <a href="https://forms.gle/FsLDDF5dWTSSVZGfA">Acesse gratuitamente por 30 dias</a>
+                <a href="/sign-up">Acesse gratuitamente por 30 dias</a>
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground mt-3 px-2 sm:px-0">
                 🔒 Teste sem compromisso • Cancele a qualquer momento • Suporte em português

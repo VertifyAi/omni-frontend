@@ -79,6 +79,7 @@ class ChatService {
         message: data.message,
         senderName: data.senderName,
         senderType: data.senderType,
+        messageType: data.messageType,
         senderIdentifier: data.senderIdentifier,
         createdAt: data.createdAt
       };

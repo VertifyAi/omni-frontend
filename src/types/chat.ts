@@ -1,16 +1,16 @@
 import { Company } from "./companies";
 
 export enum TicketStatus {
-  AI = 'AI',
-  IN_PROGRESS = 'IN_PROGRESS',
-  CLOSED = 'CLOSED',
+  AI = "AI",
+  IN_PROGRESS = "IN_PROGRESS",
+  CLOSED = "CLOSED",
 }
 
 export enum TicketPriorityLevel {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL',
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  CRITICAL = "CRITICAL",
 }
 
 export interface Customer {
@@ -35,7 +35,7 @@ export interface Ticket {
   areaId: number;
   closedAt: string;
   company: Company;
-  channel: string
+  channel: string;
   companyId: number;
   createdAt: string;
   customer: Customer;
@@ -47,8 +47,9 @@ export interface Message {
   senderIdentifier: string;
   ticketId: number;
   message: string;
+  messageType: "TEXT" | "AUDIO";
   senderName?: string;
-  senderType: 'CUSTOMER' | 'AI' | 'USER';
+  senderType: "CUSTOMER" | "AI" | "USER";
   createdAt: Date;
 }
 
@@ -57,10 +58,11 @@ export interface WebSocketEvents {
     id?: number;
     ticketId: number;
     message: string;
-    senderType: 'CUSTOMER' | 'AI' | 'USER'
+    senderType: "CUSTOMER" | "AI" | "USER";
     senderIdentifier: string;
+    messageType: "TEXT" | "AUDIO";
     senderName?: string;
-    createdAt: Date
+    createdAt: Date;
   };
   ticket_updated: {
     ticketId: number;

@@ -28,6 +28,7 @@ import { CustomerDetailsPanel } from "./CustomerDetailsPanel";
 import { AudioWaveform } from "./AudioWaveform";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TransferTicketModal } from "./TransferTicketModal";
+import { AudioMessage } from "./AudioMessage";
 
 interface ChatProps {
   ticket: Ticket;
@@ -804,17 +805,15 @@ export function Chat({
               Finalizar Atendimento
             </Button>
           )}
-        </div>
-        {ticket.status === TicketStatus.CLOSED && (
-          <div className="">
+          {ticket.status === TicketStatus.CLOSED && (
             <Button
               onClick={() => handleChangeStatus(TicketStatus.IN_PROGRESS)}
               className="bg-primary"
             >
               Abrir Atendimento
             </Button>
-          </div>
-        )}
+          )}
+        </div>
 
         {chatService.getUnreadCount(ticket.id) > 0 && (
           <div className="ml-auto p-4 flex items-center">
@@ -889,25 +888,54 @@ export function Chat({
 
                   {/* Mensagem */}
                   <div
-                    className={`break-words whitespace-pre-wrap rounded-2xl p-4 elevated-1 ${
+                    className={`break-words whitespace-pre-wrap rounded-2xl elevated-1 ${
                       message.senderType === "AI"
                         ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
                         : message.senderType === "USER"
                         ? "bg-gradient-to-r from-primary to-purple-600 text-white"
                         : "bg-white-pure border border-white-warm"
-                    }`}
+                    } ${message.messageType === "AUDIO" ? "p-2" : "p-4"}`}
                   >
-                    <p className="text-sm leading-relaxed">{message.message}</p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        message.senderType === "AI" ||
-                        message.senderType === "USER"
-                          ? "text-white/70"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {formatDate(message.createdAt)}
-                    </p>
+                    {message.messageType === "AUDIO" ? (
+                      <div className="space-y-2">
+                        <AudioMessage
+                          audioUrl={message.message}
+                          variant={
+                            message.senderType === "AI"
+                              ? "ai"
+                              : message.senderType === "USER"
+                              ? "user"
+                              : "default"
+                          }
+                        />
+                        <p
+                          className={`text-xs ${
+                            message.senderType === "AI" ||
+                            message.senderType === "USER"
+                              ? "text-white/70"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {formatDate(message.createdAt)}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-sm leading-relaxed">
+                          {message.message}
+                        </p>
+                        <p
+                          className={`text-xs mt-2 ${
+                            message.senderType === "AI" ||
+                            message.senderType === "USER"
+                              ? "text-white/70"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {formatDate(message.createdAt)}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

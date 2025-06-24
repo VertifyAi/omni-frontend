@@ -30,7 +30,7 @@ const Hero7 = ({
   description = "Ofereça respostas rápidas 24h com IA que entende pessoas!\nUnifique todos os canais enquanto sua equipe foca no que realmente importa:\nrelacionamentos que convertem e fidelizam.",
   button = {
     text: "Veja na prática gratuitamente →",
-    url: "https://forms.gle/FsLDDF5dWTSSVZGfA",
+    url: "/sign-up",
   },
   reviews = {
     count: 2000,

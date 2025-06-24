@@ -92,7 +92,7 @@ const Pricing2 = ({
   // Função para gerar URL do plano
   const getPlanUrl = (plan: PlanData, isYearly: boolean): string => {
     if (plan.id === 'empresarial') {
-      return "https://forms.gle/FsLDDF5dWTSSVZGfA"; // Formulário para plano customizado
+      return "https://wa.me/5511914403625"; // Formulário para plano customizado
     }
     
     // Para planos essencial e profissional, usar URLs hardcoded por enquanto
