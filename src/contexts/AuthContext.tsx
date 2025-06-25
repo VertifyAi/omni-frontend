@@ -37,7 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleLogout = () => {
     setUser(null);
     setLoading(false);
-    router.push('/sign-in');
+    
+    // Só redireciona se estiver em uma rota privada
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/dashboard')) {
+      router.push('/sign-in');
+    }
   };
 
   // Carregamento inicial do usuário
@@ -46,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = getAuthToken();
         if (!token) {
-          handleLogout();
+          setLoading(false);
           return;
         }
 
