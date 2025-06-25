@@ -1,6 +1,7 @@
 "use client";
 
 import { User, UserRole } from "@/types/users";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 interface AuthContextType {
@@ -20,13 +21,14 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
     async function loadUser() {
       try {
         const token = getAuthToken();
         if (!token) {
           setLoading(false);
+          router.push('/sign-in');
           return;
         }
 
