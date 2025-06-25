@@ -16,6 +16,7 @@ import {
   Monitor,
   Bot,
   Workflow,
+  LogOut,
 } from "lucide-react";
 import {
   Tooltip,
@@ -27,6 +28,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -35,6 +38,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { UserRole } from "@/types/users";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const navigation = [
   {
@@ -100,7 +104,18 @@ const options = [
 export function AppSidebar() {
   const pathname = usePathname();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const { hasRole } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { hasRole, user } = useAuth();
+  const router = useRouter();
+
+  // Função para fazer logout
+  const handleLogout = () => {
+    // Remove o token do cookie
+    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    
+    // Redireciona para login
+    router.push('/sign-in');
+  };
 
   // Filtra os itens de navegação com base nas permissões do usuário
   const filteredNavigation = navigation.filter(item => {
@@ -232,36 +247,71 @@ export function AppSidebar() {
                 );
               }
 
+              if (item.name === "Perfil") {
+                return (
+                  <DropdownMenu
+                    key={index}
+                    open={isProfileOpen}
+                    onOpenChange={setIsProfileOpen}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger
+                          className={cn(
+                            "flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-accent",
+                            (isActive || isProfileOpen) && "bg-accent text-accent-foreground"
+                          )}
+                        >
+                          <Avatar>
+                            <AvatarImage
+                              src="https://github.com/shadcn.png"
+                              alt="@shadcn"
+                            />
+                            <AvatarFallback>
+                              {user?.name?.charAt(0).toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="flex items-center gap-4">
+                        <span>{item.name}</span>
+                      </TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent
+                      side="right"
+                      className="w-48"
+                      align="start"
+                      alignOffset={-40}
+                    >
+                      <div className="px-3 py-2 border-b">
+                        <p className="text-sm font-medium">{user?.name || "Usuário"}</p>
+                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="cursor-pointer text-red-600 focus:text-red-600"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
               return (
                 <Tooltip key={index}>
                   <TooltipTrigger asChild>
-                    {item.name === "Perfil" ? (
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-accent",
-                          isActive && "bg-accent text-accent-foreground"
-                        )}
-                      >
-                        <Avatar>
-                          <AvatarImage
-                            src="https://github.com/shadcn.png"
-                            alt="@shadcn"
-                          />
-                          <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                      </Link>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-accent",
-                          isActive && "bg-accent text-accent-foreground"
-                        )}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </Link>
-                    )}
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-accent",
+                        isActive && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </Link>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="flex items-center gap-4">
                     <span>{item.name}</span>

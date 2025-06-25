@@ -22,13 +22,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const getAuthToken = (): string | null => {
+    if (typeof document === 'undefined') return null;
+    
+    const cookies = document.cookie.split(';');
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
+    if (!authCookie) return null;
+    const token = authCookie.split('=')[1].trim();
+    return decodeURIComponent(token);
+  };
+
+  // Função para limpar estado e redirecionar
+  const handleLogout = () => {
+    setUser(null);
+    setLoading(false);
+    router.push('/sign-in');
+  };
+
+  // Carregamento inicial do usuário
   useEffect(() => {
     async function loadUser() {
       try {
         const token = getAuthToken();
         if (!token) {
-          setLoading(false);
-          router.push('/sign-in');
+          handleLogout();
           return;
         }
 
@@ -40,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (!response.ok) {
-          setLoading(false);
+          handleLogout();
           return;
         }
 
@@ -48,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userData);
       } catch (err) {
         console.error('AuthContext: Erro ao carregar dados do usuário:', err);
+        handleLogout();
       } finally {
         setLoading(false);
       }
@@ -56,15 +75,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
-  const getAuthToken = (): string | null => {
-    if (typeof document === 'undefined') return null;
-    
-    const cookies = document.cookie.split(';');
-    const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
-    if (!authCookie) return null;
-    const token = authCookie.split('=')[1].trim();
-    return decodeURIComponent(token);
-  };
+  // Monitoramento contínuo do token
+  useEffect(() => {
+    if (loading) return; // Não monitora durante o carregamento inicial
+
+    const checkToken = () => {
+      const token = getAuthToken();
+      
+      // Se tinha usuário mas não tem mais token, faz logout
+      if (user && !token) {
+        console.log('AuthContext: Token removido, fazendo logout...');
+        handleLogout();
+      }
+    };
+
+    // Verifica a cada 2 segundos
+    const interval = setInterval(checkToken, 2000);
+
+    // Verifica quando o foco volta para a aba (detecta mudanças manuais)
+    const handleFocus = () => {
+      checkToken();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, loading]);
 
   const hasRole = (roles?: UserRole[]): boolean => {
     // Se não foram especificadas roles, qualquer usuário autenticado tem acesso
