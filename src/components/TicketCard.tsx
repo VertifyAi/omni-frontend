@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumber } from "@/lib/utils";
-import { Bot } from "lucide-react";
+import { Bot, Volume2 } from "lucide-react";
 import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import "../app/globals.css";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react";
 
 const socialIcons: Record<string, string> = {
   facebook:
@@ -30,13 +31,53 @@ interface TicketCardProps {
   onSelect: (ticket: Ticket) => void;
 }
 
+// Função para detectar se é um link de áudio da S3
+const isS3AudioUrl = (url: string): boolean => {
+  return url.includes('.s3.') && (url.includes('.mp3') || url.includes('.wav') || url.includes('.m4a') || url.includes('.ogg') || url.includes('.webm'));
+};
+
+// Função para obter a duração do áudio
+const getAudioDuration = (audioUrl: string): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio(audioUrl);
+    audio.addEventListener('loadedmetadata', () => {
+      resolve(audio.duration);
+    });
+    audio.addEventListener('error', () => {
+      reject(0);
+    });
+  });
+};
+
+// Função para formatar duração em mm:ss
+const formatDuration = (duration: number): string => {
+  const minutes = Math.floor(duration / 60);
+  const seconds = Math.floor(duration % 60);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
 export function TicketCard({
   ticket,
   selected,
   highlighted,
   onSelect,
 }: TicketCardProps) {
-  const lastMessage = ticket.ticketMessages.at(0);
+  const lastMessage = ticket.ticketMessages.at(-1);
+  const [audioDuration, setAudioDuration] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (lastMessage && lastMessage.messageType === "AUDIO" && isS3AudioUrl(lastMessage.message)) {
+      getAudioDuration(lastMessage.message)
+        .then(duration => {
+          setAudioDuration(formatDuration(duration));
+        })
+        .catch(() => {
+          setAudioDuration("0:00");
+        });
+    } else {
+      setAudioDuration(null);
+    }
+  }, [lastMessage]);
 
   const getPriorityConfig = (priority: TicketPriorityLevel) => {
     switch (priority) {
@@ -171,12 +212,22 @@ export function TicketCard({
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
         {lastMessage && (
-          <p className="text-muted-foreground truncate flex-1 text-sm">
+          <div className="text-muted-foreground truncate flex-1 text-sm">
             <span className="font-medium text-foreground">
               {lastMessage.senderName}:
             </span>{" "}
-            {lastMessage.message}
-          </p>
+            {lastMessage.messageType === "AUDIO" && isS3AudioUrl(lastMessage.message) ? (
+              <span className="flex items-center gap-2 text-blue-600">
+                <Volume2 className="h-4 w-4" />
+                <span>Áudio</span>
+                {audioDuration && (
+                  <span className="text-xs text-muted-foreground">({audioDuration})</span>
+                )}
+              </span>
+            ) : (
+              <span>{lastMessage.message}</span>
+            )}
+          </div>
         )}
         {chatService.getUnreadCount(ticket.id) > 0 && (
           <span className="bg-gradient-to-r from-primary to-secondary text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-semibold elevated-1 animate-pulse">

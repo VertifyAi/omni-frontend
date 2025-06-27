@@ -869,7 +869,7 @@ export function Chat({
                 >
                   {/* Avatar do remetente */}
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
+                    className={`w-8 h-8 min-w-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
                       message.senderType === "AI"
                         ? "bg-gradient-to-r from-purple-500 to-purple-600"
                         : message.senderType === "USER"

@@ -66,11 +66,18 @@ export function TicketList({
     });
   };
 
-  const sortTicketsByCreationDate = (tickets: Ticket[]): Ticket[] => {
+  const sortTicketsByLastMessage = (tickets: Ticket[]): Ticket[] => {
     return tickets.sort((a: Ticket, b: Ticket) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA; // Mais recente primeiro
+      // Pega a data da última mensagem ou usa a data de criação do ticket como fallback
+      const lastMessageDateA = a.ticketMessages.length > 0 
+        ? new Date(a.ticketMessages[a.ticketMessages.length - 1].createdAt).getTime()
+        : new Date(a.createdAt).getTime();
+      
+      const lastMessageDateB = b.ticketMessages.length > 0 
+        ? new Date(b.ticketMessages[b.ticketMessages.length - 1].createdAt).getTime()
+        : new Date(b.createdAt).getTime();
+      
+      return lastMessageDateB - lastMessageDateA; // Mais recente primeiro
     });
   };
 
@@ -302,7 +309,7 @@ export function TicketList({
               ) : filteredTickets.length > 0 ? (
                 (() => {
                   const aiTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.AI);
-                  const sortedTickets = sortTicketsByCreationDate(aiTickets);
+                  const sortedTickets = sortTicketsByLastMessage(aiTickets);
                   
                   return (
                     <div className="space-y-3">
@@ -391,7 +398,7 @@ export function TicketList({
               ) : filteredTickets.length > 0 ? (
                 (() => {
                   const closedTickets = filteredTickets.filter((ticket) => ticket.status === TicketStatus.CLOSED);
-                  const sortedTickets = sortTicketsByCreationDate(closedTickets);
+                  const sortedTickets = sortTicketsByLastMessage(closedTickets);
                   
                   return (
                     <div className="space-y-3">
