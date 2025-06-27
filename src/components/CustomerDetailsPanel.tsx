@@ -2,10 +2,29 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { X, Mail, Phone, Calendar, MessageCircle } from "lucide-react";
+import { X, Mail, Phone, Calendar, MessageCircle, Clock, CheckCircle, Bot } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchApi } from "@/lib/fetchApi";
 import { formatPhoneNumber } from "@/lib/utils";
+
+interface Ticket {
+  id: number;
+  status: "AI" | "IN_PROGRESS" | "CLOSED";
+  channel: string;
+  score: number;
+  state: string | null;
+  priorityLevel: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | null;
+  llmThreadId: string;
+  userId: number;
+  agentId: number;
+  areaId: number;
+  customerId: number;
+  companyId: number;
+  closedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
 
 interface Customer {
   id: number;
@@ -15,8 +34,7 @@ interface Customer {
   avatar?: string;
   createdAt: string;
   lastMessageAt?: string;
-  totalTickets?: number;
-  activeTickets?: number;
+  tickets?: Ticket[];
 }
 
 interface CustomerDetailsPanelProps {
@@ -185,19 +203,71 @@ export function CustomerDetailsPanel({ customerId, isOpen, onClose }: CustomerDe
                   <div className="w-2 h-2 bg-gradient-brand rounded-full"></div>
                   Estatísticas
                 </h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
                     <MessageCircle className="h-6 w-6 text-primary mx-auto mb-2" />
-                    <p className="text-lg font-semibold text-foreground">{customer.totalTickets || 0}</p>
+                    <p className="text-lg font-semibold text-foreground">{customer.tickets?.length || 0}</p>
                     <p className="text-xs text-muted-foreground">Total de Tickets</p>
                   </div>
                   <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
-                    <MessageCircle className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-                    <p className="text-lg font-semibold text-foreground">{customer.activeTickets || 0}</p>
-                    <p className="text-xs text-muted-foreground">Tickets Ativos</p>
+                    <Clock className="h-6 w-6 text-orange-500 mx-auto mb-2" />
+                    <p className="text-lg font-semibold text-foreground">{customer.tickets?.filter(ticket => ticket.status === "IN_PROGRESS").length || 0}</p>
+                    <p className="text-xs text-muted-foreground">Em Andamento</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Bot className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+                    <p className="text-lg font-semibold text-foreground">{customer.tickets?.filter(ticket => ticket.status === "AI").length || 0}</p>
+                    <p className="text-xs text-muted-foreground">Tickets IA</p>
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <CheckCircle className="h-6 w-6 text-green-500 mx-auto mb-2" />
+                    <p className="text-lg font-semibold text-foreground">{customer.tickets?.filter(ticket => ticket.status === "CLOSED").length || 0}</p>
+                    <p className="text-xs text-muted-foreground">Fechados</p>
                   </div>
                 </div>
               </div>
+
+              {/* Priority Statistics */}
+              {customer.tickets && customer.tickets.length > 0 && (
+                <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
+                  <h4 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                    <div className="w-2 h-2 bg-gradient-brand rounded-full"></div>
+                    Prioridades
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                      <div className="w-6 h-6 bg-red-500 rounded-full mx-auto mb-2"></div>
+                      <p className="text-lg font-semibold text-foreground">
+                        {customer.tickets?.filter(ticket => ticket.priorityLevel === "CRITICAL").length || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Crítica</p>
+                    </div>
+                    <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                      <div className="w-6 h-6 bg-orange-500 rounded-full mx-auto mb-2"></div>
+                      <p className="text-lg font-semibold text-foreground">
+                        {customer.tickets?.filter(ticket => ticket.priorityLevel === "HIGH").length || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Alta</p>
+                    </div>
+                    <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                      <div className="w-6 h-6 bg-yellow-500 rounded-full mx-auto mb-2"></div>
+                      <p className="text-lg font-semibold text-foreground">
+                        {customer.tickets?.filter(ticket => ticket.priorityLevel === "MEDIUM").length || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Média</p>
+                    </div>
+                    <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                      <div className="w-6 h-6 bg-green-500 rounded-full mx-auto mb-2"></div>
+                      <p className="text-lg font-semibold text-foreground">
+                        {customer.tickets?.filter(ticket => ticket.priorityLevel === "LOW").length || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Baixa</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Timeline */}
               <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
