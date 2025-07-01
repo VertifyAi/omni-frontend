@@ -35,6 +35,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { removeAllNonNumeric } from "@/lib/utils";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 // Tipos para os dados
 interface Channel {
@@ -177,20 +178,26 @@ interface Integration {
 // Componente customizado para nó de canal
 const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
   // Usar diretamente o valor do data, ou o primeiro número limpo como padrão
-  const selectedPhone = data.selectedPhone || removeAllNonNumeric(data.phoneNumbers[0]?.display_phone_number || "");
+  const selectedPhone =
+    data.selectedPhone ||
+    removeAllNonNumeric(data.phoneNumbers[0]?.display_phone_number || "");
 
   // Função para atualizar o nó quando o telefone é alterado
   const updateNodeData = (selectedPhoneId: string) => {
     // Encontrar o telefone selecionado pelo ID para obter o número limpo
-    const selectedPhoneData = data.phoneNumbers.find(phone => phone.id === selectedPhoneId);
-    const cleanPhoneNumber = selectedPhoneData ? removeAllNonNumeric(selectedPhoneData.display_phone_number) : "";
-    
+    const selectedPhoneData = data.phoneNumbers.find(
+      (phone) => phone.id === selectedPhoneId
+    );
+    const cleanPhoneNumber = selectedPhoneData
+      ? removeAllNonNumeric(selectedPhoneData.display_phone_number)
+      : "";
+
     console.log(`Telefone selecionado:`, {
       phoneId: selectedPhoneId,
       phoneData: selectedPhoneData,
-      cleanNumber: cleanPhoneNumber
+      cleanNumber: cleanPhoneNumber,
     });
-    
+
     // Chamar callback se existir
     if (data.updateSelectedPhone) {
       data.updateSelectedPhone(cleanPhoneNumber);
@@ -228,14 +235,17 @@ const ChannelNode = ({ data }: { data: ChannelNodeData }) => {
               </label>
               <select
                 className="w-full mt-1 px-2 py-1 text-xs border rounded-md bg-white"
-                value={data.phoneNumbers.find(phone => removeAllNonNumeric(phone.display_phone_number) === selectedPhone)?.id || ""}
+                value={
+                  data.phoneNumbers.find(
+                    (phone) =>
+                      removeAllNonNumeric(phone.display_phone_number) ===
+                      selectedPhone
+                  )?.id || ""
+                }
                 onChange={(e) => updateNodeData(e.target.value)}
               >
                 {data.phoneNumbers.map((phone) => (
-                  <option
-                    key={phone.id}
-                    value={phone.id}
-                  >
+                  <option key={phone.id} value={phone.id}>
                     {phone.display_phone_number} ({phone.verified_name})
                   </option>
                 ))}
@@ -442,7 +452,7 @@ function CreateWorkflowContent() {
         console.log(`Phone ${index}:`, {
           id: phone.id,
           display_phone_number: phone.display_phone_number,
-          verified_name: phone.verified_name
+          verified_name: phone.verified_name,
         });
       });
 
@@ -555,8 +565,10 @@ function CreateWorkflowContent() {
   // Adicionar nó de canal (lado esquerdo - origem)
   const addChannelNode = (channel: Channel) => {
     const channelNodes = nodes.filter((n) => n.type === "channel");
-    const defaultPhoneNumber = channel.phoneNumbers[0] ? removeAllNonNumeric(channel.phoneNumbers[0].display_phone_number) : "";
-    
+    const defaultPhoneNumber = channel.phoneNumbers[0]
+      ? removeAllNonNumeric(channel.phoneNumbers[0].display_phone_number)
+      : "";
+
     const newNode: Node = {
       id: `channel-${channel.id}`,
       type: "channel",
@@ -568,7 +580,10 @@ function CreateWorkflowContent() {
         phoneNumbers: channel.phoneNumbers,
         selectedPhone: defaultPhoneNumber,
         updateSelectedPhone: (phoneNumber: string) => {
-          console.log(`Atualizando selectedPhone para channel-${channel.id}:`, phoneNumber);
+          console.log(
+            `Atualizando selectedPhone para channel-${channel.id}:`,
+            phoneNumber
+          );
           setNodes((nds) =>
             nds.map((node) =>
               node.id === `channel-${channel.id}`
@@ -600,7 +615,9 @@ function CreateWorkflowContent() {
     }
 
     if (existingUsers.length > 0) {
-      toast.error("Você já tem um usuário. Só é permitido um agente OU um usuário por workflow");
+      toast.error(
+        "Você já tem um usuário. Só é permitido um agente OU um usuário por workflow"
+      );
       return;
     }
 
@@ -629,7 +646,9 @@ function CreateWorkflowContent() {
     }
 
     if (existingAgents.length > 0) {
-      toast.error("Você já tem um agente. Só é permitido um agente OU um usuário por workflow");
+      toast.error(
+        "Você já tem um agente. Só é permitido um agente OU um usuário por workflow"
+      );
       return;
     }
 
@@ -687,7 +706,7 @@ function CreateWorkflowContent() {
           console.log(`Canal conectado:`, {
             channelId: sourceNode.data.channelId,
             selectedPhone: sourceNode.data.selectedPhone,
-            nodeData: sourceNode.data
+            nodeData: sourceNode.data,
           });
           return {
             channelId: sourceNode.data.channelId,
@@ -797,6 +816,14 @@ function CreateWorkflowContent() {
       const result = await response.json();
       console.log("Workflow salvo:", result);
 
+      setMixpanelTrack("workflow_created", {
+        event_id: "workflow_created",
+        properties: {
+          workflow: result,
+          timestamp: new Date().toISOString(),
+        },
+      });
+
       toast.success(
         isEditing
           ? "Workflow atualizado com sucesso!"
@@ -808,6 +835,13 @@ function CreateWorkflowContent() {
       toast.error(
         error instanceof Error ? error.message : "Erro ao salvar workflow"
       );
+
+      setMixpanelTrack("workflow_creation_error", {
+        event_id: "workflow_creation_error",
+        properties: {
+          error: error instanceof Error ? error.message : "Erro desconhecido",
+        },
+      });
     }
   };
 
@@ -981,7 +1015,9 @@ function CreateWorkflowContent() {
           >
             <div className="text-sm text-muted-foreground space-y-1">
               <p>• Arraste os elementos do painel para o canvas</p>
-              <p>• Conecte canais PARA agentes/usuários arrastando das bordas</p>
+              <p>
+                • Conecte canais PARA agentes/usuários arrastando das bordas
+              </p>
               <p>• Múltiplos canais podem conectar ao mesmo agente/usuário</p>
               <p>• Apenas um agente OU usuário por workflow</p>
               <p>

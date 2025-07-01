@@ -24,6 +24,7 @@ import { Plus, Trash2, Upload, FileText, X } from "lucide-react";
 import { Team } from "../../teams/page";
 import { TeamCard } from "@/components/TeamCard";
 import CreateAgentStep1 from "@/components/CreateAgentStep1";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 const createAgentSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -172,6 +173,14 @@ export default function CreateAgentPage() {
       if (selectedImage) {
         await uploadTeamImage(responseData.id);
       }
+
+      setMixpanelTrack("agent_created", {
+        event_id: "agent_created",
+        properties: {
+          agent: responseData.agent,
+          timestamp: new Date().toISOString(),
+        },
+      });
 
       toast.success("Agente criado com sucesso!");
       router.push("/dashboard/agents");

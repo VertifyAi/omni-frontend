@@ -1,26 +1,16 @@
 "use client";
 
-import { AppSidebar } from "@/components/app-sidebar";
-import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { initMixpanel } from "@/lib/mixpanelClient";
 
 interface RootLayoutClientProps {
   children: React.ReactNode;
 }
 
 export function RootLayoutClient({ children }: RootLayoutClientProps) {
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
+  useEffect(() => {
+    initMixpanel(); // Initialize Mixpanel
+  }, []);
 
-  if (isHomePage) {
-    return <>{children}</>;
-  }
-
-  return (
-    <div className="flex h-screen">
-      <AppSidebar />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
-    </div>
-  );
-} 
+  return <>{children}</>;
+}

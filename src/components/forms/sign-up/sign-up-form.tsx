@@ -20,6 +20,7 @@ import { WelcomeScreen } from "./welcome-screen";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -175,6 +176,15 @@ export function SignUpForm() {
       if (!response.ok) {
         throw new Error(responseData.message || "Erro ao criar conta");
       }
+
+      setMixpanelTrack("sign_up_success", {
+        user_id: responseData.user.id,
+        event_id: "sign_up_success",
+        properties: {
+          user: responseData.user,
+          timestamp: new Date().toISOString(),
+        },
+      });
 
       setIsSuccess(true);
     } catch (error) {

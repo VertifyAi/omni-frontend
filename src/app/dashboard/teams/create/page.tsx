@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { fetchApi } from "@/lib/fetchApi";
 import { User } from "@/types/users";
 import { Camera, Users } from "lucide-react";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 const createTeamSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -154,6 +155,14 @@ export default function CreateTeamPage() {
       if (!response.ok) {
         throw new Error(responseData.message || "Erro ao criar equipe");
       }
+
+      setMixpanelTrack("team_created", {
+        event_id: "team_created",
+        properties: {
+          team: responseData.team,
+          timestamp: new Date().toISOString(),
+        },
+      });
 
       toast.success("Equipe criada com sucesso!");
 

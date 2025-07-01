@@ -3,6 +3,7 @@
 import { User, UserRole } from "@/types/users";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { setMixpanelUser } from "@/lib/mixpanelClient";
 
 interface AuthContextType {
   user: User | null;
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const userData = await response.json();
         setUser(userData);
+        setMixpanelUser(userData);
       } catch (err) {
         console.error('AuthContext: Erro ao carregar dados do usuário:', err);
         handleLogout();

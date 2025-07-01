@@ -11,6 +11,7 @@ import { z } from "zod";
 import { SignInFormSchema } from "@/lib/definitions";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 interface Login3Props {
   heading?: string;
@@ -57,6 +58,13 @@ const Login3 = ({
     try {
       setIsLoading(true);
       await login(data.email, data.password);
+      setMixpanelTrack("login_success", {
+        event_id: "login_success",
+        properties: {
+          user: data,
+          timestamp: new Date().toISOString(),
+        },
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao fazer login');
     } finally {
