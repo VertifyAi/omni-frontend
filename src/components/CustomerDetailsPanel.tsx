@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { X, Mail, Phone, Calendar, MessageCircle, Clock, CheckCircle, Bot } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchApi } from "@/lib/fetchApi";
@@ -135,11 +136,125 @@ export function CustomerDetailsPanel({ customerId, isOpen, onClose }: CustomerDe
           </div>
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-64">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-cool-teal flex items-center justify-center mb-4">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            <div className="space-y-6">
+              {/* Customer Info Skeleton */}
+              <div className="flex items-center gap-4 p-4 bg-white-soft rounded-xl border border-white-warm elevated-1">
+                <Skeleton className="h-16 w-16 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
               </div>
-              <p className="text-muted-foreground">Carregando dados do cliente...</p>
+
+              {/* Contact Info Skeleton */}
+              <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="w-2 h-2 rounded-full" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm">
+                    <Skeleton className="h-4 w-4" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-3 w-28" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm">
+                    <Skeleton className="h-4 w-4" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-3 w-36" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Statistics Skeleton */}
+              <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="w-2 h-2 rounded-full" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="h-6 w-6 mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-20 mx-auto" />
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="h-6 w-6 mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-20 mx-auto" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="h-6 w-6 mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-16 mx-auto" />
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="h-6 w-6 mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-16 mx-auto" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Priority Statistics Skeleton */}
+              <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="w-2 h-2 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="w-6 h-6 rounded-full mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-12 mx-auto" />
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="w-6 h-6 rounded-full mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-8 mx-auto" />
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="w-6 h-6 rounded-full mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-12 mx-auto" />
+                  </div>
+                  <div className="p-3 bg-white-pure rounded-lg border border-white-warm text-center">
+                    <Skeleton className="w-6 h-6 rounded-full mx-auto mb-2" />
+                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-12 mx-auto" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Skeleton */}
+              <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="w-2 h-2 rounded-full" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm">
+                    <Skeleton className="h-4 w-4" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm">
+                    <Skeleton className="h-4 w-4" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-36" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">

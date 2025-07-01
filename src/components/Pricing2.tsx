@@ -99,13 +99,13 @@ const Pricing2 = ({
     const urls: Record<string, { monthly: string; yearly: string }> = {
       essencial: {
         // monthly: "https://buy.stripe.com/00gbJL6mD4jz63K7st",
-        monthly: "/sign-up",
-        yearly: "/sign-up",
+        monthly: "/sign-up?plan=essencial&billing=monthly",
+        yearly: "/sign-up?plan=essencial&billing=yearly",
         // yearly: "https://buy.stripe.com/3cseVXcL1g2h3VCbII"
       },
       profissional: {
-        monthly: "/sign-up",
-        yearly: "/sign-up",
+        monthly: "/sign-up?plan=profissional&billing=monthly",
+        yearly: "/sign-up?plan=profissional&billing=yearly",
         // monthly: "https://buy.stripe.com/9AQdRTcL14jz9fW7sv",
         // yearly: "https://buy.stripe.com/eVa01326naHX3VC5km"
       }

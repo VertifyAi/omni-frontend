@@ -3,6 +3,7 @@
 import { fetchApi } from "@/lib/fetchApi";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
 
 interface OnboardingStep {
   id: string;
@@ -171,10 +172,29 @@ export default function WhatsAppOnboarding() {
         // Aguardar um pouco antes de mostrar o sucesso
         await new Promise((resolve) => setTimeout(resolve, 500));
 
+        setMixpanelTrack("whatsapp_onboarding_success", {
+          event_id: "whatsapp_onboarding_success",
+          properties: {
+            vertify_token: vertifyToken,
+            waba_ids: wabaIds,
+            access_token: token,
+            data_access_expiration_time: dataAccessExpirationTime,
+            expires_in: expiresIn,
+            timestamp: new Date().toISOString(),
+          },
+        });
+
         setIsComplete(true);
       } catch (error) {
         console.error("Erro no onboarding:", error);
         setError(error instanceof Error ? error.message : "Erro desconhecido");
+
+        setMixpanelTrack("whatsapp_onboarding_error", {
+          event_id: "whatsapp_onboarding_error",
+          properties: {
+            error: error instanceof Error ? error.message : "Erro desconhecido",
+          },
+        });
       }
     };
 

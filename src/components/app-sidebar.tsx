@@ -74,7 +74,7 @@ const navigation = [
     href: "/dashboard/workflows",
     icon: Workflow,
     roles: [UserRole.ADMIN],
-  },
+  }
 ];
 
 const options = [

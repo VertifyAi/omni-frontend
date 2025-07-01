@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumber } from "@/lib/utils";
 import { Bot, Volume2 } from "lucide-react";
-import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/chat";
+import { Ticket, TicketStatus } from "@/types/chat";
 import { chatService } from "@/services/chat";
 import "../app/globals.css";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,17 +33,24 @@ interface TicketCardProps {
 
 // Função para detectar se é um link de áudio da S3
 const isS3AudioUrl = (url: string): boolean => {
-  return url.includes('.s3.') && (url.includes('.mp3') || url.includes('.wav') || url.includes('.m4a') || url.includes('.ogg') || url.includes('.webm'));
+  return (
+    url.includes(".s3.") &&
+    (url.includes(".mp3") ||
+      url.includes(".wav") ||
+      url.includes(".m4a") ||
+      url.includes(".ogg") ||
+      url.includes(".webm"))
+  );
 };
 
 // Função para obter a duração do áudio
 const getAudioDuration = (audioUrl: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     const audio = new Audio(audioUrl);
-    audio.addEventListener('loadedmetadata', () => {
+    audio.addEventListener("loadedmetadata", () => {
       resolve(audio.duration);
     });
-    audio.addEventListener('error', () => {
+    audio.addEventListener("error", () => {
       reject(0);
     });
   });
@@ -53,7 +60,7 @@ const getAudioDuration = (audioUrl: string): Promise<number> => {
 const formatDuration = (duration: number): string => {
   const minutes = Math.floor(duration / 60);
   const seconds = Math.floor(duration % 60);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
 export function TicketCard({
@@ -66,9 +73,13 @@ export function TicketCard({
   const [audioDuration, setAudioDuration] = useState<string | null>(null);
 
   useEffect(() => {
-    if (lastMessage && lastMessage.messageType === "AUDIO" && isS3AudioUrl(lastMessage.message)) {
+    if (
+      lastMessage &&
+      lastMessage.messageType === "AUDIO" &&
+      isS3AudioUrl(lastMessage.message)
+    ) {
       getAudioDuration(lastMessage.message)
-        .then(duration => {
+        .then((duration) => {
           setAudioDuration(formatDuration(duration));
         })
         .catch(() => {
@@ -79,37 +90,37 @@ export function TicketCard({
     }
   }, [lastMessage]);
 
-  const getPriorityConfig = (priority: TicketPriorityLevel) => {
-    switch (priority) {
-      case TicketPriorityLevel.CRITICAL:
-        return {
-          text: "Crítica",
-          className: "bg-red-500 text-white border-red-600",
-        };
-      case TicketPriorityLevel.HIGH:
-        return {
-          text: "Alta",
-          className: "bg-orange-500 text-white border-orange-600",
-        };
-      case TicketPriorityLevel.MEDIUM:
-        return {
-          text: "Média",
-          className: "bg-yellow-500 text-white border-yellow-600",
-        };
-      case TicketPriorityLevel.LOW:
-        return {
-          text: "Baixa",
-          className: "bg-green-500 text-white border-green-600",
-        };
-      default:
-        return {
-          text: "Média",
-          className: "bg-yellow-500 text-white border-yellow-600",
-        };
-    }
-  };
+  // const getPriorityConfig = (priority: TicketPriorityLevel) => {
+  //   switch (priority) {
+  //     case TicketPriorityLevel.CRITICAL:
+  //       return {
+  //         text: "Crítica",
+  //         className: "bg-red-500 text-white border-red-600",
+  //       };
+  //     case TicketPriorityLevel.HIGH:
+  //       return {
+  //         text: "Alta",
+  //         className: "bg-orange-500 text-white border-orange-600",
+  //       };
+  //     case TicketPriorityLevel.MEDIUM:
+  //       return {
+  //         text: "Média",
+  //         className: "bg-yellow-500 text-white border-yellow-600",
+  //       };
+  //     case TicketPriorityLevel.LOW:
+  //       return {
+  //         text: "Baixa",
+  //         className: "bg-green-500 text-white border-green-600",
+  //       };
+  //     default:
+  //       return {
+  //         text: "Média",
+  //         className: "bg-yellow-500 text-white border-yellow-600",
+  //       };
+  //   }
+  // };
 
-  const priorityConfig = getPriorityConfig(ticket.priorityLevel);
+  // const priorityConfig = getPriorityConfig(ticket.priorityLevel);
 
   return (
     <motion.div
@@ -157,23 +168,17 @@ export function TicketCard({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-foreground">
-                {ticket.customer.name}
+                {ticket.customer.name.length > 15
+                  ? ticket.customer.name.substring(0, 15) + "..."
+                  : ticket.customer.name}
               </h3>
-              {ticket.status === TicketStatus.IN_PROGRESS &&
-                ticket.priorityLevel && (
-                  <Badge
-                    className={`text-xs px-2 py-0.5 ${priorityConfig.className}`}
-                  >
-                    {priorityConfig.text}
-                  </Badge>
-                )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {formatPhoneNumber(ticket.customer.phone)}
             </p>
           </div>
         </div>
-        <div className="text-sm text-muted-foreground flex flex-col gap-2 items-end">
+        <div className="text-xs text-muted-foreground flex flex-col gap-2 items-end">
           {lastMessage && (
             <span className="text-xs">
               {new Date(lastMessage.createdAt).toLocaleString("pt-BR", {
@@ -185,43 +190,54 @@ export function TicketCard({
               })}
             </span>
           )}
-          <Badge
-            variant={
-              ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
-            }
-            className={`capitalize text-xs font-medium ${
-              ticket.status === TicketStatus.AI
-                ? "bg-primary text-white hover:opacity-90"
-                : ticket.status === TicketStatus.IN_PROGRESS
-                ? "bg-primary text-white"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {ticket.status === TicketStatus.IN_PROGRESS ? (
-              "Em Andamento"
-            ) : ticket.status === TicketStatus.CLOSED ? (
-              "Fechado"
-            ) : (
-              <span className="flex items-center gap-1">
-                <Bot className="h-3 w-3" />
-                IA
-              </span>
-            )}
-          </Badge>
+            <Badge
+              variant={
+                ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
+              }
+              className={`capitalize text-xs font-medium ${
+                ticket.status === TicketStatus.AI
+                  ? "bg-primary text-white hover:opacity-90"
+                  : ticket.status === TicketStatus.IN_PROGRESS
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {ticket.status === TicketStatus.IN_PROGRESS ? (
+                "Em Andamento"
+              ) : ticket.status === TicketStatus.CLOSED ? (
+                "Fechado"
+              ) : (
+                <span className="flex items-center gap-1">
+                  <Bot className="h-3 w-3" />
+                  IA
+                </span>
+              )}
+            </Badge>
+          {/* {ticket.status === TicketStatus.IN_PROGRESS &&
+            ticket.priorityLevel && (
+              <Badge
+                className={`text-xs px-2 py-0.5 ${priorityConfig.className}`}
+              >
+                {priorityConfig.text}
+              </Badge>
+            )} */}
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
         {lastMessage && (
-          <div className="text-muted-foreground truncate flex-1 text-sm">
+          <div className="text-muted-foreground truncate flex text-xs gap-2">
             <span className="font-medium text-foreground">
               {lastMessage.senderName}:
             </span>{" "}
-            {lastMessage.messageType === "AUDIO" && isS3AudioUrl(lastMessage.message) ? (
-              <span className="flex items-center gap-2 text-blue-600">
+            {lastMessage.messageType === "AUDIO" &&
+            isS3AudioUrl(lastMessage.message) ? (
+              <span className="flex items-center gap-1">
                 <Volume2 className="h-4 w-4" />
                 <span>Áudio</span>
                 {audioDuration && (
-                  <span className="text-xs text-muted-foreground">({audioDuration})</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({audioDuration})
+                  </span>
                 )}
               </span>
             ) : (
