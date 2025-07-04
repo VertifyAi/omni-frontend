@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  ArrowRight, 
-  MessageCircle, 
-  Settings, 
+import React, { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  CheckCircle,
+  AlertCircle,
+  ArrowRight,
+  MessageCircle,
+  Settings,
   Key,
   ExternalLink,
   Copy,
@@ -22,9 +22,13 @@ import {
   ArrowLeftRight,
   Users,
   Shield,
-  Globe
-} from 'lucide-react';
-import { toast } from 'sonner';
+  Globe,
+  Plus,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+import { fetchApi } from "@/lib/fetchApi";
+import { useRouter } from "next/navigation";
 
 interface ConfigToggle {
   id: string;
@@ -39,58 +43,47 @@ interface FreshdeskTutorialProps {
 }
 
 export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
-  const [currentStep, setCurrentStep] = useState<'api-key' | 'configuration' | 'testing'>('api-key');
-  const [apiKey, setApiKey] = useState('');
-  const [domain, setDomain] = useState('');
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<
+    "api-key" | "configuration" | "testing"
+  >("api-key");
+  const [apiKey, setApiKey] = useState("");
+  const [domain, setDomain] = useState("");
   const [configurations, setConfigurations] = useState<ConfigToggle[]>([
     {
-      id: 'auto-responses',
-      title: 'Respostas Automáticas',
-      description: 'Ativar respostas automáticas baseadas em horário de funcionamento',
+      id: "priority_analysis",
+      title: "Análise de Prioridade",
+      description: "Analisar prioridade dos tickets automaticamente",
       enabled: true,
-      icon: <MessageCircle className="w-4 h-4" />
+      icon: <AlertCircle className="w-4 h-4" />,
     },
     {
-      id: 'priority-analysis',
-      title: 'Análise de Prioridade',
-      description: 'Analisar prioridade dos tickets automaticamente',
+      id: "ticket_creation",
+      title: "Criação de Tickets",
+      description: "Criar tickets automaticamente",
       enabled: true,
-      icon: <AlertCircle className="w-4 h-4" />
+      icon: <Plus className="w-4 h-4" />,
     },
     {
-      id: 'business-hours',
-      title: 'Horário de Funcionamento',
-      description: 'Verificar horário antes de enviar mensagens automáticas',
+      id: "ticket_close",
+      title: "Fechamento de Tickets",
+      description: "Fechar tickets automaticamente",
       enabled: true,
-      icon: <Clock className="w-4 h-4" />
+      icon: <X className="w-4 h-4" />,
     },
     {
-      id: 'ai-integration',
-      title: 'Integração com IA',
-      description: 'Permitir que a IA responda mensagens automaticamente',
-      enabled: false,
-      icon: <Bot className="w-4 h-4" />
-    },
-    {
-      id: 'ticket-transfer',
-      title: 'Transferência de Tickets',
-      description: 'Gerenciar transferência de tickets entre status',
+      id: "contact_sync",
+      title: "Sincronização de Contatos",
+      description: "Sincronizar contatos entre FreshDesk e Verify",
       enabled: true,
-      icon: <ArrowLeftRight className="w-4 h-4" />
+      icon: <Users className="w-4 h-4" />,
     },
-    {
-      id: 'contact-sync',
-      title: 'Sincronização de Contatos',
-      description: 'Sincronizar contatos entre FreshDesk e Verify',
-      enabled: true,
-      icon: <Users className="w-4 h-4" />
-    }
   ]);
 
   const handleToggleConfiguration = (configId: string) => {
-    setConfigurations(prev => 
-      prev.map(config => 
-        config.id === configId 
+    setConfigurations((prev) =>
+      prev.map((config) =>
+        config.id === configId
           ? { ...config, enabled: !config.enabled }
           : config
       )
@@ -99,10 +92,46 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copiado para a área de transferência!');
+    toast.success("Copiado para a área de transferência!");
   };
 
-  if (currentStep === 'api-key') {
+  const handleSaveConfiguration = async () => {
+    try {
+      const payload = {
+        domain,
+        api_key: apiKey,
+        priority_analysis: configurations.find(
+          (config) => config.id === "priority_analysis"
+        )?.enabled,
+        ticket_creation: configurations.find(
+          (config) => config.id === "ticket_creation"
+        )?.enabled,
+        ticket_close: configurations.find(
+          (config) => config.id === "ticket_close"
+        )?.enabled,
+        contact_sync: configurations.find(
+          (config) => config.id === "contact_sync"
+        )?.enabled,
+      };
+
+      const response = await fetchApi("/api/integrations/freshdesk", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 201) {
+        toast.success("Configuração salva com sucesso!");
+        router.push("/dashboard/settings/integrations");
+      } else {
+        toast.error("Erro ao salvar configuração");
+      }
+    } catch (error) {
+      toast.error("Erro ao salvar configuração");
+      console.error(error);
+    }
+  };
+
+  if (currentStep === "api-key") {
     return (
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
@@ -113,7 +142,8 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 Conectar FreshDesk
               </h1>
               <p className="text-gray-600 mt-2">
-                Configure sua integração com FreshDesk para gerenciar tickets e atendimentos
+                Configure sua integração com FreshDesk para gerenciar tickets e
+                atendimentos
               </p>
             </div>
             {onBack && (
@@ -153,19 +183,23 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
                   1
                 </div>
-                <h3 className="text-xl font-semibold">
-                  Acessar o FreshDesk
-                </h3>
+                <h3 className="text-xl font-semibold">Acessar o FreshDesk</h3>
               </div>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  Faça login no seu painel administrativo do FreshDesk e navegue até as configurações.
+                  Faça login no seu painel administrativo do FreshDesk e navegue
+                  até as configurações.
                 </p>
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => window.open('http://developer.freshdesk.com/api/v1/#authentication', '_blank')}
+                    onClick={() =>
+                      window.open(
+                        "http://developer.freshdesk.com/api/v1/#authentication",
+                        "_blank"
+                      )
+                    }
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Abrir Documentação Oficial
@@ -180,26 +214,44 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">
                   2
                 </div>
-                <h3 className="text-xl font-semibold">
-                  Localizar API Key
-                </h3>
+                <h3 className="text-xl font-semibold">Localizar API Key</h3>
               </div>
               <div className="space-y-3 text-gray-700">
-                <p>
-                  Siga estes passos no seu FreshDesk:
-                </p>
+                <p>Siga estes passos no seu FreshDesk:</p>
                 <ol className="list-decimal list-inside ml-4 space-y-1">
                   <li>Clique no seu perfil no canto superior direito</li>
-                  <li>Selecione <strong className="text-foreground">&quot;Profile settings&quot;</strong></li>
-                  <li>Na aba <strong className="text-foreground">&quot;Profile&quot;</strong>, role até o final da página</li>
-                  <li>Localize a seção <strong className="text-foreground">&quot;Your API Key&quot;</strong></li>
-                  <li>Clique em <strong className="text-foreground">&quot;View API Key&quot;</strong></li>
+                  <li>
+                    Selecione{" "}
+                    <strong className="text-foreground">
+                      &quot;Profile settings&quot;
+                    </strong>
+                  </li>
+                  <li>
+                    Na aba{" "}
+                    <strong className="text-foreground">
+                      &quot;Profile&quot;
+                    </strong>
+                    , role até o final da página
+                  </li>
+                  <li>
+                    Localize a seção{" "}
+                    <strong className="text-foreground">
+                      &quot;Your API Key&quot;
+                    </strong>
+                  </li>
+                  <li>
+                    Clique em{" "}
+                    <strong className="text-foreground">
+                      &quot;View API Key&quot;
+                    </strong>
+                  </li>
                 </ol>
 
                 <Alert className="border-orange-200 bg-orange-50">
                   <AlertCircle className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
-                    <strong>Importante:</strong> Mantenha sua API Key segura e não a compartilhe publicamente.
+                    <strong>Importante:</strong> Mantenha sua API Key segura e
+                    não a compartilhe publicamente.
                   </AlertDescription>
                 </Alert>
               </div>
@@ -211,15 +263,11 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">
                   3
                 </div>
-                <h3 className="text-xl font-semibold">
-                  Inserir Credenciais
-                </h3>
+                <h3 className="text-xl font-semibold">Inserir Credenciais</h3>
               </div>
               <div className="space-y-4 text-gray-700">
-                <p>
-                  Insira suas credenciais do FreshDesk abaixo:
-                </p>
-                
+                <p>Insira suas credenciais do FreshDesk abaixo:</p>
+
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="domain">Domínio do FreshDesk</Label>
@@ -231,10 +279,12 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                         onChange={(e) => setDomain(e.target.value)}
                         className="flex-1"
                       />
-                      <span className="flex items-center text-sm text-gray-500">.freshdesk.com</span>
+                      <span className="flex items-center text-sm text-gray-500">
+                        .freshdesk.com
+                      </span>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="apikey">API Key</Label>
                     <div className="flex gap-2">
@@ -246,8 +296,8 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                         onChange={(e) => setApiKey(e.target.value)}
                         className="flex-1"
                       />
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="icon"
                         onClick={() => copyToClipboard(apiKey)}
                         disabled={!apiKey}
@@ -261,8 +311,9 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 <Alert className="border-green-200 bg-green-50">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
-                    <strong>Seguro:</strong> Suas credenciais são armazenadas de forma criptografada 
-                    e usadas apenas para conectar com sua conta FreshDesk.
+                    <strong>Seguro:</strong> Suas credenciais são armazenadas de
+                    forma criptografada e usadas apenas para conectar com sua
+                    conta FreshDesk.
                   </AlertDescription>
                 </Alert>
               </div>
@@ -272,8 +323,8 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
 
         {/* Botão Continuar */}
         <Card className="p-6 text-center w-full justify-center items-center">
-          <Button 
-            onClick={() => setCurrentStep('configuration')}
+          <Button
+            onClick={() => setCurrentStep("configuration")}
             disabled={!domain || !apiKey}
             size="lg"
             className="w-full"
@@ -286,7 +337,7 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
     );
   }
 
-  if (currentStep === 'configuration') {
+  if (currentStep === "configuration") {
     return (
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
@@ -297,19 +348,20 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 Configurações da Integração
               </h1>
               <p className="text-gray-600 mt-2">
-                Personalize as funcionalidades conforme suas necessidades de atendimento
+                Personalize as funcionalidades conforme suas necessidades de
+                atendimento
               </p>
             </div>
-            <Button 
-              variant="outline"
-              onClick={() => setCurrentStep('api-key')}
-            >
+            <Button variant="outline" onClick={() => setCurrentStep("api-key")}>
               Voltar
             </Button>
           </div>
 
           <div className="flex items-center gap-4 mb-4">
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800"
+            >
               <Settings className="w-4 h-4 mr-1" />
               Passo 2/3
             </Badge>
@@ -330,8 +382,8 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
           <Alert className="mb-6 border-blue-200 bg-blue-50">
             <Globe className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-800">
-              <strong>Dica:</strong> Você pode alterar essas configurações a qualquer momento 
-              após a integração estar ativa.
+              <strong>Dica:</strong> Você pode alterar essas configurações a
+              qualquer momento após a integração estar ativa.
             </AlertDescription>
           </Alert>
 
@@ -340,12 +392,20 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
               <div key={config.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${config.enabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+                    <div
+                      className={`p-2 rounded-lg ${
+                        config.enabled
+                          ? "bg-green-100 text-green-600"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
                       {config.icon}
                     </div>
                     <div>
                       <h3 className="font-semibold">{config.title}</h3>
-                      <p className="text-sm text-gray-600">{config.description}</p>
+                      <p className="text-sm text-gray-600">
+                        {config.description}
+                      </p>
                     </div>
                   </div>
                   <Switch
@@ -369,12 +429,17 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Funcionalidades Ativas</h3>
               <div className="space-y-2">
-                {configurations.filter(c => c.enabled).map(config => (
-                  <div key={config.id} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    {config.title}
-                  </div>
-                ))}
+                {configurations
+                  .filter((c) => c.enabled)
+                  .map((config) => (
+                    <div
+                      key={config.id}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      {config.title}
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -391,7 +456,10 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
                 </div>
                 <div className="flex justify-between">
                   <span>Funcionalidades:</span>
-                  <span className="font-medium">{configurations.filter(c => c.enabled).length}/{configurations.length}</span>
+                  <span className="font-medium">
+                    {configurations.filter((c) => c.enabled).length}/
+                    {configurations.length}
+                  </span>
                 </div>
               </div>
             </div>
@@ -400,8 +468,8 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
 
         {/* Botão Finalizar */}
         <Card className="p-6 text-center">
-          <Button 
-            onClick={() => setCurrentStep('testing')}
+          <Button
+            onClick={() => setCurrentStep("testing")}
             size="lg"
             className="w-full"
           >
@@ -453,9 +521,7 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
           <div className="border-l-4 border-blue-500 pl-6">
             <div className="flex items-center gap-3 mb-3">
               <MessageCircle className="w-6 h-6 text-blue-500" />
-              <h3 className="text-xl font-semibold">
-                Mensagens dos Clientes
-              </h3>
+              <h3 className="text-xl font-semibold">Mensagens dos Clientes</h3>
             </div>
             <div className="space-y-2 text-gray-700">
               <p>• Cliente envia mensagem</p>
@@ -474,14 +540,19 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
               </h3>
             </div>
             <div className="space-y-2 text-gray-700">
-              <p>• Status <strong>CLOSED</strong> = Mensagem de avaliação</p>
-              <p>• Status <strong>IN_PROGRESS</strong> = Mensagem de transferência</p>
+              <p>
+                • Status <strong>CLOSED</strong> = Mensagem de avaliação
+              </p>
+              <p>
+                • Status <strong>IN_PROGRESS</strong> = Mensagem de
+                transferência
+              </p>
               <p>• Sincronização automática entre plataformas</p>
             </div>
           </div>
 
           {/* Fluxo 3 */}
-          {configurations.find(c => c.id === 'ai-integration')?.enabled && (
+          {configurations.find((c) => c.id === "ai-integration")?.enabled && (
             <div className="border-l-4 border-purple-500 pl-6">
               <div className="flex items-center gap-3 mb-3">
                 <Bot className="w-6 h-6 text-purple-500" />
@@ -538,10 +609,9 @@ export default function FreshdeskTutorial({ onBack }: FreshdeskTutorialProps) {
           Sua integração FreshDesk está ativa e pronta para usar.
         </p>
 
-        <Button 
+        <Button
           onClick={() => {
-            toast.success('Integração salva com sucesso!');
-            if (onBack) onBack();
+            handleSaveConfiguration();
           }}
           size="lg"
           className="w-full"
