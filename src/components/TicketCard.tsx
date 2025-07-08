@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { formatPhoneNumber } from "@/lib/utils";
 import { Bot, Volume2 } from "lucide-react";
-import { Ticket, TicketStatus } from "@/types/chat";
+import { Ticket, TicketStatus } from "@/types/ticket";
 import { chatService } from "@/services/chat";
 import "../app/globals.css";
 import { Skeleton } from "@/components/ui/skeleton";

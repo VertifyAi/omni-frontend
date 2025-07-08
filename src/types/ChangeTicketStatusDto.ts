@@ -1,4 +1,4 @@
-import { TicketPriorityLevel, TicketStatus } from "./chat";
+import { TicketPriorityLevel, TicketStatus } from "./ticket";
 
 export interface ChangeTicketStatusDto {
   status: TicketStatus;

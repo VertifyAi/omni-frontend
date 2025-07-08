@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/chat";
+import { Ticket, TicketStatus, TicketPriorityLevel } from "@/types/ticket";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";

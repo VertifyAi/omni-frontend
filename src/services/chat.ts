@@ -1,7 +1,8 @@
 import { io, Socket } from "socket.io-client";
-import { Message, Ticket, WebSocketEvents } from "@/types/chat";
+import { TicketMessage, Ticket } from "@/types/ticket";
+import { WebSocketEvents } from "@/types/chat";
 
-type MessageCallback = (message: Message) => void;
+type MessageCallback = (message: TicketMessage) => void;
 type TicketCallback = (ticket: Ticket) => void;
 
 class ChatService {
@@ -73,7 +74,7 @@ class ChatService {
       this.notifyUnreadChange();
 
       // Converter dados do WebSocket para o formato Message
-      const message: Message = {
+      const message: TicketMessage = {
         // id: data.id,
         ticketId: data.ticketId,
         message: data.message,

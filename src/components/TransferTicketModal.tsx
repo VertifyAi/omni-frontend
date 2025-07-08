@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/lib/fetchApi";
 import { toast } from "sonner";
-import { TicketPriorityLevel } from "@/types/chat";
+import { TicketPriorityLevel } from "@/types/ticket";
 import { Team } from "@/app/dashboard/teams/page";
 import { User as UserType } from "@/types/users";
 import { Agent } from "@/types/agent";

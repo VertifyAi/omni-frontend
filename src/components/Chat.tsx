@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Message, Ticket, TicketStatus } from "@/types/chat";
+import { Ticket, TicketMessage, TicketStatus } from "@/types/ticket";
 import { chatService } from "@/services/chat";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,7 +41,7 @@ export function Chat({
   handleChangeStatus,
   onTicketUpdated,
 }: ChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);

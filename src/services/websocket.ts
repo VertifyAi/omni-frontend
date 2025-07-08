@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { Message, WebSocketEvents } from '@/types/chat';
+import { TicketMessage } from '@/types/ticket';
+import { WebSocketEvents } from '@/types/chat';
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -116,7 +117,7 @@ class WebSocketService {
     this.reconnectAttempts = 0;
   }
 
-  sendMessage(message: Message) {
+  sendMessage(message: TicketMessage) {
     if (!this.socket?.connected) {
       console.error('WebSocketService: Não está conectado');
       return false;

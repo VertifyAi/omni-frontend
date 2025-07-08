@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TicketList } from "@/components/TicketList";
 import { Chat } from "@/components/Chat";
-import { Ticket, TicketPriorityLevel, TicketStatus } from "@/types/chat";
+import { Ticket, TicketPriorityLevel, TicketStatus } from "@/types/ticket";
 import { ChangeTicketStatusDto } from "@/types/ChangeTicketStatusDto";
 import { fetchApi } from "@/lib/fetchApi";
 import { useAuth } from "@/contexts/AuthContext";
