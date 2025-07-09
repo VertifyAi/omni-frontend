@@ -150,7 +150,7 @@ export function TicketCard({
         <div className="flex items-center gap-4">
           <div className="relative">
             <Image
-              src={ticket.customer.avatar || "/default-avatar.svg"}
+              src={ticket.customer.profilePicture || `https://avatar.vercel.sh/${ticket.customer.name || 'User'}.png`}
               alt={ticket.customer.name}
               width={40}
               height={40}
@@ -174,7 +174,7 @@ export function TicketCard({
               </h3>
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatPhoneNumber(ticket.customer.phone)}
+              {formatPhoneNumber(ticket.customer.phone || "")}
             </p>
           </div>
         </div>

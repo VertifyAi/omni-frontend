@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       "vertify-public-assets.s3.us-east-2.amazonaws.com",
+      "omni-profile-images.s3.us-east-2.amazonaws.com",
+      "avatar.vercel.sh",
       "localhost",
     ],
   },

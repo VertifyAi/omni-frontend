@@ -772,7 +772,10 @@ export function Chat({
         >
           <div className="relative">
             <Image
-              src={ticket.customer.avatar || "/default-avatar.svg"}
+              src={
+                ticket.customer.profilePicture ||
+                `https://avatar.vercel.sh/${ticket.customer.name || "User"}.png`
+              }
               alt={ticket.customer.name}
               width={40}
               height={40}
@@ -785,7 +788,7 @@ export function Chat({
               {ticket.customer.name}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {formatPhoneNumber(ticket.customer.phone)}
+              {formatPhoneNumber(ticket.customer.phone || "")}
             </p>
           </div>
         </div>
@@ -882,7 +885,16 @@ export function Chat({
                     ) : message.senderType === "USER" ? (
                       <User className="w-4 h-4" />
                     ) : (
-                      ticket.customer.name.charAt(0).toUpperCase()
+                      <Image
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                        src={
+                          ticket.customer.profilePicture ||
+                          `https://avatar.vercel.sh/${ticket.customer.name || "User"}.png`
+                        }
+                        alt={ticket.customer.name}
+                      />
                     )}
                   </div>
 
