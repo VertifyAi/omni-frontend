@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { SignInFormSchema } from "@/lib/definitions";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +41,7 @@ const Login3 = ({
   signupUrl = "/sign-up",
 }: Login3Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
 
   const form = useForm<z.infer<typeof SignInFormSchema>>({
@@ -116,12 +118,21 @@ const Login3 = ({
                   )} */}
                 </div>
                 <div className="space-y-2">
-                  <Input
-                    type="password"
-                    placeholder="Senha"
-                    {...form.register("password")}
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Senha"
+                      {...form.register("password")}
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeIcon className="w-4 h-4 text-muted-foreground" /> : <EyeOffIcon className="w-4 h-4 text-muted-foreground" />}
+                    </button>
+                  </div>
                   {/* {errors.password && (
                     <p className="text-sm text-red-500">
                       {errors.password.message}
