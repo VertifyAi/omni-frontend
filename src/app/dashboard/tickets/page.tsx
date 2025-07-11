@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { TicketList } from "@/components/TicketList";
 import { Chat } from "@/components/Chat";
 import { Ticket, TicketPriorityLevel, TicketStatus } from "@/types/ticket";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import "../../globals.css";
 
-export default function TicketsPage() {
+function TicketsPageContent() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [selectedTab, setSelectedTab] = useState<TicketStatus>(TicketStatus.IN_PROGRESS);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -115,7 +115,6 @@ export default function TicketsPage() {
     }
   };
 
-
   return (
     <div className="flex h-screen ml-16 bg-gradient-to-br from-background to-white-muted">
       {/* Nível 2: Listagem de Atendimentos */}
@@ -159,5 +158,41 @@ export default function TicketsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex h-screen ml-16 bg-gradient-to-br from-background to-white-muted">
+      <div className="w-[400px] bg-white-soft border-r border-white-warm shadow-white-soft">
+        <div className="p-4">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="space-y-3">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 bg-white-warm">
+        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+          <div className="animate-pulse">
+            <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-64"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function TicketsPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <TicketsPageContent />
+    </Suspense>
   );
 }
