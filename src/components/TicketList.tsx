@@ -9,6 +9,7 @@ import { fetchApi } from "@/lib/fetchApi";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { chatService } from "@/services/chat";
 import { TicketCard, TicketCardSkeleton } from "./TicketCard";
+import Link from "next/link";
 import "../app/globals.css";
 
 interface TicketListProps {
@@ -95,10 +96,6 @@ export function TicketList({
       ticket = sortTicketsByPriority(ticket);
 
       setTickets(ticket);
-
-      if (ticket.length > 0 && !selectedTicket) {
-        onTicketSelect(ticket[0]);
-      }
     } catch (error) {
       console.error("Erro ao carregar tickets:", error);
       setError("Não foi possível carregar os tickets.");
@@ -286,8 +283,8 @@ export function TicketList({
       )}
 
       {/* Nível 1: Tabs */}
-      <div className="bg-white-soft">
-        <Tabs value={selectedTab} defaultValue="ai" className="w-full p-2">
+      <div className="bg-white-soft flex-1 flex flex-col">
+        <Tabs value={selectedTab} defaultValue="ai" className="w-full p-2 flex-1 flex flex-col">
           <TabsList className="w-full bg-white-pure border border-white-warm shadow-white-soft">
             <TabsTrigger
               value={TicketStatus.IN_PROGRESS}
@@ -312,7 +309,7 @@ export function TicketList({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={TicketStatus.AI} className="mt-4">
+          <TabsContent value={TicketStatus.AI} className="mt-4 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-3 w-full px-2">
               {isLoading && tickets.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
@@ -347,7 +344,7 @@ export function TicketList({
             </div>
           </TabsContent>
 
-          <TabsContent value={TicketStatus.IN_PROGRESS} className="mt-4">
+          <TabsContent value={TicketStatus.IN_PROGRESS} className="mt-4 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-3 w-full px-2">
               {isLoading && tickets.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
@@ -409,7 +406,7 @@ export function TicketList({
             </div>
           </TabsContent>
 
-          <TabsContent value={TicketStatus.CLOSED} className="mt-4">
+          <TabsContent value={TicketStatus.CLOSED} className="mt-4 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-3 w-full px-2">
               {isLoading && tickets.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
@@ -444,6 +441,15 @@ export function TicketList({
             </div>
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Footer */}
+      <div className="h-[73px] border-t border-white-warm bg-white-pure shadow-white-soft min-h-[57px] flex items-center justify-center">
+        <Link href="/dashboard/tickets/list">
+          <Button variant="link" className="text-primary hover:text-primary/80">
+            Ver todos os atendimentos
+          </Button>
+        </Link>
       </div>
     </div>
   );

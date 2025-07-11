@@ -97,7 +97,7 @@ export default function EditTeamPage() {
         data.members.map((member: User) => member.id)
       );
       form.setValue("ownerId", data.owner.id);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       setSelectedUsers(data.members.map((member: User) => member.id));
 
       // Carregar imagem da equipe se existir

@@ -23,20 +23,23 @@ export enum SenderType {
   CUSTOMER = "CUSTOMER",
   AI = "AI",
   USER = "USER",
+  OMNIFY = "OMNIFY",
 }
 
 export interface Ticket {
   id: number;
   status: TicketStatus;
   priorityLevel: TicketPriorityLevel;
-  areaId: number;
-  closedAt: string;
   company: Company;
   channel: string;
-  companyId: number;
-  createdAt: string;
   customer: Customer;
   ticketMessages: TicketMessage[];
+  agentId?: number;
+  userId?: number;
+  areaId?: number;
+  companyId: number;
+  createdAt: string;
+  closedAt: string;
 }
 
 export interface TicketMessage {
@@ -48,4 +51,13 @@ export interface TicketMessage {
   senderName?: string;
   senderType: SenderType;
   createdAt: Date;
+}
+
+export interface TransferTicketDto {
+  userId?: number;
+  areaId?: number;
+  teamId?: number;
+  agentId?: number;
+  priorityLevel?: TicketPriorityLevel;
+  closeTicket?: boolean;
 }

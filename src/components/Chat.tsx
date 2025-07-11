@@ -29,16 +29,17 @@ import { AudioWaveform } from "./AudioWaveform";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TransferTicketModal } from "./TransferTicketModal";
 import { AudioMessage } from "./AudioMessage";
+import { Team } from "@/app/dashboard/teams/page";
 
 interface ChatProps {
   ticket: Ticket;
-  handleChangeStatus: (status: TicketStatus) => Promise<void>;
+  handleTransferTicket: (status: TicketStatus) => Promise<void>;
   onTicketUpdated?: () => void;
 }
 
 export function Chat({
   ticket,
-  handleChangeStatus,
+  handleTransferTicket,
   onTicketUpdated,
 }: ChatProps) {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
@@ -59,6 +60,7 @@ export function Chat({
   const [isSendingAudio, setIsSendingAudio] = useState(false);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [teamData, setTeamData] = useState<Team | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -507,6 +509,25 @@ export function Chat({
     };
   }, [ticket.id]);
 
+  // Buscar dados da equipe quando o ticket tiver areaId
+  useEffect(() => {
+    const loadTeamData = async () => {
+      if (ticket.areaId) {
+        try {
+          const response = await fetchApi(`/api/teams/${ticket.areaId}`);
+          if (response.ok) {
+            const team = await response.json();
+            setTeamData(team);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar dados da equipe:", error);
+        }
+      }
+    };
+
+    loadTeamData();
+  }, [ticket.areaId]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -799,19 +820,30 @@ export function Chat({
           >
             Transferir Atendimento
           </Button>
-          {ticket.status === TicketStatus.IN_PROGRESS && (
+          {((ticket.status === TicketStatus.IN_PROGRESS &&
+            !ticket.userId &&
+            ticket.areaId) ||
+            ticket.status === TicketStatus.AI) && (
             <Button
-              onClick={() => handleChangeStatus(TicketStatus.CLOSED)}
-              variant="destructive"
-              className="bg-red-500"
+              onClick={() => handleTransferTicket(TicketStatus.IN_PROGRESS)}
+              className="bg-primary"
+            >
+              Atender Cliente
+            </Button>
+          )}
+          {(ticket.status === TicketStatus.IN_PROGRESS ||
+            ticket.status === TicketStatus.AI) && (
+            <Button
+              onClick={() => handleTransferTicket(TicketStatus.CLOSED)}
+              className="gradient-brand"
             >
               Finalizar Atendimento
             </Button>
           )}
           {ticket.status === TicketStatus.CLOSED && (
             <Button
-              onClick={() => handleChangeStatus(TicketStatus.IN_PROGRESS)}
-              className="bg-primary"
+              onClick={() => handleTransferTicket(TicketStatus.IN_PROGRESS)}
+              className="gradient-brand"
             >
               Abrir Atendimento
             </Button>
@@ -858,14 +890,18 @@ export function Chat({
                 ref={scrollRef}
                 key={index}
                 className={`flex ${
-                  message.senderType === "AI" || message.senderType === "USER"
+                  message.senderType === "AI" ||
+                  message.senderType === "USER" ||
+                  message.senderType === "OMNIFY"
                     ? "justify-end"
                     : "justify-start"
                 }`}
               >
                 <div
                   className={`flex items-end gap-2 max-w-[70%] ${
-                    message.senderType === "AI" || message.senderType === "USER"
+                    message.senderType === "AI" ||
+                    message.senderType === "USER" ||
+                    message.senderType === "OMNIFY"
                       ? "flex-row-reverse"
                       : "flex-row"
                   }`}
@@ -873,14 +909,16 @@ export function Chat({
                   {/* Avatar do remetente */}
                   <div
                     className={`w-8 h-8 min-w-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
-                      message.senderType === "AI"
+                      message.senderType === "AI" ||
+                      message.senderType === "OMNIFY"
                         ? "bg-gradient-to-r from-purple-500 to-purple-600"
                         : message.senderType === "USER"
                         ? "bg-gradient-to-r from-primary to-secondary"
                         : "bg-gradient-to-r from-gray-400 to-gray-500"
                     }`}
                   >
-                    {message.senderType === "AI" ? (
+                    {message.senderType === "AI" ||
+                    message.senderType === "OMNIFY" ? (
                       <Bot className="w-4 h-4" />
                     ) : message.senderType === "USER" ? (
                       <User className="w-4 h-4" />
@@ -891,7 +929,9 @@ export function Chat({
                         className="rounded-full"
                         src={
                           ticket.customer.profilePicture ||
-                          `https://avatar.vercel.sh/${ticket.customer.name || "User"}.png`
+                          `https://avatar.vercel.sh/${
+                            ticket.customer.name || "User"
+                          }.png`
                         }
                         alt={ticket.customer.name}
                       />
@@ -901,7 +941,8 @@ export function Chat({
                   {/* Mensagem */}
                   <div
                     className={`break-words whitespace-pre-wrap rounded-2xl elevated-1 ${
-                      message.senderType === "AI"
+                      message.senderType === "AI" ||
+                      message.senderType === "OMNIFY"
                         ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white"
                         : message.senderType === "USER"
                         ? "bg-gradient-to-r from-primary to-purple-600 text-white"
@@ -913,7 +954,8 @@ export function Chat({
                         <AudioMessage
                           audioUrl={message.message}
                           variant={
-                            message.senderType === "AI"
+                            message.senderType === "AI" ||
+                            message.senderType === "OMNIFY"
                               ? "ai"
                               : message.senderType === "USER"
                               ? "user"
@@ -923,7 +965,8 @@ export function Chat({
                         <p
                           className={`text-xs ${
                             message.senderType === "AI" ||
-                            message.senderType === "USER"
+                            message.senderType === "USER" ||
+                            message.senderType === "OMNIFY"
                               ? "text-white/70"
                               : "text-muted-foreground"
                           }`}
@@ -939,7 +982,8 @@ export function Chat({
                         <p
                           className={`text-xs mt-2 ${
                             message.senderType === "AI" ||
-                            message.senderType === "USER"
+                            message.senderType === "USER" ||
+                            message.senderType === "OMNIFY"
                               ? "text-white/70"
                               : "text-muted-foreground"
                           }`}
@@ -957,7 +1001,7 @@ export function Chat({
       </ScrollArea>
 
       {/* Nível 1: Footer */}
-      <div className="p-4 border-t border-white-warm bg-white-pure shadow-white-soft">
+      <div className="min-h-[73px] border-t border-white-warm bg-white-pure shadow-white-soft flex items-center justify-center">
         {/* Inputs de arquivo ocultos */}
         <input
           ref={fileInputRef}
@@ -980,27 +1024,40 @@ export function Chat({
           onChange={(e) => handleFileChange(e, "video")}
         />
 
-        <div className="flex gap-3">
-          {ticket.status === "AI" ? (
+        <div className="flex gap-3 w-full p-4">
+          {ticket.status === TicketStatus.AI ? (
             <div className="flex w-full items-center justify-center gap-6">
-              <p className="text-muted-foreground font-medium">
-                Atualizar status:
+              <p className="text-muted-foreground font-medium flex justify-center items-center">
+                O atendimento está sendo realizado por um agente de inteligência
+                artificial.
+                {messages.filter(
+                  (m) => m.senderType === "AI" || m.senderType === "OMNIFY"
+                ).length > 0 && (
+                  <span className="ml-2 bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                    {
+                      messages.filter(
+                        (m) =>
+                          m.senderType === "AI" || m.senderType === "OMNIFY"
+                      ).length
+                    }{" "}
+                    mensagem(s) da IA
+                  </span>
+                )}
               </p>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => handleChangeStatus(TicketStatus.IN_PROGRESS)}
-                  className="bg-primary"
-                >
-                  Atender Cliente
-                </Button>
-                <Button
-                  onClick={() => handleChangeStatus(TicketStatus.CLOSED)}
-                  variant="destructive"
-                  className="bg-red-500"
-                >
-                  Finalizar Atendimento
-                </Button>
-              </div>
+            </div>
+          ) : ticket.status === TicketStatus.IN_PROGRESS &&
+            !ticket.userId &&
+            ticket.areaId ? (
+            <div className="flex w-full items-center justify-center gap-6">
+              <p className="text-muted-foreground font-medium flex justify-center items-center">
+                Para atender o cliente, clique no botão &quot;Atender
+                Cliente&quot;
+                {ticket.areaId && (
+                  <span className="ml-2 bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">
+                    Equipe: {teamData?.name || `ID: ${ticket.areaId}`}
+                  </span>
+                )}
+              </p>
             </div>
           ) : (
             <div className="flex w-full gap-2 items-end">

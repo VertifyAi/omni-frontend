@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TicketList } from "@/components/TicketList";
 import { Chat } from "@/components/Chat";
 import { Ticket, TicketPriorityLevel, TicketStatus } from "@/types/ticket";
-import { ChangeTicketStatusDto } from "@/types/ChangeTicketStatusDto";
+import { TransferTicketDto } from "@/types/ticket";
 import { fetchApi } from "@/lib/fetchApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import "../../globals.css";
 
 export default function TicketsPage() {
@@ -14,19 +16,65 @@ export default function TicketsPage() {
   const [selectedTab, setSelectedTab] = useState<TicketStatus>(TicketStatus.IN_PROGRESS);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { user } = useAuth();
+  const searchParams = useSearchParams();
 
-  const handleChangeStatus = async (status: TicketStatus) => {
-    try {
-      const payload: ChangeTicketStatusDto = {
-        status: status,
+  // Escutar tecla ESC para desselecionar ticket
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && selectedTicket) {
+        setSelectedTicket(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedTicket]);
+
+  // Verificar se há um ticket específico na URL para selecionar automaticamente
+  useEffect(() => {
+    const selectedTicketId = searchParams.get('selectedTicket');
+    if (selectedTicketId) {
+      // Fazer uma requisição para buscar o ticket específico
+      const fetchSpecificTicket = async () => {
+        try {
+          const response = await fetchApi(`/api/tickets/${selectedTicketId}`);
+          if (response.ok) {
+            const ticket = await response.json();
+            setSelectedTicket(ticket);
+            // Remover o parâmetro da URL
+            window.history.replaceState({}, '', '/dashboard/tickets');
+          }
+        } catch (error) {
+          console.error('Erro ao carregar ticket específico:', error);
+        }
       };
+      fetchSpecificTicket();
+    }
+  }, [searchParams]);
 
+  const handleTransferTicket = async (status: TicketStatus) => {
+    if (!selectedTicket) {
+      console.error("Nenhum ticket selecionado");
+      return;
+    }
+
+    try {
+      const payload: TransferTicketDto = {};
+
+      // Caso 1 e 2: Abrir ou pegar um atendimento (IN_PROGRESS)
       if (status === TicketStatus.IN_PROGRESS && user?.id) {
         payload.userId = user.id;
         payload.priorityLevel = TicketPriorityLevel.MEDIUM;
       }
 
-      await fetchApi(`/api/tickets/status/${selectedTicket?.id}`, {
+      // Caso 3: Fechar um chamado (CLOSED)
+      if (status === TicketStatus.CLOSED) {
+        payload.closeTicket = true;
+      }
+
+      const response = await fetchApi(`/api/tickets/${selectedTicket.id}/transfer`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -34,21 +82,39 @@ export default function TicketsPage() {
         body: JSON.stringify(payload),
       });
 
+      if (!response.ok) {
+        throw new Error(`Erro ao transferir ticket: ${response.status}`);
+      }
+
+      // Atualizar o ticket local
       setSelectedTicket((prev) => {
         if (!prev) return null;
         return {
           ...prev,
           status: status,
           userId: payload.userId,
-          priorityLevel: payload.priorityLevel || TicketPriorityLevel.MEDIUM,
+          priorityLevel: payload.priorityLevel || prev.priorityLevel,
         };
       });
 
+      // Atualizar a aba selecionada
       setSelectedTab(status);
+      
+      // Trigger refresh da lista
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Mostrar mensagem de sucesso
+      if (status === TicketStatus.CLOSED) {
+        toast.success("Ticket fechado com sucesso!");
+      } else if (status === TicketStatus.IN_PROGRESS) {
+        toast.success("Ticket transferido com sucesso!");
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Erro ao transferir ticket:", error);
+      toast.error("Erro ao transferir ticket. Tente novamente.");
     }
   };
+
 
   return (
     <div className="flex h-screen ml-16 bg-gradient-to-br from-background to-white-muted">
@@ -68,7 +134,7 @@ export default function TicketsPage() {
         {selectedTicket ? (
           <Chat
             ticket={selectedTicket}
-            handleChangeStatus={handleChangeStatus}
+            handleTransferTicket={handleTransferTicket}
             onTicketUpdated={() => {
               setRefreshTrigger(prev => prev + 1);
               setSelectedTicket(null); // Desselecionar o ticket transferido

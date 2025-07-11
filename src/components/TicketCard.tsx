@@ -150,7 +150,10 @@ export function TicketCard({
         <div className="flex items-center gap-4">
           <div className="relative">
             <Image
-              src={ticket.customer.profilePicture || `https://avatar.vercel.sh/${ticket.customer.name || 'User'}.png`}
+              src={
+                ticket.customer.profilePicture ||
+                `https://avatar.vercel.sh/${ticket.customer.name || "User"}.png`
+              }
               alt={ticket.customer.name}
               width={40}
               height={40}
@@ -190,29 +193,37 @@ export function TicketCard({
               })}
             </span>
           )}
-            <Badge
-              variant={
-                ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
-              }
-              className={`capitalize text-xs font-medium ${
-                ticket.status === TicketStatus.AI
-                  ? "bg-primary text-white hover:opacity-90"
-                  : ticket.status === TicketStatus.IN_PROGRESS
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {ticket.status === TicketStatus.IN_PROGRESS ? (
-                "Em Andamento"
-              ) : ticket.status === TicketStatus.CLOSED ? (
-                "Fechado"
-              ) : (
-                <span className="flex items-center gap-1">
-                  <Bot className="h-3 w-3" />
-                  IA
-                </span>
-              )}
-            </Badge>
+          <Badge
+            variant={
+              ticket.status === TicketStatus.CLOSED ? "secondary" : "default"
+            }
+            className={`capitalize text-xs font-medium ${
+              ticket.status === TicketStatus.AI
+                ? "bg-primary text-white hover:opacity-90"
+                : ticket.status === TicketStatus.IN_PROGRESS
+                ? "bg-primary text-white"
+                : "bg-gray-100 text-gray-700"
+            }`}
+          >
+            {ticket.status === TicketStatus.IN_PROGRESS &&
+            ticket.userId &&
+            !ticket.agentId &&
+            !ticket.areaId ? (
+              "Em Andamento"
+            ) : ticket.status === TicketStatus.CLOSED ? (
+              "Fechado"
+            ) : ticket.status === TicketStatus.IN_PROGRESS &&
+              !ticket.userId &&
+              !ticket.agentId &&
+              ticket.areaId ? (
+              "Aberto"
+            ) : (
+              <span className="flex items-center gap-1">
+                <Bot className="h-3 w-3" />
+                IA
+              </span>
+            )}
+          </Badge>
           {/* {ticket.status === TicketStatus.IN_PROGRESS &&
             ticket.priorityLevel && (
               <Badge
@@ -227,7 +238,7 @@ export function TicketCard({
         {lastMessage && (
           <div className="text-muted-foreground truncate flex text-xs gap-2">
             <span className="font-medium text-foreground">
-              {lastMessage.senderName}:
+              {lastMessage.senderName || `Omnify`}:
             </span>{" "}
             {lastMessage.messageType === "AUDIO" &&
             isS3AudioUrl(lastMessage.message) ? (
@@ -246,7 +257,7 @@ export function TicketCard({
           </div>
         )}
         {chatService.getUnreadCount(ticket.id) > 0 && (
-          <span className="bg-gradient-to-r from-primary to-secondary text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-semibold elevated-1 animate-pulse">
+          <span className="bg-secondary text-white rounded-full h-6 w-20 flex items-center justify-center text-xs font-semibold animate-pulse">
             {chatService.getUnreadCount(ticket.id)}
           </span>
         )}

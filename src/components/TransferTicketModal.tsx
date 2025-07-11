@@ -27,6 +27,7 @@ import { TicketPriorityLevel } from "@/types/ticket";
 import { Team } from "@/app/dashboard/teams/page";
 import { User as UserType } from "@/types/users";
 import { Agent } from "@/types/agent";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TransferTicketModalProps {
   isOpen: boolean;
@@ -73,6 +74,13 @@ export function TransferTicketModal({
     }
   }, [isOpen]);
 
+  // Reset priority when switching to agents tab
+  useEffect(() => {
+    if (activeTab === 'agents') {
+      setSelectedPriority(TicketPriorityLevel.MEDIUM);
+    }
+  }, [activeTab]);
+
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
@@ -116,9 +124,12 @@ export function TransferTicketModal({
     setError(null);
 
     try {
-      const transferData: TransferTicketDto = {
-        priorityLevel: selectedPriority
-      };
+      const transferData: TransferTicketDto = {};
+
+      // Para agentes IA, não enviamos a prioridade
+      if (activeTab !== 'agents') {
+        transferData.priorityLevel = selectedPriority;
+      }
 
       switch (selectedOption.type) {
         case 'team':
@@ -237,22 +248,24 @@ export function TransferTicketModal({
         )}
 
         <div className="space-y-6">
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground">Prioridade do Atendimento</h4>
-            <div className="flex gap-2 flex-wrap">
-              {Object.values(TicketPriorityLevel).map((priority) => (
-                <Button
-                  key={priority}
-                  variant={selectedPriority === priority ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedPriority(priority)}
-                  className={selectedPriority === priority ? getPriorityColor(priority) : ""}
-                >
-                  {getPriorityLabel(priority)}
-                </Button>
-              ))}
+          {activeTab !== 'agents' && (
+            <div className="space-y-3">
+              <h4 className="font-medium text-foreground">Prioridade do Atendimento</h4>
+              <div className="flex gap-2 flex-wrap">
+                {Object.values(TicketPriorityLevel).map((priority) => (
+                  <Button
+                    key={priority}
+                    variant={selectedPriority === priority ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedPriority(priority)}
+                    className={selectedPriority === priority ? getPriorityColor(priority) : ""}
+                  >
+                    {getPriorityLabel(priority)}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-3">
             <h4 className="font-medium text-foreground">Transferir Para</h4>
@@ -275,9 +288,24 @@ export function TransferTicketModal({
 
               <TabsContent value={activeTab} className="space-y-0">
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Carregando...</span>
+                  <div className="h-64 w-full rounded-md border border-white-warm">
+                    <div className="p-4 space-y-2">
+                      {[...Array(3)].map((_, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-white-warm"
+                        >
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-3 w-48" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-4 w-4" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <ScrollArea className="h-64 w-full rounded-md border border-white-warm">
