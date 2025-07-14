@@ -151,7 +151,7 @@ const Navbar1 = ({
             </div>
           </div>
           <div className="flex gap-2 items-center">
-            <Button asChild variant="outline" size="sm" className="hover-cool-blue bg-white-pure border-white-warm">
+            <Button asChild variant="outline" size="sm" className=" bg-white-pure border-white-warm">
               <a href={auth.login.url}>{auth.login.text}</a>
             </Button>
             {auth.signup && (

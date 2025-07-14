@@ -6,7 +6,7 @@ import { Footer2 } from "@/components/Footer2";
 import { Hero7 } from "@/components/hero7";
 // import { Hero45 } from "@/components/Hero02";
 import { Navbar1 } from "@/components/NavBar";
-import { Pricing2 } from "@/components/Pricing2";
+// import { Pricing2 } from "@/components/Pricing2";
 import { Stats8 } from "@/components/Stats8";
 import { Cta11 } from "@/components/Cta11";
 
@@ -23,7 +23,7 @@ export default function Home() {
         heading="Não Deixe Seus Concorrentes Te Passarem Para Trás" 
         description="Otimize seu atendimento e impulsione suas vendas com nossa IA. Experimente grátis agora e perceba a diferença em apenas 30 dias."
       />
-      <Pricing2 />
+      {/* <Pricing2 /> */}
       <Faq1 />
       <Footer2 />
     </div>

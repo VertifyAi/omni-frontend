@@ -26,7 +26,7 @@ export function WelcomeScreen() {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="text-center">
+          {/* <div className="text-center">
             <h2 className="text-xl font-semibold mb-4">
               Conheça a Omni em ação
             </h2>
@@ -42,7 +42,7 @@ export function WelcomeScreen() {
                 className="rounded-lg"
               ></iframe>
             </div>
-          </div>
+          </div> */}
 
           <div className="text-center">
             <p className="text-gray-700 mb-6">
