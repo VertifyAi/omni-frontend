@@ -72,37 +72,46 @@ export const useFacebookSDK = (appId: string) => {
     document.body.appendChild(script);
   }, [appId]);
 
-  // Wrapper para chamar login apenas quando estiver pronto
-  const login = async () => {
-    if (!isReady || typeof window === "undefined") {
-      console.warn("Facebook SDK ainda não está pronto.");
-      return;
+// Wrapper para chamar login apenas quando estiver pronto
+const login = () => { // Não precisa ser async/await aqui
+  if (!isReady || typeof window === "undefined" || !window.FB) {
+    console.warn("Facebook SDK ainda não está pronto.");
+    return;
+  }
+
+  const permissions = 'business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging';
+  // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
+
+  window.FB.login(
+    (response) => {
+      console.log("Resposta do login do Facebook:", response);
+
+      if (response.status === "connected") {
+        // SUCESSO! O usuário conectou e autorizou o app.
+        // O 'response.authResponse' contém o token de acesso.
+        const accessToken = response.authResponse?.accessToken;
+        console.log("Token de Acesso obtido:", accessToken);
+        
+        // AGORA você pode fazer o que precisa com o token,
+        // como enviá-lo para o seu backend para salvar
+        // e depois redirecionar o usuário.
+        
+        // Exemplo: redirecionando para a página de onboarding
+        window.location.href = "https://vertify.com.br/whatsapp/onboarding";
+
+      } else {
+        // O usuário não autorizou o app ou fechou o pop-up.
+        console.error("Login com Facebook falhou ou não foi autorizado.");
+        alert("A integração com o Facebook não foi concluída. Por favor, tente novamente.");
+      }
+    },
+    {
+      scope: permissions,
+      // Se você estivesse usando o método de configuração, seria assim:
+      // config_id: 'SEU_CONFIG_ID_AQUI',
     }
-
-    const redirectUri = "https://vertify.com.br/whatsapp/onboarding";
-    const oauthUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&response_type=token&scope=${encodeURIComponent(
-      "business_management,whatsapp_business_management"
-    )}`;
-
-    const width = 500;
-    const height = 600;
-    const left = window.screenX + (window.innerWidth - width) / 2;
-    const top = window.screenY + (window.innerHeight - height) / 2;
-
-    const popup = window.open(
-      oauthUrl,
-      "Facebook Login",
-      `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars=yes`
-    );
-
-    if (!popup) {
-      alert(
-        "Não foi possível abrir a janela de login. Verifique se o navegador bloqueou pop-ups."
-      );
-    }
-  };
+  );
+};
 
   return { isReady, login };
 };
