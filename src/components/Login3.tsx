@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ interface Login3Props {
   googleText?: string;
   signupText?: string;
   signupUrl?: string;
+  recoverUrl?: string;
 }
 
 const Login3 = ({
@@ -39,9 +40,11 @@ const Login3 = ({
   loginText = "Entrar",
   signupText = "Não tem uma conta?",
   signupUrl = "/sign-up",
+  recoverUrl = "/recover",
 }: Login3Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login } = useAuth();
 
   const form = useForm<z.infer<typeof SignInFormSchema>>({
@@ -52,14 +55,39 @@ const Login3 = ({
     },
   });
 
-  const {
-    handleSubmit,
-  } = form;
+  // Carregar credenciais salvas quando o componente for montado
+  useEffect(() => {
+    const savedCredentials = localStorage.getItem("omni-login-credentials");
+    if (savedCredentials) {
+      try {
+        const { email, password } = JSON.parse(savedCredentials);
+        form.setValue("email", email);
+        form.setValue("password", password);
+        setRememberMe(true);
+      } catch (error) {
+        console.error("Erro ao carregar credenciais salvas:", error);
+        localStorage.removeItem("omni-login-credentials");
+      }
+    }
+  }, [form]);
+
+  const { handleSubmit } = form;
 
   const onSubmit = async (data: z.infer<typeof SignInFormSchema>) => {
     try {
       setIsLoading(true);
       await login(data.email, data.password);
+      
+      // Salvar ou remover credenciais baseado no checkbox
+      if (rememberMe) {
+        localStorage.setItem("omni-login-credentials", JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }));
+      } else {
+        localStorage.removeItem("omni-login-credentials");
+      }
+      
       setMixpanelTrack("login_success", {
         event_id: "login_success",
         properties: {
@@ -68,7 +96,9 @@ const Login3 = ({
         },
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao fazer login');
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao fazer login"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +112,6 @@ const Login3 = ({
       toast.error("Erro ao enviar o formulário");
     }
   };
-  
 
   return (
     <section className="py-32 flex justify-center items-center h-screen">
@@ -130,7 +159,11 @@ const Login3 = ({
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeIcon className="w-4 h-4 text-muted-foreground" /> : <EyeOffIcon className="w-4 h-4 text-muted-foreground" />}
+                      {showPassword ? (
+                        <EyeIcon className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <EyeOffIcon className="w-4 h-4 text-muted-foreground" />
+                      )}
                     </button>
                   </div>
                   {/* {errors.password && (
@@ -144,7 +177,24 @@ const Login3 = ({
                 </Button>
               </div>
               <div className="mt-4 text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground text-start flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="remember-me" 
+                    className="w-4 h-4" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <label htmlFor="remember-me" className="text-sm">
+                    Lembrar-me
+                  </label>
+                </p>
+                <p className="text-sm text-muted-foreground text-end">
+                  <a href={recoverUrl} className="text-primary hover:underline">
+                    Esqueceu sua senha?
+                  </a>
+                </p>
+                <p className="text-sm text-muted-foreground text-end">
                   {signupText}{" "}
                   <a href={signupUrl} className="text-primary hover:underline">
                     Criar conta
