@@ -50,12 +50,9 @@ export default function WhatsAppOnboarding() {
 
   const configureWebhook = async (accessToken: string, wabaIds: string[]) => {
     try {
-      console.log(wabaIds, "wabaIds");
-      // Configurar webhook usando a Graph API do Meta
       const webhookUrl = process.env.NEXT_PUBLIC_API_URL + "webhook";
 
-      for (const wabaId of wabaIds) {
-        // Primeiro, vamos configurar o webhook via Graph API
+      for (const wabaId of wabaIds[0]) {
         const response = await fetch(
           `https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`,
           {
@@ -72,8 +69,6 @@ export default function WhatsAppOnboarding() {
           }
         );
 
-        console.log(response, "response primeira requisição");
-
         if (!response.ok) {
           throw new Error(`Erro ao configurar webhook: ${response.statusText}`);
         }
@@ -89,8 +84,7 @@ export default function WhatsAppOnboarding() {
       try {
         setError(null);
 
-        // Extrair parâmetros da URL
-        const params = new URLSearchParams(window.location.hash.slice(1));
+        const params = new URLSearchParams(window.location.search.slice(1));
         const token = params.get("access_token");
         const dataAccessExpirationTime = params.get(
           "data_access_expiration_time"
@@ -102,14 +96,12 @@ export default function WhatsAppOnboarding() {
         const vertifyToken = localStorage.getItem("vertify_token");
         localStorage.removeItem("vertify_token");
 
-        if (!token || !dataAccessExpirationTime || !expiresIn) {
+        if (!token || !expiresIn) {
           throw new Error("Parâmetros de integração incompletos");
         }
 
-        // Passo 1: Configurar integração
         updateStep("token", { loading: true });
 
-        // Buscar o wabaId usando a Graph API do Facebook
         const graphResponse = await fetch(
           `https://graph.facebook.com/v23.0/debug_token?input_token=${token}`,
           {
@@ -126,7 +118,14 @@ export default function WhatsAppOnboarding() {
         }
 
         const graphData = await graphResponse.json();
-        const wabaIds = graphData.data.granular_scopes[1].target_ids;
+        const wabaIds = graphData.data.granular_scopes
+          .filter((item: { scope: string; target_ids: string[] }) => {
+            console.log(item);
+            return item.scope === "whatsapp_business_management";
+          })
+          .map(
+            (item: { scope: string; target_ids: string[] }) => item.target_ids
+          );
 
         if (!wabaIds) {
           throw new Error("Nenhuma conta de WhatsApp Business encontrada");
@@ -136,9 +135,8 @@ export default function WhatsAppOnboarding() {
           method: "POST",
           body: JSON.stringify({
             access_token: token,
-            data_access_expiration_time: dataAccessExpirationTime,
             expires_in: expiresIn,
-            waba_ids: wabaIds,
+            waba_ids: wabaIds[0],
           }),
           headers: {
             Authorization: `Bearer ${vertifyToken}`,
@@ -148,28 +146,22 @@ export default function WhatsAppOnboarding() {
 
         updateStep("token", { loading: false, completed: true });
 
-        // Aguardar um pouco para melhor experiência visual
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Passo 2: Configurar webhook
         updateStep("webhook", { loading: true });
 
         await configureWebhook(token, wabaIds);
 
         updateStep("webhook", { loading: false, completed: true });
 
-        // Aguardar um pouco para melhor experiência visual
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Passo 3: Verificar configuração
         updateStep("verification", { loading: true });
 
-        // Simular verificação (aqui você pode adicionar uma chamada real de verificação)
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         updateStep("verification", { loading: false, completed: true });
 
-        // Aguardar um pouco antes de mostrar o sucesso
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         setMixpanelTrack("whatsapp_onboarding_success", {
