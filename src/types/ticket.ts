@@ -1,5 +1,6 @@
-import { Company } from "./company";
+import { Area, Company } from "./company";
 import { Customer } from "./customer";
+import { User } from "./users";
 
 export enum TicketStatus {
   AI = "AI",
@@ -40,6 +41,8 @@ export interface Ticket {
   companyId: number;
   createdAt: string;
   closedAt: string;
+  area: Area;
+  user: User
 }
 
 export interface TicketMessage {

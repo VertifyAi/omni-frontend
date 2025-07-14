@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as TooltipChart,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -52,6 +52,7 @@ import { format, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 import { useAuth } from "@/contexts/AuthContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const platformColors = [
   "#E97939", // Laranja principal
@@ -174,7 +175,7 @@ export default function DashboardPage() {
     }
   };
 
-    const fetchTeams = async () => {
+  const fetchTeams = async () => {
     try {
       const response = await fetchApi("/api/teams");
       const teamsData = await response.json();
@@ -188,7 +189,7 @@ export default function DashboardPage() {
           (team: { id: number; name: string; owner: { id: number } }) =>
             team.owner?.id === user.id
         );
-        
+
         // Se não tem equipes, limpar dados e parar loading
         if (filteredTeams.length === 0) {
           setSelectedTeamId("");
@@ -442,7 +443,11 @@ export default function DashboardPage() {
 
   // UseEffect para monitorar mudanças nas equipes para usuários MANAGER
   useEffect(() => {
-    if (user?.role === "MANAGER" && teams.length > 0 && (!selectedTeamId || selectedTeamId === "")) {
+    if (
+      user?.role === "MANAGER" &&
+      teams.length > 0 &&
+      (!selectedTeamId || selectedTeamId === "")
+    ) {
       const firstTeamId = teams[0].id.toString();
       setSelectedTeamId(firstTeamId);
       // Carregar dados para a equipe selecionada
@@ -500,8 +505,8 @@ export default function DashboardPage() {
             </PopoverContent>
           </Popover>
 
-                    <Select 
-            value={selectedTeamId} 
+          <Select
+            value={selectedTeamId}
             onValueChange={handleTeamChange}
             disabled={user?.role === "MANAGER" && teams.length === 0}
           >
@@ -541,19 +546,28 @@ export default function DashboardPage() {
             Aplicar
           </Button>
 
-          <Button
-            onClick={handleExportPDF}
-            disabled={
-              downloadingPDF || (user?.role === "MANAGER" && teams.length === 0)
-            }
-            className="bg-primary flex items-center justify-center text-center h-[40px]"
-          >
-            {downloadingPDF ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleExportPDF}
+                  disabled={
+                    downloadingPDF || (user?.role === "MANAGER" && teams.length === 0)
+                  }
+                  className="bg-primary flex items-center justify-center text-center h-[40px]"
+                >
+                  {downloadingPDF ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="center">
+                Exportar relatório em PDF
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -871,7 +885,7 @@ export default function DashboardPage() {
                               position: "insideLeft",
                             }}
                           />
-                          <Tooltip
+                          <TooltipChart
                             contentStyle={{
                               backgroundColor: "oklch(1 0 0)",
                               border: "1px solid oklch(0.88 0.012 260)",
@@ -986,7 +1000,7 @@ export default function DashboardPage() {
                               )
                             )}
                           </Pie>
-                          <Tooltip
+                          <TooltipChart
                             contentStyle={{
                               backgroundColor: "oklch(1 0 0)",
                               border: "1px solid oklch(0.88 0.012 260)",
@@ -1121,7 +1135,7 @@ export default function DashboardPage() {
                           tick={{ fill: "oklch(0.556 0 0)", fontSize: 12 }}
                           axisLine={{ stroke: "oklch(0.88 0.012 260)" }}
                         />
-                        <Tooltip
+                        <TooltipChart
                           contentStyle={{
                             backgroundColor: "oklch(1 0 0)",
                             border: "1px solid oklch(0.88 0.012 260)",

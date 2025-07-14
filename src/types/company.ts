@@ -11,3 +11,16 @@ export interface Company {
   updatedAt?: string;
   deletedAt?: string;
 }
+
+export interface Area {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  companyId: number;
+  ownerId: number;
+  workflowId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
+}
