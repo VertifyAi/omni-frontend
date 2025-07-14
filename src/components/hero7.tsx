@@ -61,7 +61,7 @@ const Hero7 = ({
 }: Hero7Props) => {
   return (
     <>
-      <section className="min-h-[100vh] flex items-center justify-center bg-gradient-to-b from-white-pure to-white-soft px-4 sm:px-6">
+      <section className="min-h-[100vh] flex items-center justify-center bg-gradient-to-b from-white-pure to-white-soft px-4 pb-16 sm:px-6">
         {/* <div className="container relative z-10 px-4"> */}
           <div className="text-center max-w-5xl mt-16 sm:mt-20 md:mt-24">
             {/* Main heading - ATENÇÃO */}

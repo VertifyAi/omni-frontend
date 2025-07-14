@@ -175,11 +175,11 @@ const Navbar1 = ({
             </a>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="hover-cool-blue h-8 w-8 sm:h-10 sm:w-10">
+                <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
                   <Menu className="size-3 sm:size-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent className="overflow-y-auto bg-white-pure/95 backdrop-blur-md">
+              <SheetContent className="overflow-y-auto backdrop-blur-md bg-white">
                 <SheetHeader>
                   <SheetTitle>
                     <a
@@ -209,11 +209,11 @@ const Navbar1 = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline" className="hover-cool-blue">
+                    <Button asChild variant="outline" className="">
                       <a href={auth.login.url}>{auth.login.text}</a>
                     </Button>
                     {auth.signup && (
-                      <Button asChild className="gradient-cool hover:opacity-90">
+                      <Button asChild className="gradient-brand hover:opacity-90">
                         <a href={auth.signup.url}>{auth.signup.text}</a>
                       </Button>
                     )}
