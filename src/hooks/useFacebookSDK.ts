@@ -72,46 +72,49 @@ export const useFacebookSDK = (appId: string) => {
     document.body.appendChild(script);
   }, [appId]);
 
-// Wrapper para chamar login apenas quando estiver pronto
-const login = () => { // Não precisa ser async/await aqui
-  if (!isReady || typeof window === "undefined" || !window.FB) {
-    console.warn("Facebook SDK ainda não está pronto.");
-    return;
-  }
-
-  const permissions = 'business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging';
-  // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
-
-  window.FB.login(
-    (response) => {
-      console.log("Resposta do login do Facebook:", response);
-
-      if (response.status === "connected") {
-        // SUCESSO! O usuário conectou e autorizou o app.
-        // O 'response.authResponse' contém o token de acesso.
-        const accessToken = response.authResponse?.accessToken;
-        console.log("Token de Acesso obtido:", accessToken);
-        
-        // AGORA você pode fazer o que precisa com o token,
-        // como enviá-lo para o seu backend para salvar
-        // e depois redirecionar o usuário.
-        
-        // Exemplo: redirecionando para a página de onboarding
-        window.location.href = "https://vertify.com.br/whatsapp/onboarding";
-
-      } else {
-        // O usuário não autorizou o app ou fechou o pop-up.
-        console.error("Login com Facebook falhou ou não foi autorizado.");
-        alert("A integração com o Facebook não foi concluída. Por favor, tente novamente.");
-      }
-    },
-    {
-      scope: permissions,
-      // Se você estivesse usando o método de configuração, seria assim:
-      // config_id: 'SEU_CONFIG_ID_AQUI',
+  // Wrapper para chamar login apenas quando estiver pronto
+  const login = () => {
+    // Não precisa ser async/await aqui
+    if (!isReady || typeof window === "undefined" || !window.FB) {
+      console.warn("Facebook SDK ainda não está pronto.");
+      return;
     }
-  );
-};
+
+    const permissions =
+      "business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging";
+    // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
+
+    window.FB.login(
+      (response) => {
+        console.log("Resposta do login do Facebook:", response);
+
+        if (response.status === "connected") {
+          // SUCESSO! O usuário conectou e autorizou o app.
+          // O 'response.authResponse' contém o token de acesso.
+          const accessToken = response.authResponse?.accessToken;
+          const expiresIn = response.authResponse?.expiresIn;
+
+          // AGORA você pode fazer o que precisa com o token,
+          // como enviá-lo para o seu backend para salvar
+          // e depois redirecionar o usuário.
+
+          // Exemplo: redirecionando para a página de onboarding
+          window.location.href = `https://vertify.com.br/whatsapp/onboarding?access_token=${accessToken}&expires_in=${expiresIn}`;
+        } else {
+          // O usuário não autorizou o app ou fechou o pop-up.
+          console.error("Login com Facebook falhou ou não foi autorizado.");
+          alert(
+            "A integração com o Facebook não foi concluída. Por favor, tente novamente."
+          );
+        }
+      },
+      {
+        scope: permissions,
+        // Se você estivesse usando o método de configuração, seria assim:
+        // config_id: 'SEU_CONFIG_ID_AQUI',
+      }
+    );
+  };
 
   return { isReady, login };
 };
