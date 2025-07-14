@@ -177,7 +177,7 @@ const Login3 = ({
                 </Button>
               </div>
               <div className="mt-4 text-center">
-                <p className="text-sm text-muted-foreground text-start flex items-center gap-2">
+                <p className="text-sm text-muted-foreground text-start flex items-center gap-2 mb-2">
                   <input 
                     type="checkbox" 
                     id="remember-me" 
@@ -189,12 +189,12 @@ const Login3 = ({
                     Lembrar-me
                   </label>
                 </p>
-                <p className="text-sm text-muted-foreground text-end">
+                <p className="text-sm text-muted-foreground text-start">
                   <a href={recoverUrl} className="text-primary hover:underline">
                     Esqueceu sua senha?
                   </a>
                 </p>
-                <p className="text-sm text-muted-foreground text-end">
+                <p className="text-sm text-muted-foreground text-start">
                   {signupText}{" "}
                   <a href={signupUrl} className="text-primary hover:underline">
                     Criar conta
