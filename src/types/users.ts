@@ -10,6 +10,7 @@ export interface User {
   city: string;
   state: string;
   phone: string;
+  profilePictureUrl: string;
   areaId: number;
   companyId: number;
   company: Company;

@@ -2,9 +2,10 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Team } from "@/app/dashboard/teams/page";
-import { X, Mail, User, Users } from "lucide-react";
+import { Team } from "@/types/team";
+import { X, Mail, User as UserIcon, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { User } from "@/types/users";
 
 interface TeamDetailsPanelProps {
   team: Team | null;
@@ -73,7 +74,7 @@ export function TeamDetailsPanel({ team, isOpen, onClose }: TeamDetailsPanelProp
                   <AvatarFallback className="text-lg bg-gradient-brand text-foreground font-semibold">
                     {team.name
                       .split(" ")
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
@@ -112,13 +113,13 @@ export function TeamDetailsPanel({ team, isOpen, onClose }: TeamDetailsPanelProp
                     <AvatarFallback className="bg-gradient-cool text-white font-semibold">
                       {team.owner.name
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n: string) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <p className="font-medium flex items-center gap-2 text-foreground">
-                      <User className="h-4 w-4 text-primary" />
+                      <UserIcon className="h-4 w-4 text-primary" />
                       {team.owner.name}
                     </p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
@@ -137,7 +138,7 @@ export function TeamDetailsPanel({ team, isOpen, onClose }: TeamDetailsPanelProp
                 </h4>
                 {team.members.length > 0 ? (
                   <div className="space-y-3">
-                    {team.members.map((member, index) => (
+                    {team.members.map((member: User, index: number) => (
                       <div 
                         key={index}
                         className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm hover-white-soft transition-all duration-200"
@@ -157,7 +158,7 @@ export function TeamDetailsPanel({ team, isOpen, onClose }: TeamDetailsPanelProp
                         </Avatar>
                         <div className="flex-1">
                           <p className="font-medium flex items-center gap-2 text-foreground">
-                            <User className="h-4 w-4 text-primary" />
+                            <UserIcon className="h-4 w-4 text-primary" />
                             {member.name}
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
