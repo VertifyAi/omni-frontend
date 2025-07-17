@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { fetchApi } from "@/lib/fetchApi";
-import { Team } from "@/app/dashboard/teams/page";
+import { Team } from "@/types/team";
 import { toast } from "sonner";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { useState } from "react";

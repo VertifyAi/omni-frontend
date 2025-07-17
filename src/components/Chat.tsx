@@ -29,7 +29,7 @@ import { AudioWaveform } from "./AudioWaveform";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TransferTicketModal } from "./TransferTicketModal";
 import { AudioMessage } from "./AudioMessage";
-import { Team } from "@/app/dashboard/teams/page";
+import { Team } from "@/types/team";
 
 interface ChatProps {
   ticket: Ticket;

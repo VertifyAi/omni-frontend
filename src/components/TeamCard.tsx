@@ -8,7 +8,7 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import { Eye, Pencil, Trash, Users } from "lucide-react";
-import { Team } from "@/app/dashboard/teams/page";
+import { Team } from "@/types/team";
 import { useRouter } from "next/navigation";
 import { TeamDetailsPanel } from "./TeamDetailsPanel";
 import { DeleteTeamDialog } from "./DeleteTeamDialog";

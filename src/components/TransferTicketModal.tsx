@@ -24,7 +24,7 @@ import {
 import { fetchApi } from "@/lib/fetchApi";
 import { toast } from "sonner";
 import { TicketPriorityLevel } from "@/types/ticket";
-import { Team } from "@/app/dashboard/teams/page";
+import { Team } from "@/types/team";
 import { User as UserType } from "@/types/users";
 import { Agent } from "@/types/agent";
 import { Skeleton } from "@/components/ui/skeleton";
