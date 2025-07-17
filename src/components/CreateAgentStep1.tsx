@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Lightbulb, Copy, Check } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { AgentTone, AgentObjective, AgentSegment } from "@/types/agent";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type FormData = {
   name: string;
@@ -53,7 +54,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface CreateAgentStep1Props {
+export interface CreateAgentStep1Props {
   form: UseFormReturn<FormData>;
   selectedImage: File | null;
   imagePreview: string | null;
@@ -64,6 +65,7 @@ interface CreateAgentStep1Props {
   handleImageSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handlePromptSelect: (prompt: string) => void;
   handleCopyPrompt: (prompt: string, title: string) => void;
+  loading?: boolean;
 }
 
 const promptSuggestions = {
@@ -198,17 +200,21 @@ const promptSuggestions = {
     },
   ],
 };
-export default function CreateAgentStep1({
-  form,
-  imagePreview,
-  fileInputRef,
-  promptDialogOpen,
-  setPromptDialogOpen,
-  copiedPrompt,
-  handleImageSelect,
-  handlePromptSelect,
-  handleCopyPrompt,
-}: CreateAgentStep1Props) {
+export default function CreateAgentStep1(props: CreateAgentStep1Props) {
+  if (props.loading) {
+    return <CreateAgentStep1Skeleton />;
+  }
+  const {
+    form,
+    imagePreview,
+    fileInputRef,
+    promptDialogOpen,
+    setPromptDialogOpen,
+    copiedPrompt,
+    handleImageSelect,
+    handlePromptSelect,
+    handleCopyPrompt,
+  } = props;
   return (
     <>
       {/* Input de Imagem */}
@@ -294,7 +300,7 @@ export default function CreateAgentStep1({
                   <FormLabel>Tom de voz</FormLabel>
                   <FormControl>
                     <Tabs
-                      defaultValue="casual"
+                      value={field.value}
                       onValueChange={field.onChange}
                       className="w-full"
                     >
@@ -326,7 +332,7 @@ export default function CreateAgentStep1({
                   <FormLabel>Objetivo Principal</FormLabel>
                   <FormControl>
                     <Tabs
-                      defaultValue="screening"
+                      value={field.value}
                       onValueChange={field.onChange}
                       className="w-full"
                     >
@@ -619,6 +625,69 @@ export default function CreateAgentStep1({
           </FormItem>
         )}
       />
+    </>
+  );
+}
+
+export function CreateAgentStep1Skeleton() {
+  return (
+    <>
+      {/* Input de Imagem */}
+      <div className="flex flex-col items-center mb-8">
+        <div className="relative">
+          <Skeleton className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300" />
+          <Skeleton className="absolute bottom-2 right-2 w-8 h-8 rounded-full" />
+        </div>
+        <Skeleton className="mt-2 h-4 w-48" />
+        <Skeleton className="mt-1 h-3 w-32" />
+      </div>
+
+      {/* Primeira linha: Nome e Tom de voz */}
+      <div className="flex justify-between gap-4 mb-2">
+        <div className="w-1/2 flex flex-col gap-2">
+          <Skeleton className="h-4 w-32 mb-1" /> {/* Label */}
+          <Skeleton className="h-10 w-full" /> {/* Input */}
+        </div>
+        <div className="flex gap-4 w-1/2">
+          <div className="w-full flex flex-col gap-2">
+            <Skeleton className="h-4 w-24 mb-1" /> {/* Label */}
+            <div className="w-full flex gap-2">
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-8 w-32 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Segunda linha: Objetivo e Segmento */}
+      <div className="flex justify-between gap-4 mb-2">
+        <div className="flex gap-4 w-1/2">
+          <div className="w-full flex flex-col gap-2">
+            <Skeleton className="h-4 w-32 mb-1" /> {/* Label */}
+            <div className="w-full flex gap-2">
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-8 w-32 rounded-full" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4 w-1/2">
+          <div className="w-full flex flex-col gap-2">
+            <Skeleton className="h-4 w-24 mb-1" /> {/* Label */}
+            <Skeleton className="h-10 w-full" /> {/* Select */}
+          </div>
+        </div>
+      </div>
+
+      {/* Descrição */}
+      <div className="flex flex-col gap-2 mt-2">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-32" /> {/* Label */}
+          <Skeleton className="h-7 w-28 rounded" /> {/* Botão sugestões */}
+        </div>
+        <Skeleton className="h-40 w-full" /> {/* Textarea */}
+      </div>
     </>
   );
 }

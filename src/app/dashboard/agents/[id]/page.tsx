@@ -1,17 +1,20 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { fetchApi } from "@/lib/fetchApi";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Plus, Trash2, X } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
+import AgentKnowledgeBase from "@/components/AgentKnowledgeBase";
+import CreateAgentStep1 from "@/components/CreateAgentStep1";
+import { Textarea } from "@/components/ui/textarea";
+import { TeamCard } from "@/components/TeamCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Form } from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -19,48 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Upload, FileText, X } from "lucide-react";
-import { TeamCard } from "@/components/TeamCard";
-import CreateAgentStep1 from "@/components/CreateAgentStep1";
-import { setMixpanelTrack } from "@/lib/mixpanelClient";
-import { Team } from "@/types/team";
 
-const createAgentSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  tone: z.enum(["casual", "formal", "informal"]),
-  objective: z.enum(["screening", "sales", "support"]),
-  segment: z.enum(["technology", "finance", "health", "education", "other"]),
-  description: z.string().min(1, "Descrição é obrigatória"),
-  teams_to_redirect: z.array(z.number()).optional(),
-  interaction_example: z
-    .array(
-      z.object({
-        question: z.string(),
-        answer: z.string(),
-        reasoning: z.string(),
-      })
-    )
-    .optional(),
-  presentation_example: z
-    .string()
-    .min(1, "Exemplo de apresentação é obrigatório"),
-  products_or_services_knowledge_base: z
-    .array(
-      z.object({
-        name: z.string(),
-        amount: z.number().optional(),
-        description: z.string(),
-        ctaType: z.string(),
-        ctaLink: z.string(),
-      })
-    )
-    .optional(),
-});
+import { createAgentSchema } from "@/schemas/create-agent";
+import { setMixpanelTrack } from "@/lib/mixpanelClient";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { fetchApi } from "@/lib/fetchApi";
+
+import { Team } from "@/types/team";
 
 type CreateAgentFormData = z.infer<typeof createAgentSchema>;
 
-// Tipo para produto/serviço
 type ProductService = {
   name: string;
   description: string;
@@ -70,6 +41,9 @@ type ProductService = {
 };
 
 export default function CreateAgentPage() {
+  const params = useParams();
+  const agentId = params.id as string;
+
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -78,8 +52,7 @@ export default function CreateAgentPage() {
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-
-  // Estados para produtos/serviços
+  const [loading, setLoading] = useState<boolean>(true);
   const [products, setProducts] = useState<ProductService[]>([]);
   const [newProduct, setNewProduct] = useState<ProductService>({
     name: "",
@@ -88,12 +61,6 @@ export default function CreateAgentPage() {
     ctaType: "",
     ctaLink: "",
   });
-
-  // Estados para upload de PDFs (base de conhecimento)
-  const [uploadedPdfs, setUploadedPdfs] = useState<File[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  // Estados para exemplos de interação
   const [greetingExample, setGreetingExample] = useState<string>("");
   const [interactionExamples, setInteractionExamples] = useState<
     Array<{
@@ -107,8 +74,6 @@ export default function CreateAgentPage() {
     reasoning: "",
     response: "",
   });
-
-  // Estado para equipes selecionadas (sincronizado com o form)
   const [selectedTeams, setSelectedTeams] = useState<number[]>([]);
   const form = useForm<CreateAgentFormData>({
     resolver: zodResolver(createAgentSchema),
@@ -171,7 +136,7 @@ export default function CreateAgentPage() {
       }
 
       if (selectedImage) {
-        await uploadTeamImage(responseData.id);
+        await uploadAgentImage(responseData.id);
       }
 
       setMixpanelTrack("agent_created", {
@@ -198,6 +163,7 @@ export default function CreateAgentPage() {
         return (
           <CreateAgentStep1
             form={form}
+            loading={loading}
             selectedImage={selectedImage}
             imagePreview={imagePreview}
             fileInputRef={fileInputRef}
@@ -214,7 +180,7 @@ export default function CreateAgentPage() {
 
         if (currentObjective === "screening") {
           return (
-            <div className="">
+            <div className="mt-6">
               <h2 className="text-2xl font-bold text-center">
                 Escolha as equipes que o agente irá redirecionar os atendimentos
               </h2>
@@ -694,143 +660,7 @@ export default function CreateAgentPage() {
           );
         }
       case 3:
-        return (
-          <div className="">
-            <h2 className="text-2xl font-bold mb-2 text-center">
-              Base de Conhecimento
-            </h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              Faça upload de arquivos PDF para criar a base de conhecimento do
-              agente
-            </p>
-
-            {/* Explicação sobre a base de conhecimento */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3">
-                📚 Como funciona a Base de Conhecimento?
-              </h3>
-              <p className="text-blue-800 text-sm mb-4">
-                Os arquivos PDF que você enviar serão processados e utilizados
-                pelo agente de IA para responder perguntas dos clientes. Quanto
-                melhor organizados os PDFs, mais precisas serão as respostas.
-              </p>
-
-              <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <h4 className="font-semibold text-blue-900 mb-2">
-                  💡 Dicas para preparar seus PDFs:
-                </h4>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>
-                    • <strong>Organize por tópicos:</strong> Crie um PDF para
-                    cada assunto (ex: &quot;FAQ Produto X&quot;, &quot;Manual de
-                    Instalação&quot;)
-                  </li>
-                  <li>
-                    • <strong>Use títulos claros:</strong> Estruture com títulos
-                    e subtítulos bem definidos
-                  </li>
-                  <li>
-                    • <strong>Seja específico:</strong> Inclua procedimentos
-                    passo a passo e respostas completas
-                  </li>
-                  <li>
-                    • <strong>Atualize regularmente:</strong> Mantenha as
-                    informações sempre atualizadas
-                  </li>
-                  <li>
-                    • <strong>Texto pesquisável:</strong> Certifique-se que o
-                    PDF não é apenas imagem
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Área de upload */}
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                isDragOver
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                Arraste e solte seus PDFs aqui
-              </h3>
-              <p className="text-gray-600 mb-4">
-                ou clique para selecionar arquivos
-              </p>
-
-              <input
-                type="file"
-                multiple
-                accept=".pdf"
-                onChange={(e) => handlePdfUpload(e.target.files)}
-                className="hidden"
-                id="pdf-upload-step3"
-              />
-              <label htmlFor="pdf-upload-step3">
-                <Button variant="outline" className="cursor-pointer">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Selecionar PDFs
-                </Button>
-              </label>
-
-              <p className="text-xs text-gray-500 mt-3">
-                Formatos aceitos: PDF • Tamanho máximo: 10MB por arquivo
-              </p>
-            </div>
-
-            {/* Lista de arquivos enviados */}
-            {uploadedPdfs.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Arquivos Enviados ({uploadedPdfs.length})
-                </h3>
-
-                <div className="space-y-3">
-                  {uploadedPdfs.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between bg-white border rounded-lg p-4"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <FileText className="w-6 h-6 text-red-600" />
-                        <div>
-                          <p className="font-medium">{file.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {(file.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removePdf(index)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {uploadedPdfs.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground mt-6">
-                <p>Nenhum arquivo PDF enviado ainda.</p>
-                <p className="text-sm">
-                  Adicione pelo menos um PDF para criar a base de conhecimento.
-                </p>
-              </div>
-            )}
-          </div>
-        );
+        return <AgentKnowledgeBase />;
       case 4:
         const currentObjectiveStep4 = form.watch("objective");
 
@@ -1055,14 +885,14 @@ export default function CreateAgentPage() {
     }
   };
 
-  const uploadTeamImage = async (teamId: number) => {
+  const uploadAgentImage = async (agentId: number) => {
     if (!selectedImage) return;
 
     const formData = new FormData();
     formData.append("image", selectedImage);
 
     try {
-      const response = await fetchApi(`/api/agents/${teamId}/upload-image`, {
+      const response = await fetchApi(`/api/agents/${agentId}/upload-image`, {
         method: "POST",
         body: formData,
       });
@@ -1126,13 +956,58 @@ export default function CreateAgentPage() {
 
   const fetchTeams = async () => {
     try {
-      const response = await fetchApi("/api/teams");
+      const response = await fetchApi("/api/teams?limit=30&page=1");
       const data = await response.json();
-      setTeams(data);
+      setTeams(data.teams);
     } catch (error) {
       console.error("Erro ao buscar equipes:", error);
       toast.error("Erro ao buscar equipes");
     }
+  };
+
+  const fetchAgent = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchApi(`/api/agents/${agentId}`);
+      const data = await response.json();
+      setLoading(false);
+
+      form.setValue("name", data.name);
+      form.setValue("tone", data.tone);
+      form.setValue("objective", data.objective);
+      form.setValue("segment", data.segment);
+      form.setValue("description", data.description);
+      form.setValue(
+        "teams_to_redirect",
+        data.teamsToRedirect.map(
+          (teamToRedirect: {
+            id: number;
+            teamId: number;
+            agentId: number;
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+          }) => teamToRedirect.teamId
+        )
+      );
+      setSelectedTeams(
+        data.teamsToRedirect.map(
+          (teamToRedirect: {
+            id: number;
+            teamId: number;
+            agentId: number;
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+          }) => teamToRedirect.teamId
+        )
+      );
+      console.log(data, "agent");
+    } catch (error) {
+      console.error("Erro ao buscar equipes:", error);
+      toast.error("Erro ao buscar equipes");
+    }
+    setLoading(false);
   };
 
   // Funções para gerenciar produtos/serviços
@@ -1187,53 +1062,6 @@ export default function CreateAgentPage() {
   const handleValueChange = (rawValue: string) => {
     const formattedValue = formatCurrency(rawValue);
     setNewProduct({ ...newProduct, value: formattedValue });
-  };
-
-  // Funções para upload de PDFs
-  const handlePdfUpload = (files: FileList | null) => {
-    if (!files) return;
-
-    const pdfFiles = Array.from(files).filter(
-      (file) => file.type === "application/pdf"
-    );
-
-    if (pdfFiles.length !== files.length) {
-      toast.error("Apenas arquivos PDF são permitidos");
-      return;
-    }
-
-    // Verificar se algum arquivo é muito grande (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const oversizedFiles = pdfFiles.filter((file) => file.size > maxSize);
-
-    if (oversizedFiles.length > 0) {
-      toast.error("Arquivos devem ter no máximo 10MB");
-      return;
-    }
-
-    setUploadedPdfs((prev) => [...prev, ...pdfFiles]);
-    toast.success(`${pdfFiles.length} arquivo(s) PDF adicionado(s)`);
-  };
-
-  const removePdf = (index: number) => {
-    setUploadedPdfs((prev) => prev.filter((_, i) => i !== index));
-    toast.success("Arquivo removido");
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    handlePdfUpload(e.dataTransfer.files);
   };
 
   // Funções para gerenciar exemplos de interação
@@ -1345,6 +1173,7 @@ export default function CreateAgentPage() {
 
   useEffect(() => {
     fetchTeams();
+    fetchAgent();
   }, []);
 
   return (

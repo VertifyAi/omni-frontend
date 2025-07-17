@@ -53,6 +53,7 @@ import { ptBR } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Team } from "@/types/team";
 
 const platformColors = [
   "#E97939", // Laranja principal
@@ -133,7 +134,7 @@ export default function DashboardPage() {
   const [selectedTicket, setSelectedTicket] = useState<number | null>(null);
   const [showAllAgents, setShowAllAgents] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("all");
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [ticketStatusFilter, setTicketStatusFilter] = useState<string>("all");
 
   const fetchData = async (dateFilter?: DateRange, teamId?: string) => {
@@ -177,16 +178,16 @@ export default function DashboardPage() {
 
   const fetchTeams = async () => {
     try {
-      const response = await fetchApi("/api/teams");
+      const response = await fetchApi("/api/teams?limit=20&page=1");
       const teamsData = await response.json();
 
       // Filtrar equipes baseado na role do usuário
-      let filteredTeams = teamsData;
+      let filteredTeams = teamsData.teams;
 
       if (user?.role === "MANAGER") {
         // Para MANAGER, mostrar apenas equipes onde ele é owner
         filteredTeams = teamsData.filter(
-          (team: { id: number; name: string; owner: { id: number } }) =>
+          (team: Team) =>
             team.owner?.id === user.id
         );
 

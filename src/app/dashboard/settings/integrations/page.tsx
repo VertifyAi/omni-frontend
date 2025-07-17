@@ -83,7 +83,7 @@ export default function IntegrationsPage() {
   const [showFreshdeskTutorial, setShowFreshdeskTutorial] = useState(false);
 
   const { isReady, login } = useFacebookSDK(
-    process.env.NEXT_PUBLIC_FACEBOOK_APP_ID as string
+    process.env.NEXT_PUBLIC_META_APP_ID as string
   );
 
   const fetchIntegrations = async () => {

@@ -269,7 +269,7 @@ export default function CustomersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Meus Contatos
+            Contatos
           </h1>
           <p className="text-muted-foreground">
             Gerencie seus contatos e informações

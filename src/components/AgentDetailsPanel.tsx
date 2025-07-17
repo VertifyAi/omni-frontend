@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { X, Mail, User } from "lucide-react";
+import { X, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Agent } from "@/types/agent";
 
@@ -12,7 +12,11 @@ interface AgentDetailsPanelProps {
   onClose: () => void;
 }
 
-export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelProps) {
+export function AgentDetailsPanel({
+  agent,
+  isOpen,
+  onClose,
+}: AgentDetailsPanelProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -37,17 +41,19 @@ export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelP
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 ${
-          isAnimating ? 'opacity-40' : 'opacity-0'
+          isAnimating ? "opacity-40" : "opacity-0"
         }`}
         onClick={handleOverlayClick}
       />
-      
+
       {/* Side Panel */}
-      <div className={`fixed right-4 top-4 bottom-4 w-[500px] bg-white-pure border border-white-warm shadow-white-elevated z-50 overflow-y-auto transition-transform duration-300 ease-out rounded-2xl ${
-        isAnimating ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      <div
+        className={`fixed right-4 top-4 bottom-4 w-[500px] bg-white-pure border border-white-warm shadow-white-elevated z-50 overflow-y-auto transition-transform duration-300 ease-out rounded-2xl ${
+          isAnimating ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-white-warm">
@@ -68,17 +74,27 @@ export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelP
             <div className="space-y-6">
               {/* Agent Info */}
               <div className="flex items-center gap-4 p-4 bg-white-soft rounded-xl border border-white-warm elevated-1">
-                <Avatar className="h-16 w-16 border-2 border-white-warm">
-                  <AvatarImage src={agent.imageUrl} />
-                  <AvatarFallback className="text-lg bg-gradient-brand text-foreground font-semibold">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage
+                    src={
+                      agent.imageUrl ||
+                      `https://avatar.vercel.sh/${agent.name || "User"}.png`
+                    }
+                    alt={agent.name || "Usuário"}
+                  />
+                  <AvatarFallback className="text-xs">
                     {agent.name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")}
+                      ? agent.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                      : "N/A"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-foreground">{agent.name}</h3>
+                  <h3 className="text-xl font-semibold text-foreground">
+                    {agent.name}
+                  </h3>
                   <p className="text-muted-foreground flex items-center gap-2 mt-1">
                     <User className="h-4 w-4 text-primary" />
                     Agente Virtual
@@ -95,22 +111,6 @@ export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelP
                 <p className="text-muted-foreground leading-relaxed">
                   {agent.description}
                 </p>
-              </div>
-
-              {/* WhatsApp */}
-              <div className="bg-white-soft rounded-xl p-4 border border-white-warm elevated-1">
-                <h4 className="font-semibold mb-3 text-foreground flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gradient-brand rounded-full"></div>
-                  WhatsApp
-                </h4>
-                <div className="flex items-center gap-3 p-3 bg-white-pure rounded-lg border border-white-warm hover-white-soft transition-all duration-200">
-                  <div className="flex-1">
-                    <p className="font-medium flex items-center gap-2 text-foreground">
-                      <Mail className="h-4 w-4 text-primary" />
-                      {agent.whatsappNumber}
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* System Message */}
@@ -134,12 +134,12 @@ export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelP
                     Data de Criação
                   </h4>
                   <p className="text-muted-foreground leading-relaxed">
-                    {new Date(agent.createdAt).toLocaleDateString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
+                    {new Date(agent.createdAt).toLocaleDateString("pt-BR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </p>
                 </div>
@@ -150,4 +150,4 @@ export function AgentDetailsPanel({ agent, isOpen, onClose }: AgentDetailsPanelP
       </div>
     </>
   );
-} 
+}

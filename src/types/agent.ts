@@ -5,7 +5,7 @@ export interface Agent {
   whatsappNumber: string;
   systemMessage?: string;
   companyId?: number;
-  createdAt?: string;
+  createdAt: string;
   updatedAt?: string;
   deleted_at?: string | null;
   imageUrl?: string;
