@@ -103,12 +103,7 @@ export default function WhatsAppOnboarding() {
         updateStep("token", { loading: true });
 
         const graphResponse = await fetch(
-          `https://graph.facebook.com/v23.0/debug_token?input_token=${token}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `https://graph.facebook.com/v23.0/debug_token?input_token=${token}&access_token=${process.env.NEXT_PUBLIC_META_APP_SECRET}`
         );
 
         if (!graphResponse.ok) {
