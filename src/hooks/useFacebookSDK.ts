@@ -110,8 +110,7 @@ export const useFacebookSDK = (appId: string) => {
       },
       {
         scope: permissions,
-        // Se você estivesse usando o método de configuração, seria assim:
-        // config_id: 'SEU_CONFIG_ID_AQUI',
+        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
       }
     );
   };

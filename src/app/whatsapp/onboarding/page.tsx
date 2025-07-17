@@ -131,7 +131,7 @@ export default function WhatsAppOnboarding() {
           body: JSON.stringify({
             access_token: token,
             expires_in: expiresIn,
-            waba_ids: wabaIds[0],
+            waba_ids: wabaIds,
           }),
           headers: {
             Authorization: `Bearer ${vertifyToken}`,
