@@ -111,7 +111,7 @@ export const useFacebookSDK = (appId: string) => {
       },
       {
         // scope: permissions,
-        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
+        config_id: '64874091195259',
         response_type: 'code',
         override_default_response_type: true,
       }
