@@ -80,8 +80,8 @@ export const useFacebookSDK = (appId: string) => {
       return;
     }
 
-    const permissions =
-      "business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging";
+    // const permissions =
+    //   "business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging";
     // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
 
     console.log(process.env.NEXT_PUBLIC_META_CONFIG_ID, 'process.env.NEXT_PUBLIC_META_CONFIG_ID')
@@ -110,7 +110,7 @@ export const useFacebookSDK = (appId: string) => {
         }
       },
       {
-        scope: permissions,
+        // scope: permissions,
         config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
         response_type: 'code',
         override_default_response_type: true,
