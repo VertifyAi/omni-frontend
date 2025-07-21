@@ -84,7 +84,6 @@ export const useFacebookSDK = (appId: string) => {
     //   "business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging";
     // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
 
-    console.log(process.env.NEXT_PUBLIC_META_CONFIG_ID, 'process.env.NEXT_PUBLIC_META_CONFIG_ID')
     window.FB.login(
       (response) => {
         console.log("Resposta do login do Facebook:", response);
@@ -100,9 +99,14 @@ export const useFacebookSDK = (appId: string) => {
       },
       {
         // scope: permissions,
-        config_id: '745235948349082',
+        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
         response_type: 'code',
         override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3'
+        }
       }
     );
   };
