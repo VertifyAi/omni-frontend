@@ -111,7 +111,7 @@ export const useFacebookSDK = (appId: string) => {
       },
       {
         // scope: permissions,
-        config_id: 64874091195259,
+        config_id: '745235948349082',
         response_type: 'code',
         override_default_response_type: true,
       }
