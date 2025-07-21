@@ -88,19 +88,8 @@ export const useFacebookSDK = (appId: string) => {
     window.FB.login(
       (response) => {
         console.log("Resposta do login do Facebook:", response);
-
         if (response.status === "connected") {
-          // SUCESSO! O usuário conectou e autorizou o app.
-          // O 'response.authResponse' contém o token de acesso.
-          const accessToken = response.authResponse?.accessToken;
-          const expiresIn = response.authResponse?.expiresIn;
-
-          // AGORA você pode fazer o que precisa com o token,
-          // como enviá-lo para o seu backend para salvar
-          // e depois redirecionar o usuário.
-
-          // Exemplo: redirecionando para a página de onboarding
-          window.location.href = `https://vertify.com.br/whatsapp/onboarding?access_token=${accessToken}&expires_in=${expiresIn}`;
+          //fsdfsdfds
         } else {
           // O usuário não autorizou o app ou fechou o pop-up.
           console.error("Login com Facebook falhou ou não foi autorizado.");
