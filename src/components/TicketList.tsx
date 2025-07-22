@@ -485,7 +485,7 @@ export function TicketList({
             value={TicketStatus.AI}
             className="mt-4 flex-1 overflow-y-auto"
           >
-            <div className="flex flex-col gap-3 w-full px-2">
+            <div className="flex flex-col gap-3 w-full px-2 h-2">
               {isLoading && ticketsToDisplay.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
                   <TicketCardSkeleton key={`ai-skeleton-${index}`} />
@@ -543,7 +543,7 @@ export function TicketList({
             value={TicketStatus.IN_PROGRESS}
             className="mt-4 flex-1 overflow-y-auto"
           >
-            <div className="flex flex-col gap-3 w-full px-2">
+            <div className="flex flex-col gap-3 w-full px-2 h-2">
               {isLoading && ticketsToDisplay.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
                   <TicketCardSkeleton key={`progress-skeleton-${index}`} />
@@ -645,7 +645,7 @@ export function TicketList({
             value={TicketStatus.CLOSED}
             className="mt-4 flex-1 overflow-y-auto"
           >
-            <div className="flex flex-col gap-3 w-full px-2">
+            <div className="flex flex-col gap-3 w-full px-2 h-2">
               {isLoading && ticketsToDisplay.length === 0 ? (
                 Array.from({ length: 3 }).map((_, index) => (
                   <TicketCardSkeleton key={`closed-skeleton-${index}`} />
