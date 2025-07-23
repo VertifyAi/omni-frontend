@@ -6,6 +6,7 @@ interface FacebookSDK {
     cookie?: boolean;
     xfbml?: boolean;
     version: string;
+    autoLogAppEvents: boolean
   }) => void;
   login: (
     callback: (response: {
@@ -63,6 +64,7 @@ export const useFacebookSDK = (appId: string) => {
       window.FB.init({
         appId,
         cookie: true,
+        autoLogAppEvents: true,
         xfbml: true,
         version: "v22.0",
       });
