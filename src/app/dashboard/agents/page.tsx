@@ -98,7 +98,7 @@ export default function AgentsPage() {
       const data: { agents: Agent[]; total: number } = await response.json();
 
       if (!response.ok) {
-        throw new Error("Erro ao carregar contatos");
+        throw new Error("Erro ao carregar agentes de IA");
       }
 
       if (Array.isArray(data)) {
@@ -111,8 +111,8 @@ export default function AgentsPage() {
         setTotalPages(Math.ceil((data.total || 0) / limit));
       }
     } catch (error) {
-      console.error("Erro ao carregar contatos:", error);
-      toast.error("Erro ao carregar contatos");
+      console.error("Erro ao carregar agentes de IA:", error);
+      toast.error("Erro ao carregar agentes de IA");
     } finally {
       setIsLoading(false);
     }
@@ -401,17 +401,17 @@ export default function AgentsPage() {
                   <Plus className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold">
-                  Nenhum contato encontrado
+                  Nenhum agente de IA encontrado
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {searchTerm
-                    ? "Tente ajustar a busca ou crie um novo contato."
-                    : "Comece criando seu primeiro contato para automatizar o atendimento."}
+                    ? "Tente ajustar a busca ou crie um novo agente de IA."
+                    : "Comece criando seu primeiro agente de IA para automatizar o atendimento."}
                 </p>
                 <Button asChild className="mt-4">
                   <Link href="/dashboard/agents/create">
                     <Plus className="mr-2 h-4 w-4" />
-                    {searchTerm ? "Novo Contato" : "Criar Primeiro Contato"}
+                    {searchTerm ? "Novo Agente de IA" : "Criar Primeiro Agente de IA"}
                   </Link>
                 </Button>
               </div>
@@ -627,7 +627,7 @@ export default function AgentsPage() {
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                Mostrando {agents.length} de {totalItems} contatos
+                Mostrando {agents.length} de {totalItems} agentes de IA
               </span>
               <span className="text-sm text-muted-foreground">•</span>
               <span className="text-sm text-muted-foreground">

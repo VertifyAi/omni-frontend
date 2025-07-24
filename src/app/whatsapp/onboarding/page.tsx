@@ -15,28 +15,14 @@ interface OnboardingStep {
 
 export default function WhatsAppOnboarding() {
   const router = useRouter();
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setCode] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [steps, setSteps] = useState<OnboardingStep[]>([
     {
-      id: "token",
+      id: "code",
       title: "Configurando integração",
       description: "Salvando credenciais de acesso do WhatsApp Business",
-      completed: false,
-      loading: false,
-    },
-    {
-      id: "webhook",
-      title: "Configurando webhook",
-      description: "Registrando endpoint para recebimento de mensagens",
-      completed: false,
-      loading: false,
-    },
-    {
-      id: "verification",
-      title: "Verificando configuração",
-      description: "Testando conexão e validando integração",
       completed: false,
       loading: false,
     },
@@ -48,90 +34,29 @@ export default function WhatsAppOnboarding() {
     );
   };
 
-  const configureWebhook = async (accessToken: string, wabaIds: string[]) => {
-    try {
-      const webhookUrl = process.env.NEXT_PUBLIC_API_URL + "webhook";
-
-      for (const wabaId of wabaIds[0]) {
-        const response = await fetch(
-          `https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              override_callback_uri: webhookUrl,
-              subscribed_fields: ["messages"],
-              verify_token: process.env.NEXT_PUBLIC_META_VERIFY_TOKEN,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Erro ao configurar webhook: ${response.statusText}`);
-        }
-      }
-    } catch (error) {
-      console.error("Erro na configuração do webhook:", error);
-      throw error;
-    }
-  };
-
   useEffect(() => {
     const performOnboarding = async () => {
       try {
         setError(null);
 
         const params = new URLSearchParams(window.location.search.slice(1));
-        const token = params.get("access_token");
-        const dataAccessExpirationTime = params.get(
-          "data_access_expiration_time"
-        );
-        const expiresIn = params.get("expires_in");
+        const code = params.get("code");
 
-        setAccessToken(token);
+        setCode(code);
 
         const vertifyToken = localStorage.getItem("vertify_token");
         localStorage.removeItem("vertify_token");
 
-        if (!token || !expiresIn) {
+        if (!code) {
           throw new Error("Parâmetros de integração incompletos");
         }
 
-        updateStep("token", { loading: true });
-
-        const graphResponse = await fetch(
-          `https://graph.facebook.com/v23.0/debug_token?input_token=${token}&access_token=${process.env.NEXT_PUBLIC_META_APP_SECRET}`
-        );
-
-        if (!graphResponse.ok) {
-          throw new Error(
-            `Erro ao buscar WhatsApp Business Account: ${graphResponse.statusText}`
-          );
-        }
-
-        const graphData = await graphResponse.json();
-        const wabaIds = graphData.data.granular_scopes
-          .filter((item: { scope: string; target_ids: string[] }) => {
-            console.log(item);
-            return item.scope === "whatsapp_business_management";
-          })
-          .map(
-            (item: { scope: string; target_ids: string[] }) => item.target_ids
-          );
-
-        if (!wabaIds) {
-          throw new Error("Nenhuma conta de WhatsApp Business encontrada");
-        }
+        updateStep("code", { loading: true });
 
         await fetchApi("/api/integrations/whatsapp", {
           method: "POST",
           body: JSON.stringify({
-            access_token: token,
-            expires_in: expiresIn,
-            waba_ids: wabaIds,
+            code,
           }),
           headers: {
             Authorization: `Bearer ${vertifyToken}`,
@@ -139,37 +64,9 @@ export default function WhatsAppOnboarding() {
           },
         });
 
-        updateStep("token", { loading: false, completed: true });
+        updateStep("code", { loading: false, completed: true });
 
         await new Promise((resolve) => setTimeout(resolve, 500));
-
-        updateStep("webhook", { loading: true });
-
-        await configureWebhook(token, wabaIds);
-
-        updateStep("webhook", { loading: false, completed: true });
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        updateStep("verification", { loading: true });
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        updateStep("verification", { loading: false, completed: true });
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        setMixpanelTrack("whatsapp_onboarding_success", {
-          event_id: "whatsapp_onboarding_success",
-          properties: {
-            vertify_token: vertifyToken,
-            waba_ids: wabaIds,
-            access_token: token,
-            data_access_expiration_time: dataAccessExpirationTime,
-            expires_in: expiresIn,
-            timestamp: new Date().toISOString(),
-          },
-        });
 
         setIsComplete(true);
       } catch (error) {

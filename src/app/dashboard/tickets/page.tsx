@@ -148,10 +148,10 @@ function TicketsPageContent() {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                Nenhum ticket selecionado
+                Nenhum atendimento selecionado
               </h3>
               <p className="text-sm text-muted-foreground">
-                Selecione um ticket na lista ao lado para iniciar o atendimento
+                Selecione um atendimento na lista ao lado para iniciar
               </p>
             </div>
           </div>

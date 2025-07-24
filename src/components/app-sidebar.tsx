@@ -78,11 +78,11 @@ const navigation = [
 ];
 
 const options = [
-  {
-    name: "Notificações",
-    href: "",
-    icon: Bell,
-  },
+  // {
+  //   name: "Notificações",
+  //   href: "",
+  //   icon: Bell,
+  // },
   {
     name: "Configurações",
     href: "/dashboard/settings/profile",

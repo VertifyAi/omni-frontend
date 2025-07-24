@@ -270,7 +270,7 @@ export default function IntegrationsPage() {
                 <Button
                   variant={isActive ? "outline" : "default"}
                   className={`w-full ${
-                    network.soon ? "cursor-not-allowed" : ""
+                    network.soon ? "cursor-not-allowed gradient-brand" : ""
                   }`}
                   onClick={() => handleConnect(network.name)}
                   disabled={network.soon || isDeactivating}
@@ -330,7 +330,7 @@ export default function IntegrationsPage() {
                 <Button
                   variant={isActive ? "outline" : "default"}
                   className={`w-full ${
-                    network.soon ? "cursor-not-allowed" : ""
+                    network.soon ? "cursor-not-allowed gradient-brand" : ""
                   }`}
                   onClick={() => handleConnect(network.name)}
                   disabled={network.soon || isDeactivating}

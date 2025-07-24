@@ -813,6 +813,13 @@ export function Chat({
             </p>
           </div>
         </div>
+        {chatService.getUnreadCount(ticket.id) > 0 && (
+          <div className="ml-auto p-4 flex items-center">
+            <span className="bg-secondary text-white rounded-full px-3 py-1 text-xs font-medium">
+              {chatService.getUnreadCount(ticket.id)} nova(s)
+            </span>
+          </div>
+        )}
         <div className="flex gap-2">
           <Button
             onClick={() => setIsTransferModalOpen(true)}
@@ -850,13 +857,7 @@ export function Chat({
           )}
         </div>
 
-        {chatService.getUnreadCount(ticket.id) > 0 && (
-          <div className="ml-auto p-4 flex items-center">
-            <span className="bg-primary text-white rounded-full px-3 py-1 text-xs font-medium elevated-1">
-              {chatService.getUnreadCount(ticket.id)} nova(s)
-            </span>
-          </div>
-        )}
+
       </div>
 
       {/* Nível 3: Área de mensagens */}

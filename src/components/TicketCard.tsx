@@ -257,7 +257,7 @@ export function TicketCard({
           </div>
         )}
         {chatService.getUnreadCount(ticket.id) > 0 && (
-          <span className="bg-secondary text-white rounded-full h-6 w-20 flex items-center justify-center text-xs font-semibold animate-pulse">
+          <span className="bg-secondary text-white rounded-full h-6 w-6 min-w-6 flex items-center justify-center text-xs font-semibold animate-pulse">
             {chatService.getUnreadCount(ticket.id)}
           </span>
         )}

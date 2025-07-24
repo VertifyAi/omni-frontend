@@ -395,17 +395,17 @@ export default function TeamsPage() {
                   <Plus className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold">
-                  Nenhum contato encontrado
+                  Nenhuma equipe encontrada
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {searchTerm
-                    ? "Tente ajustar a busca ou crie um novo contato."
-                    : "Comece criando seu primeiro contato para automatizar o atendimento."}
+                    ? "Tente ajustar a busca ou crie uma nova equipe."
+                    : "Comece criando sua primeira equipe para automatizar o atendimento."}
                 </p>
                 <Button asChild className="mt-4">
                   <Link href="/dashboard/teams/create">
                     <Plus className="mr-2 h-4 w-4" />
-                    {searchTerm ? "Novo Contato" : "Criar Primeiro Contato"}
+                    {searchTerm ? "Nova Equipe" : "Criar Primeira Equipe"}
                   </Link>
                 </Button>
               </div>
@@ -639,7 +639,7 @@ export default function TeamsPage() {
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                Mostrando {teams.length} de {totalItems} contatos
+                Mostrando {teams.length} de {totalItems} equipes
               </span>
               <span className="text-sm text-muted-foreground">•</span>
               <span className="text-sm text-muted-foreground">

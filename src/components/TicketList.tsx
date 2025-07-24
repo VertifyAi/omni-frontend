@@ -29,7 +29,7 @@ interface TicketListProps {
   refreshTrigger?: number;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 0;
 
 export function TicketList({
   onTicketSelect,
@@ -235,7 +235,7 @@ export function TicketList({
             return sortTicketsByPriority(uniqueTickets);
           });
         } else {
-          setTickets(sortTicketsByPriority(newTickets));
+          setTickets(sortTicketsByPriority(newTickets.tickets));
         }
 
         setHasMore(newTickets.length === ITEMS_PER_PAGE);
@@ -533,7 +533,7 @@ export function TicketList({
                 })()
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Nenhum ticket IA</p>
+                  <p className="text-muted-foreground">Nenhum atendimento com IA</p>
                 </div>
               )}
             </div>
@@ -634,7 +634,7 @@ export function TicketList({
               ) : (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">
-                    Nenhum ticket em andamento
+                    Nenhum atendimento em andamento
                   </p>
                 </div>
               )}
@@ -693,7 +693,7 @@ export function TicketList({
                 })()
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Nenhum ticket fechado</p>
+                  <p className="text-muted-foreground">Nenhum atendimento fechado</p>
                 </div>
               )}
             </div>
