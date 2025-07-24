@@ -83,8 +83,8 @@ export const useFacebookSDK = (appId: string) => {
       (response) => {
         console.log("Resposta do login do Facebook:", response);
         if (response.status === "connected") {
-          const accessToken = response.authResponse?.code;
-          window.location.href = `https://vertify.com.br/whatsapp/onboarding?access_token=${accessToken}`;
+          // const accessToken = response.authResponse?.code;
+          // window.location.href = `https://vertify.com.br/whatsapp/onboarding?access_token=${accessToken}`;
 
         } else {
           // O usuário não autorizou o app ou fechou o pop-up.
