@@ -85,7 +85,7 @@ export const useFacebookSDK = (appId: string) => {
         console.log("Resposta do login do Facebook:", response);
         if (response.status === "connected") {
           const code = response.authResponse?.code;
-          await fetchApi("/api/integrations/whatsapp", {
+          fetchApi("/api/integrations/whatsapp", {
             method: "POST",
             body: JSON.stringify({
               code,
