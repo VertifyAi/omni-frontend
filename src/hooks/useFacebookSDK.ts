@@ -96,7 +96,7 @@ export const useFacebookSDK = (appId: string) => {
       },
       {
         config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
-        // response_type: "code",
+        response_type: "code",
         override_default_response_type: true,
         extras: {
           setup: {},
