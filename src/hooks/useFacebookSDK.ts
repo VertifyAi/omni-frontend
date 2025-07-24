@@ -6,16 +6,13 @@ interface FacebookSDK {
     cookie?: boolean;
     xfbml?: boolean;
     version: string;
-    autoLogAppEvents: boolean
+    autoLogAppEvents: boolean;
   }) => void;
   login: (
     callback: (response: {
       status: string;
       authResponse?: {
-        accessToken: string;
-        userID: string;
-        expiresIn: number;
-        signedRequest: string;
+        code: string
       };
     }) => void,
     options?: Record<string, unknown>
@@ -82,15 +79,13 @@ export const useFacebookSDK = (appId: string) => {
       return;
     }
 
-    // const permissions =
-    //   "business_management,whatsapp_business_management,pages_manage_metadata,whatsapp_business_messaging";
-    // Adicionei 'pages_manage_metadata' e 'whatsapp_business_messaging' que são comuns e importantes.
-
     window.FB.login(
       (response) => {
         console.log("Resposta do login do Facebook:", response);
         if (response.status === "connected") {
-          //fsdfsdfds
+          const accessToken = response.authResponse?.code;
+          window.location.href = `https://vertify.com.br/whatsapp/onboarding?access_token=${accessToken}`;
+
         } else {
           // O usuário não autorizou o app ou fechou o pop-up.
           console.error("Login com Facebook falhou ou não foi autorizado.");
@@ -100,15 +95,14 @@ export const useFacebookSDK = (appId: string) => {
         }
       },
       {
-        // scope: permissions,
         config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID,
-        response_type: 'code',
+        response_type: "code",
         override_default_response_type: true,
-        // extras: {
-        //   setup: {},
-        //   featureType: 'whatsapp_business_app_onboarding',
-        //   sessionInfoVersion: '3'
-        // }
+        extras: {
+          setup: {},
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3'
+        }
       }
     );
   };
