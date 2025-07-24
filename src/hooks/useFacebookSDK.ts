@@ -1,4 +1,3 @@
-import { fetchApi } from "@/lib/fetchApi";
 import { useEffect, useState } from "react";
 
 interface FacebookSDK {
@@ -13,7 +12,7 @@ interface FacebookSDK {
     callback: (response: {
       status: string;
       authResponse?: {
-        code: string;
+        code: string
       };
     }) => void,
     options?: Record<string, unknown>
@@ -81,16 +80,11 @@ export const useFacebookSDK = (appId: string) => {
     }
 
     window.FB.login(
-      async (response) => {
+      (response) => {
         console.log("Resposta do login do Facebook:", response);
         if (response.status === "connected") {
-          const code = response.authResponse?.code;
-          fetchApi("/api/integrations/whatsapp", {
-            method: "POST",
-            body: JSON.stringify({
-              code,
-            }),
-          });
+          const accessToken = response.authResponse?.code;
+          return window.location.href = `https://vertify.com.br/whatsapp/onboarding?code=${accessToken}`;
         } else {
           // O usuário não autorizou o app ou fechou o pop-up.
           console.error("Login com Facebook falhou ou não foi autorizado.");
@@ -105,9 +99,9 @@ export const useFacebookSDK = (appId: string) => {
         override_default_response_type: true,
         extras: {
           setup: {},
-          featureType: "whatsapp_business_app_onboarding",
-          sessionInfoVersion: "3",
-        },
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3'
+        }
       }
     );
   };
